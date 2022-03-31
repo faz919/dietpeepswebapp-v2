@@ -10,6 +10,10 @@ import {sidebarAction} from "../../../Store/Actions/sidebarAction"
 import {selectedChatAction} from "../../../Store/Actions/selectedChatAction"
 import { AuthContext } from '../../../providers/AuthProvider'
 import moment from 'moment'
+import { doc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
+import app from '../../../firebase'
+
+const db = getFirestore(app)
 
 function Index() {
 
@@ -27,7 +31,12 @@ function Index() {
     const toggle = () => setTooltipOpen(!tooltipOpen)
 
     const chatSelectHandle = (chat, user, coach) => {
-        chat.unreadCount = 0
+        if (chat.unreadCount > 0) {
+            updateDoc(doc(db, 'chat-rooms', chat.id), {
+                unreadCount: 0,
+                coachLastRead: Timestamp.fromDate(new Date())
+            })
+        }
         let chatInfo = { chat, user, coach }
         dispatch(selectedChatAction(chatInfo))
         document.querySelector('.chat').classList.add('open')

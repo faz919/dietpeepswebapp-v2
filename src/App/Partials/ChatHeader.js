@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import {useDispatch} from "react-redux"
 import {
     Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Tooltip
@@ -9,8 +9,11 @@ import VideoCallModal from "../Modals/VideoCallModal"
 import {profileAction} from "../../Store/Actions/profileAction"
 import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction";
 import moment from 'moment'
+import { AuthContext } from '../../providers/AuthProvider'
 
 function ChatHeader(props) {
+
+    const { globalVars } = useContext(AuthContext)
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
 

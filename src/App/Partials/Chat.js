@@ -9,19 +9,10 @@ import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction"
 import {
     getFirestore,
     collection,
-    doc,
     query,
     onSnapshot,
-    where,
-    getDocs,
-    addDoc,
-    Timestamp,
     orderBy,
-    updateDoc,
     limitToLast,
-    limit,
-    deleteDoc,
-    getDoc
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth'
 import app from '../../firebase'
@@ -109,9 +100,12 @@ function Chat() {
                         ?
                         <div className="message-content">
                             {message.img.map((image) => 
+                            <>
+                                {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, Red: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
                                 <figure>
                                     <img src={image.url} className="w-25 img-fluid rounded" alt="media"/>
                                 </figure>
+                            </>
                             )}
                             {message.msg}
                         </div>
