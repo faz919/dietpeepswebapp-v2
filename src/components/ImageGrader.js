@@ -31,7 +31,6 @@ const ImageGrader = ({ image, messageID, chatID }) => {
                         size: '50%',
                         labels: {
                             show: formValues.green + formValues.yellow + formValues.red !== 0,
-                            label: 'yo',
                             total: {
                                 show: formValues.green + formValues.yellow + formValues.red !== 0,
                                 showAlways: true,

@@ -32,7 +32,7 @@ const db = getFirestore(app)
 
 function Chat() {
 
-    const { globalVars } = useContext(AuthContext)
+    const { user, globalVars, setGlobalVars } = useContext(AuthContext)
 
     const dispatch = useDispatch()
 
@@ -78,6 +78,7 @@ function Chat() {
                     msgList.push({ ...doc.data(), id: doc.id })
                 })
                 setMessages(msgList)
+                setGlobalVars(val => ({...val, msgList }))
                 msgList = []
             })
             return () => unsub()
@@ -93,10 +94,10 @@ function Chat() {
             return <div className={message.userID === selectedChat.user.id ? 'message-item' : 'outgoing-message message-item' }>
                 <div className="message-avatar">
                     <figure className="avatar">
-                        <img src={selectedChat.user.photoURL || `https://avatars.dicebear.com/api/bottts/${selectedChat.user.displayName}.png?dataUri=true`} className="rounded-circle" alt="avatar"/>
+                        <img src={message.userID === selectedChat.user.id ? selectedChat.user.photoURL || `https://avatars.dicebear.com/api/bottts/${selectedChat.user.displayName}.png?dataUri=true` : selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar"/>
                     </figure>
                     <div>
-                        <h5>{selectedChat.user.displayName}</h5>
+                        <h5>{message.userID === selectedChat.user.id ? selectedChat.user.displayName : selectedChat.coach?.displayName}</h5>
                         <div className="time">
                             {moment(message.timeSent?.toDate()).calendar()}
                             {message.type ? <i className="ti-double-check text-info"></i> : null}

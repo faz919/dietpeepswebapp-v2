@@ -65,11 +65,13 @@ function Layout() {
         const fetchMessages = async () => {
             const coachList = await coachGetter()
             const adminList = await adminGetter()
+            console.log(new Date() + coachList)
+            console.log(new Date() + adminList)
             const q = query(collection(db, "chat-rooms"), where('userIDs', 'array-contains-any', coachList), orderBy('latestMessageTime', 'desc'))
             onSnapshot(q, (querySnapshot) => {
                 let chatList = []
                 let userInfoList = []
-                let coachList = []
+                let coachInfoList = []
                 querySnapshot.forEach((chatRooms) => {
                     if (chatRooms.exists) {
                         for (let chatUser of chatRooms.data().userIDs) {
@@ -87,16 +89,20 @@ function Layout() {
                                             }
                                         }
                                     })
-                                } else {
+                                } else if (coachList?.includes(chatUser)) {
                                     getDoc(doc(db, "user-info", chatUser)).then((userSnap) => {
-                                        coachList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
+                                        coachInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
                                     })
                                 }
+                            } else if (coachList?.includes(chatUser)) {
+                                getDoc(doc(db, "user-info", chatUser)).then((userSnap) => {
+                                    coachInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
+                                })
                             }
-                        }
+                        } 
                     }
                 })
-                setGlobalVars(val => ({...val, chatList, userInfoList, coachList }))
+                setGlobalVars(val => ({...val, chatList, userInfoList, coachInfoList }))
             })
         }
         fetchMessages()

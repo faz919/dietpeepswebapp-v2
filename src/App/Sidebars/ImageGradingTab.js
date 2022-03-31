@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import {useDispatch, useSelector} from "react-redux"
 import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
@@ -8,12 +8,15 @@ import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction"
 import WomenAvatar5 from "../../assets/img/women_avatar5.jpg"
 import classnames from 'classnames'
 import ImageGrader from '../../components/ImageGrader'
+import { AuthContext } from '../../providers/AuthProvider'
 
 function ImageGradingTab() {
 
+    const { user, globalVars } = useContext(AuthContext)
+
     const dispatch = useDispatch();
 
-    const {profileSidebar, mobileProfileSidebar} = useSelector(state => state);
+    const {profileSidebar, mobileProfileSidebar, selectedChat} = useSelector(state => state);
 
     const [activeTab, setActiveTab] = useState('1');
 
@@ -45,7 +48,11 @@ function ImageGradingTab() {
                 </header>
                 <div className="sidebar-body">
                     <PerfectScrollbar>
-                        <ImageGrader image={{ url: 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg' }}/>
+                        {globalVars.msgList?.map((msg, index) => {
+                            return msg.img != null && msg.img.map((image, index) => 
+                                !image.graded && !image.skipped && <ImageGrader image={image} messageID={msg.id} chatID={selectedChat.chat.id} />
+                            )
+                        })}
                         {/* <div className="pl-4 pr-4">
                             <div className="text-center">
                                 <figure className="avatar avatar-xl mb-3">

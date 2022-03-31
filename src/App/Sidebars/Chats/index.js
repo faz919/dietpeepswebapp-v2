@@ -26,9 +26,9 @@ function Index() {
     const [tooltipOpen, setTooltipOpen] = useState(false)
     const toggle = () => setTooltipOpen(!tooltipOpen)
 
-    const chatSelectHandle = (chat, user) => {
+    const chatSelectHandle = (chat, user, coach) => {
         chat.unreadCount = 0
-        let chatInfo = { chat, user }
+        let chatInfo = { chat, user, coach }
         dispatch(selectedChatAction(chatInfo))
         document.querySelector('.chat').classList.add('open')
     }
@@ -37,7 +37,7 @@ function Index() {
 
     const ChatListView = ({chat, index}) => {
         return <li className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
-                   onClick={() => chatSelectHandle(chat, globalVars.userInfoList[index])}>
+                   onClick={() => chatSelectHandle(chat, globalVars.userInfoList?.find(val => val.correspondingChatID === chat.id), globalVars.coachInfoList?.find(val => val.correspondingChatID === chat.id))}>
             <figure className="avatar">
                 <img src={globalVars.userInfoList[index]?.photoURL || `https://avatars.dicebear.com/api/bottts/${globalVars.userInfoList[index]?.displayName}.png?dataUri=true`} className="rounded-circle" alt="avatar"/>
             </figure>
