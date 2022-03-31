@@ -20,7 +20,7 @@ import { AuthContext } from '../providers/AuthProvider'
 
 function Navigation() {
 
-    const { logOut } = useContext(AuthContext)
+    const { user, logOut } = useContext(AuthContext)
 
     const {selectedSidebar} = useSelector(state => state);
 
@@ -152,12 +152,11 @@ function Navigation() {
                                 aria-expanded={dropdownOpen}
                             >
                                 <figure className="avatar">
-                                    <img src={WomenAvatar5} className="rounded-circle" alt="avatar"/>
+                                    <img src={user.photoURL} className="rounded-circle" alt="avatar"/>
                                 </figure>
                             </DropdownToggle>
                             <DropdownMenu>
                                 <DropdownItem onClick={editModalToggle}>Edit profile</DropdownItem>
-                                <DropdownItem onClick={profileActions}>Profile</DropdownItem>
                                 <DropdownItem onClick={settingsModalToggle}>Settings</DropdownItem>
                                 <DropdownItem divider/>
                                 <DropdownItem onClick={logOut}>Logout</DropdownItem>

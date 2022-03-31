@@ -49,9 +49,11 @@ function ImageGradingTab() {
                 <div className="sidebar-body">
                     <PerfectScrollbar>
                         {globalVars.msgList?.map((msg, index) => {
-                            return msg.img != null && msg.img.map((image, index) => 
-                                !image.graded && !image.skipped && <ImageGrader image={image} messageID={msg.id} chatID={selectedChat.chat.id} />
-                            )
+                            return msg.img != null && msg.userID === selectedChat.user.id && msg.img.map((image, index) => {
+                                if (!image.graded && !image.skipped && !image.deleted) {
+                                    return ( <ImageGrader image={image} message={msg} chat={selectedChat.chat} /> )
+                                }
+                            })
                         })}
                         {/* <div className="pl-4 pr-4">
                             <div className="text-center">

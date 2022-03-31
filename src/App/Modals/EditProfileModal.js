@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import {
     Modal,
     ModalBody,
@@ -20,8 +20,11 @@ import {
 import * as FeatherIcon from 'react-feather'
 import classnames from 'classnames'
 import ManAvatar4 from '../../assets/img/man_avatar4.jpg'
+import { AuthContext } from '../../providers/AuthProvider'
 
 function EditProfileModal(props) {
+
+    const { user } = useContext(AuthContext)
 
     const [activeTab, setActiveTab] = useState('1');
 
@@ -72,9 +75,9 @@ function EditProfileModal(props) {
                         <TabContent activeTab={activeTab}>
                             <TabPane tabId="1">
                                 <FormGroup>
-                                    <Label for="fullname">Fullname</Label>
+                                    <Label for="fullname">Full Name</Label>
                                     <InputGroup>
-                                        <Input type="text" name="fullname" id="fullname"/>
+                                        <Input type="text" name="fullname" id="fullname" placeholder={user.displayName}/>
                                             <Button color="light">
                                                 <FeatherIcon.User/>
                                             </Button>
@@ -85,36 +88,36 @@ function EditProfileModal(props) {
                                     <div className="d-flex align-items-center">
                                         <div>
                                             <figure className="avatar mr-3 item-rtl">
-                                                <img src={ManAvatar4} className="rounded-circle" alt="avatar"/>
+                                                <img src={user.photoURL} className="rounded-circle" alt="avatar"/>
                                             </figure>
                                         </div>
                                         <Input type="file" id="exampleCustomFileBrowser" name="customFile"/>
                                     </div>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label for="city">City</Label>
+                                    <Label for="city">Email</Label>
                                     <InputGroup>
-                                        <Input type="text" name="city" id="city" placeholder="Ex: Columbia"/>
+                                        <Input type="text" name="city" id="city" placeholder={user.email}/>
                                             <Button color="light">
-                                                <FeatherIcon.Target/>
+                                                <FeatherIcon.Mail/>
                                             </Button>
                                     </InputGroup>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label for="phone">Phone</Label>
+                                    <Label for="phone">New Password</Label>
                                     <InputGroup>
-                                        <Input type="text" name="phone" id="phone" placeholder="(555) 555 55 55"/>
+                                        <Input type="text" name="phone" id="phone" />
                                             <Button color="light">
-                                                <FeatherIcon.Phone/>
+                                                <FeatherIcon.EyeOff/>
                                             </Button>
                                     </InputGroup>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label for="phone">Website</Label>
+                                    <Label for="phone">Confirm New Password</Label>
                                     <InputGroup>
-                                        <Input type="text" name="website" id="website" placeholder="https://"/>
+                                        <Input type="text" name="website" id="website" />
                                             <Button color="light">
-                                                <FeatherIcon.Link/>
+                                                <FeatherIcon.EyeOff/>
                                             </Button>
                                     </InputGroup>
                                 </FormGroup>

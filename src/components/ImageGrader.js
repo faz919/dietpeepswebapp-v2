@@ -1,14 +1,24 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Slider } from '@mui/material'
 import { Input } from 'reactstrap'
 import { LoadingButton } from '@mui/lab'
 import * as FeatherIcon from 'react-feather'
 import { Dropdown, DropdownToggle, DropdownItem, DropdownMenu, Modal, ModalBody } from 'reactstrap'
 import Chart from 'react-apexcharts'
+import { AuthContext } from '../providers/AuthProvider'
+import { doc, getDoc, query, getFirestore, updateDoc, addDoc, collection, Timestamp } from 'firebase/firestore'
+import app from '../firebase'
 
-const ImageGrader = ({ image, messageID, chatID }) => {
+const db = getFirestore(app)
+
+const ImageGrader = ({ image, message, chat }) => {
+
+    const { user } = useContext(AuthContext)
 
     const [formValues, setFormValues] = useState({ red: 0, yellow: 0, green: 0 })
+    const [submitting, setSubmitting] = useState(false)
+    const [skipping, setSkipping] = useState(false)
+    const [deleting, setDeleting] = useState(false)
 
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const toggleDropdown = () => setDropdownOpen(prevState => !prevState)
@@ -81,6 +91,112 @@ const ImageGrader = ({ image, messageID, chatID }) => {
         }
     }
 
+    const gradeImage = async (e) => {
+        e.preventDefault()
+        setSubmitting(true)
+        const newGradedImage = await getDoc(doc(db, "chat-rooms", chat.id, "chat-messages", message.id))
+        console.log('data is: ', newGradedImage.data())
+        let imageData = newGradedImage.data().img
+        let tempImageData = {}
+        const newData = imageData.map(i => {
+            if (i.url === image.url) {
+                tempImageData = i
+                return {
+                    ...i,
+                    red: formValues.red,
+                    yellow: formValues.yellow,
+                    green: formValues.green,
+                    comment: formValues.comment,
+                    grade: Math.round((((formValues.green - formValues.red) / (formValues.green + formValues.yellow + formValues.red)) + 1) * 50),
+                    graded: true,
+                    gradedAt: Timestamp.fromDate(new Date()),
+                    gradedBy: user.uid
+                }
+            }
+            return i
+        })
+        updateDoc(newGradedImage.ref, {
+            img: newData
+        })
+        await addDoc(collection(db, "chat-rooms", chat.id, "chat-messages"), {
+            img: [{
+                url: image.url,
+                red: formValues.red,
+                yellow: formValues.yellow,
+                green: formValues.green,
+                comment: formValues.comment,
+                grade: Math.round((((formValues.green - formValues.red) / (formValues.green + formValues.yellow + formValues.red)) + 1) * 50),
+                graded: true,
+                gradedAt: Timestamp.fromDate(new Date()),
+                gradedBy: user.uid,
+                uploadedAt: tempImageData?.uploadedAt
+            }],
+            msg: formValues.comment,
+            timeSent: Timestamp.fromDate(new Date()),
+            userID: user.uid,
+        }).then(() => {
+            updateDoc(doc(db, "chat-rooms", chat.id), {
+                latestMessage: formValues.comment === '' ? '[Image]' : formValues.comment,
+                latestMessageTime: Timestamp.fromDate(new Date())
+            })
+            setSubmitting(false)
+            setFormValues({
+                red: 0,
+                yellow: 0,
+                green: 0,
+                comment: ''
+            })
+        }).catch((e) => {
+            console.log("error while adding new image grade message: ", e)
+        })
+    }
+
+    const skipImage = async (e) => {
+        e.preventDefault()
+        setSkipping(true)
+        const newGradedImage = await getDoc(doc(db, "chat-rooms", chat.id, "chat-messages", message.id))
+        console.log('data is: ', newGradedImage.data())
+        let imageData = newGradedImage.data().img
+        const newData = imageData.map(i => {
+            if (i.url === image.url) {
+                return {
+                    ...i,
+                    skipped: true
+                }
+            }
+            return i
+        })
+        updateDoc(newGradedImage.ref, {
+            img: newData
+        }).then(() => {
+            toggleImageSkipModal()
+            setSkipping(false)
+        })
+    }
+
+    const deleteImage = async (e) => {
+        e.preventDefault()
+        setDeleting(true)
+        const newGradedImage = await getDoc(doc(db, "chat-rooms", chat.id, "chat-messages", message.id))
+        console.log('data is: ', newGradedImage.data())
+        let imageData = newGradedImage.data().img
+        const newData = imageData.map(i => {
+            if (i.url === image.url) {
+                return {
+                    ...i,
+                    deleted: true
+                }
+            }
+            return i
+        })
+        updateDoc(newGradedImage.ref, {
+            img: newData
+        }).then(() => {
+            toggleImageDeleteModal()
+            setDeleting(false)
+        })  
+    }
+
     return (
         <div style={{ marginBottom: 0 }}>
             <div style={{
@@ -105,7 +221,7 @@ const ImageGrader = ({ image, messageID, chatID }) => {
                     display: 'flex',
                     height: '100%',
                 }}>
-                    <div style={{ alignSelf: 'flex-end', marginRight: 15 }}>
+                    <div style={{ alignSelf: 'flex-end', marginRight: 24 }}>
                         <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
                             <DropdownToggle
                                 tag="span"
@@ -130,6 +246,7 @@ const ImageGrader = ({ image, messageID, chatID }) => {
                     </div>}
                 </div>
             </div>
+            <p style={{ marginTop: 15, marginBottom: -15 }}><strong>User Message: </strong>{message?.msg || '(None)'}</p>
             <div style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -178,9 +295,7 @@ const ImageGrader = ({ image, messageID, chatID }) => {
                     className="form-control"
                     style={{ marginBottom: 20 }}
                 />
-                <LoadingButton variant="contained" disabled={!formValues.comment}
-                // loading={submitting} onClick={gradeImage}
-                >
+                <LoadingButton variant="contained" disabled={!formValues.comment} onClick={gradeImage} loading={submitting} >
                     Submit
                 </LoadingButton>
             </div>
@@ -193,11 +308,11 @@ const ImageGrader = ({ image, messageID, chatID }) => {
                             <div className="action-button">
                                 <button type="button" onClick={toggleImageSkipModal}
                                         className="btn btn-danger btn-floating btn-lg"
-                                        data-dismiss="modal">
+                                        data-dismiss="modal" disabled={skipping}>
                                     <FeatherIcon.X/>
                                 </button>
-                                <button type="button" onClick={toggleImageSkipModal}
-                                        className="btn btn-success btn-pulse btn-floating btn-lg">
+                                <button type="button" onClick={skipImage}
+                                        className="btn btn-success btn-pulse btn-floating btn-lg" disabled={skipping}>
                                     <FeatherIcon.Check/>
                                 </button>
                             </div>
@@ -213,11 +328,11 @@ const ImageGrader = ({ image, messageID, chatID }) => {
                             <div className="action-button">
                                 <button type="button" onClick={toggleImageDeleteModal}
                                         className="btn btn-danger btn-floating btn-lg"
-                                        data-dismiss="modal">
+                                        data-dismiss="modal" disabled={deleting}>
                                     <FeatherIcon.X/>
                                 </button>
-                                <button type="button" onClick={toggleImageDeleteModal}
-                                        className="btn btn-success btn-pulse btn-floating btn-lg">
+                                <button type="button" onClick={deleteImage}
+                                        className="btn btn-success btn-pulse btn-floating btn-lg" disabled={deleting}>
                                     <FeatherIcon.Check/>
                                 </button>
                             </div>
