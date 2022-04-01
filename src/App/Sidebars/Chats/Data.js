@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 // Avatars
 import ManAvatar1 from "../../../assets/img/man_avatar1.jpg"
@@ -7,7 +7,7 @@ import ManAvatar3 from "../../../assets/img/man_avatar3.jpg"
 import ManAvatar4 from "../../../assets/img/man_avatar4.jpg"
 import WomenAvatar1 from "../../../assets/img/women_avatar1.jpg"
 import WomenAvatar2 from "../../../assets/img/women_avatar2.jpg"
-import WomenAvatar5 from "../../../assets/img/women_avatar5.jpg";
+import WomenAvatar5 from "../../../assets/img/women_avatar5.jpg"
 import Image1 from "../../../assets/img/image1.jpg"
 
 export const chatLists = [
@@ -568,4 +568,4 @@ export const chatLists = [
             }
         ]
     },
-];
+]

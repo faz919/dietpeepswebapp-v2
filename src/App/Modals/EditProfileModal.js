@@ -26,11 +26,11 @@ function EditProfileModal(props) {
 
     const { user } = useContext(AuthContext)
 
-    const [activeTab, setActiveTab] = useState('1');
+    const [activeTab, setActiveTab] = useState('1')
 
     const toggle = tab => {
-        if (activeTab !== tab) setActiveTab(tab);
-    };
+        if (activeTab !== tab) setActiveTab(tab)
+    }
 
     return (
         <div>
@@ -44,7 +44,7 @@ function EditProfileModal(props) {
                             <NavLink
                                 className={classnames({active: activeTab === '1'})}
                                 onClick={() => {
-                                    toggle('1');
+                                    toggle('1')
                                 }}
                             >
                                 Personal
@@ -54,7 +54,7 @@ function EditProfileModal(props) {
                             <NavLink
                                 className={classnames({active: activeTab === '2'})}
                                 onClick={() => {
-                                    toggle('2');
+                                    toggle('2')
                                 }}
                             >
                                 About
@@ -64,7 +64,7 @@ function EditProfileModal(props) {
                             <NavLink
                                 className={classnames({active: activeTab === '3'})}
                                 onClick={() => {
-                                    toggle('3');
+                                    toggle('3')
                                 }}
                             >
                                 Social Links

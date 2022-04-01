@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState} from 'react'
 import {
     Button,
     Modal,
@@ -11,32 +11,32 @@ import {
     Label,
     Input,
     InputGroup,
-} from 'reactstrap';
+} from 'reactstrap'
 
 import ManAvatar1 from "../../assets/img/man_avatar1.jpg"
 import WomenAvatar4 from "../../assets/img/women_avatar4.jpg"
 
 // Feather icon
-import * as FeatherIcon from 'react-feather';
+import * as FeatherIcon from 'react-feather'
 
 function AddGroupModal() {
-    const [modal, setModal] = useState(false);
+    const [modal, setModal] = useState(false)
 
-    const modalToggle = () => setModal(!modal);
+    const modalToggle = () => setModal(!modal)
 
-    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const [tooltipOpen, setTooltipOpen] = useState(false)
 
-    const tooltipToggle = () => setTooltipOpen(!tooltipOpen);
+    const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
 
-    const [tooltipOpen2, setTooltipOpen2] = useState(false);
+    const [tooltipOpen2, setTooltipOpen2] = useState(false)
 
-    const tooltipToggle2 = () => setTooltipOpen2(!tooltipOpen2);
+    const tooltipToggle2 = () => setTooltipOpen2(!tooltipOpen2)
 
     const AvatarTooltip = (props) => {
 
-        const [tooltipOpen, setTooltipOpen] = useState(false);
+        const [tooltipOpen, setTooltipOpen] = useState(false)
 
-        const toggle = () => setTooltipOpen(!tooltipOpen);
+        const toggle = () => setTooltipOpen(!tooltipOpen)
 
         return <Tooltip
             placement="top"
@@ -45,7 +45,7 @@ function AddGroupModal() {
             toggle={toggle}>
             {props.name}
         </Tooltip>
-    };
+    }
 
     return (
         <div>

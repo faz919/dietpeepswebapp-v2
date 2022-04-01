@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 // Avatars
 import ManAvatar1 from "../../../assets/img/man_avatar1.jpg"
@@ -81,4 +81,4 @@ export const friendLists = [
         </figure>,
         status: ''
     }
-];
+]

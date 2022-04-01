@@ -15,15 +15,15 @@ function ChatFooter() {
 
     const {selectedChat} = useSelector(state => state)
 
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState('')
 
     const sendMessage = async (e) => {
-      e.preventDefault();
+      e.preventDefault()
   
       const msg = message
       setMessage('')
   
-      const { uid } = user;
+      const { uid } = user
   
       await addDoc(collection(db, "chat-rooms", selectedChat.chat.id, "chat-messages"), {
         img: null,
@@ -35,6 +35,7 @@ function ChatFooter() {
           latestMessage: msg,
           latestMessageTime: Timestamp.fromDate(new Date())
         })
+        selectedChat.chat.unreadCount = 0
       })
     }
 

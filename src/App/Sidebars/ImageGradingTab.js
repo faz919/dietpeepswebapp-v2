@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {useDispatch, useSelector} from "react-redux"
 import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
@@ -9,26 +9,58 @@ import WomenAvatar5 from "../../assets/img/women_avatar5.jpg"
 import classnames from 'classnames'
 import ImageGrader from '../../components/ImageGrader'
 import { AuthContext } from '../../providers/AuthProvider'
+import { doc, getFirestore, updateDoc } from 'firebase/firestore'
+import app from '../../firebase'
+
+const db = getFirestore(app)
 
 function ImageGradingTab() {
 
     const { user, globalVars } = useContext(AuthContext)
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
 
-    const {profileSidebar, mobileProfileSidebar, selectedChat} = useSelector(state => state);
+    const {profileSidebar, mobileProfileSidebar, selectedChat} = useSelector(state => state)
 
-    const [activeTab, setActiveTab] = useState('1');
+    const [activeTab, setActiveTab] = useState('1')
 
     const toggle = tab => {
-        if (activeTab !== tab) setActiveTab(tab);
-    };
+        if (activeTab !== tab) setActiveTab(tab)
+    }
 
     const profileActions = (e) => {
-        e.preventDefault();
-        dispatch(profileAction(false));
+        e.preventDefault()
+        dispatch(profileAction(false))
         dispatch(mobileProfileAction(false))
-    };
+    }
+
+    useEffect(() => {
+        // filter to messages with images
+        const messageFilter = globalVars.msgList?.filter(msg => msg.img != null && msg.userID === selectedChat.user.id)
+        // filter to ungraded images
+        const imageFilter = messageFilter?.map((message) => { return message.img.filter(image => !image.graded && !image.skipped && !image.deleted).length })
+        // count number of images in returned array
+        const ungradedImageCount = imageFilter?.reduce((partialSum, a) => partialSum + a, 0)
+        if (ungradedImageCount) {
+            // check if databse data matches up with actual data
+            if (selectedChat.chat.ungradedImageCount !== ungradedImageCount) {
+                // sync data with db
+                updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
+                    ungradedImageCount: ungradedImageCount
+                })
+            }
+            selectedChat.chat.ungradedImageCount = ungradedImageCount 
+        } 
+        if (imageFilter && imageFilter?.length === 0) {
+            if (selectedChat.chat.ungradedImageCount !== 0) {
+                // sync data with db
+                updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
+                    ungradedImageCount: 0
+                })
+            }
+            selectedChat.chat.ungradedImageCount = 0
+        }
+    }, [globalVars.msgList])
 
     return (
         <div style={{paddingLeft: 15, paddingRight: 15}} className={`sidebar-group ${mobileProfileSidebar ? "mobile-open" : ""}`}>
@@ -68,7 +100,7 @@ function ImageGradingTab() {
                                         <NavLink
                                             className={classnames({active: activeTab === '1'})}
                                             onClick={() => {
-                                                toggle('1');
+                                                toggle('1')
                                             }}
                                         >
                                             About
@@ -78,7 +110,7 @@ function ImageGradingTab() {
                                         <NavLink
                                             className={classnames({active: activeTab === '2'})}
                                             onClick={() => {
-                                                toggle('2');
+                                                toggle('2')
                                             }}
                                         >
                                             Media

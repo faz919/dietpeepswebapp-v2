@@ -15,4 +15,4 @@ export const archivedChats = [
             <span className="avatar-title bg-secondary rounded-circle">R</span>
         </figure>
     }
-];
+]

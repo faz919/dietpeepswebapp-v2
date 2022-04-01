@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react'
-import {Button, Col, Modal, ModalBody, ModalFooter, Row} from "reactstrap";
-import {ReactComponent as DisconnectedSvg} from "../../assets/disconnected.svg";
+import {Button, Col, Modal, ModalBody, ModalFooter, Row} from "reactstrap"
+import {ReactComponent as DisconnectedSvg} from "../../assets/disconnected.svg"
 
 function DisconnectedModal() {
 
-    const [modal, setModal] = useState(false);
+    const [modal, setModal] = useState(false)
 
-    const toggle = () => setModal(!modal);
+    const toggle = () => setModal(!modal)
 
     return (
         <Modal isOpen={modal} toggle={toggle} size="lg" centered backdrop="static"

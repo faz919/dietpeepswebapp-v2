@@ -13,8 +13,7 @@ import {
     onSnapshot,
     orderBy,
     limitToLast,
-} from 'firebase/firestore';
-import { getAuth } from 'firebase/auth'
+} from 'firebase/firestore'
 import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import moment from 'moment'
@@ -27,29 +26,20 @@ function Chat() {
 
     const dispatch = useDispatch()
 
-    const {selectedChat} = useSelector(state => state);
-    const [inputMsg, setInputMsg] = useState('');
-    const [scrollEl, setScrollEl] = useState();
+    const {selectedChat} = useSelector(state => state)
+    const [inputMsg, setInputMsg] = useState('')
+    const [scrollEl, setScrollEl] = useState()
 
     const [q, setQ] = useState(null)
     const [messages, setMessages] = useState(null)
 
-    const handleSubmit = (newValue) => {
-        selectedChat.messages.push(newValue);
-        setInputMsg("");
-    };
-
-    const handleChange = (newValue) => {
-        setInputMsg(newValue);
-    };
-
     useEffect(() => {
         if (scrollEl) {
             setTimeout(() => {
-                scrollEl.scrollTop = scrollEl.scrollHeight;
+                scrollEl.scrollTop = scrollEl.scrollHeight
             }, 100)
         }
-    });
+    })
 
     useEffect(() => {
         if (selectedChat != null) {
@@ -77,12 +67,12 @@ function Chat() {
     }, [q])
 
     const MessagesView = (props) => {
-        const {message} = props;
+        const {message} = props
 
-        if (message.type === 'divider') {
-            return <div className="message-item messages-divider sticky-top" data-label={message.text}></div>
-        } else {
-            return <div className={message.userID === selectedChat.user.id ? 'message-item' : 'outgoing-message message-item' }>
+        return (<>
+            {/* find latest unread message, then put a little indicator above it */}
+            {globalVars.msgList && selectedChat.chat?.unreadCount > 0 && selectedChat.chat?.coachLastRead && Math.min(...globalVars.msgList?.filter(message => message.timeSent?.toDate() > selectedChat.chat?.coachLastRead?.toDate()).map(e => new Date(e.timeSent?.toDate()))) === (new Date(message.timeSent?.toDate())).getTime() && <div className="message-item messages-divider sticky-top" data-label={selectedChat.chat.unreadCount === 1 ? selectedChat.chat.unreadCount + ' unread message' : selectedChat.chat.unreadCount + ' unread messages'} />}
+            <div className={message.userID === selectedChat.user.id ? 'message-item' : 'outgoing-message message-item' }>
                 <div className="message-avatar">
                     <figure className="avatar">
                         <img src={message.userID === selectedChat.user.id ? selectedChat.user.photoURL || `https://avatars.dicebear.com/api/bottts/${selectedChat.user.displayName}.png?dataUri=true` : selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar"/>
@@ -115,8 +105,8 @@ function Chat() {
                         </div>
                 }
             </div>
-        }
-    };
+        </>)
+    }
 
     return (
         <div className="chat">
@@ -140,7 +130,7 @@ function Chat() {
                                 </div>
                             </div>
                         </PerfectScrollbar>
-                        <ChatFooter onSubmit={handleSubmit} onChange={handleChange} inputMsg={inputMsg}/>
+                        <ChatFooter inputMsg={inputMsg}/>
                     </React.Fragment>
                     :
                     <div className="chat-body no-message">

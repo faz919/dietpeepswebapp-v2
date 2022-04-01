@@ -1,22 +1,22 @@
 import React, {useState} from 'react'
 import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
-import {profileAction} from "../../../Store/Actions/profileAction";
-import {mobileProfileAction} from "../../../Store/Actions/mobileProfileAction";
-import {useDispatch} from "react-redux";
+import {profileAction} from "../../../Store/Actions/profileAction"
+import {mobileProfileAction} from "../../../Store/Actions/mobileProfileAction"
+import {useDispatch} from "react-redux"
 
 const ChatsDropdown = () => {
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
 
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false)
 
-    const toggle = () => setDropdownOpen(prevState => !prevState);
+    const toggle = () => setDropdownOpen(prevState => !prevState)
 
     const profileActions = () => {
-        dispatch(profileAction(true));
+        dispatch(profileAction(true))
         dispatch(mobileProfileAction(true))
-    };
+    }
 
     return (
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
@@ -29,6 +29,6 @@ const ChatsDropdown = () => {
             </DropdownMenu>
         </Dropdown>
     )
-};
+}
 
 export default ChatsDropdown

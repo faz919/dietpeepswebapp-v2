@@ -1,12 +1,12 @@
-import { LoadingButton } from "@mui/lab";
+import { LoadingButton } from "@mui/lab"
 import * as FeatherIcon from 'react-feather'
 import React, { useEffect, useContext, useState } from "react"
 import { ReactComponent as Logo } from '../assets/logo.svg'
-import { AuthContext } from "../providers/AuthProvider";
+import { AuthContext } from "../providers/AuthProvider"
 
 function SignIn() {
 
-    useEffect(() => document.body.classList.add('form-membership'), []);
+    useEffect(() => document.body.classList.add('form-membership'), [])
 
     const { login, globalVars, setGlobalVars, googleLogin, appleLogin } = useContext(AuthContext)
 

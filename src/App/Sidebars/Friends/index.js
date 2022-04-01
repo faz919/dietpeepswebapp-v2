@@ -4,11 +4,11 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import AddFriendsModal from "../../Modals/AddFriendModal"
 import FriendsDropdown from "./FriendsDropdown"
 import {friendLists} from "./Data"
-import * as FeatherIcon from "react-feather";
+import * as FeatherIcon from "react-feather"
 
 function Index() {
 
-    const mobileMenuBtn = () => document.body.classList.toggle('navigation-open');
+    const mobileMenuBtn = () => document.body.classList.toggle('navigation-open')
 
     return (
         <div className="sidebar active">

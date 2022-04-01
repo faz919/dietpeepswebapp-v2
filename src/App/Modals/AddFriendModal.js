@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState} from 'react'
 import {
     Button,
     Modal,
@@ -11,19 +11,19 @@ import {
     FormGroup,
     Label,
     Input
-} from 'reactstrap';
+} from 'reactstrap'
 
 // Feather icon
-import * as FeatherIcon from 'react-feather';
+import * as FeatherIcon from 'react-feather'
 
 function AddFriendModal() {
-    const [modal, setModal] = useState(false);
+    const [modal, setModal] = useState(false)
 
-    const modalToggle = () => setModal(!modal);
+    const modalToggle = () => setModal(!modal)
 
-    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const [tooltipOpen, setTooltipOpen] = useState(false)
 
-    const tooltipToggle = () => setTooltipOpen(!tooltipOpen);
+    const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
 
     return (
         <div>

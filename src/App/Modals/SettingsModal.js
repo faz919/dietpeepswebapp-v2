@@ -20,15 +20,15 @@ import classnames from 'classnames'
 
 function SettingsModal(props) {
 
-    const [activeTab, setActiveTab] = useState('1');
+    const [activeTab, setActiveTab] = useState('1')
 
     const toggle = tab => {
-        if (activeTab !== tab) setActiveTab(tab);
-    };
+        if (activeTab !== tab) setActiveTab(tab)
+    }
 
-    const [isOpenDiv, setIsOpenDiv] = useState(false);
+    const [isOpenDiv, setIsOpenDiv] = useState(false)
 
-    const toggleDiv = () => setIsOpenDiv(!isOpenDiv);
+    const toggleDiv = () => setIsOpenDiv(!isOpenDiv)
 
     return (
         <Modal isOpen={props.modal} toggle={props.toggle} centered className="modal-dialog-zoom">
@@ -41,7 +41,7 @@ function SettingsModal(props) {
                         <NavLink
                             className={classnames({active: activeTab === '1'})}
                             onClick={() => {
-                                toggle('1');
+                                toggle('1')
                             }}
                         >
                             Account
@@ -51,7 +51,7 @@ function SettingsModal(props) {
                         <NavLink
                             className={classnames({active: activeTab === '2'})}
                             onClick={() => {
-                                toggle('2');
+                                toggle('2')
                             }}
                         >
                             Notification
@@ -61,7 +61,7 @@ function SettingsModal(props) {
                         <NavLink
                             className={classnames({active: activeTab === '3'})}
                             onClick={() => {
-                                toggle('3');
+                                toggle('3')
                             }}
                         >
                             Security

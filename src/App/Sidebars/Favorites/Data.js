@@ -24,4 +24,4 @@ export const favoriteChats = [
         text: <p>I need you today. Can you come with me?</p>,
         date: '03:41 PM'
     }
-];
+]

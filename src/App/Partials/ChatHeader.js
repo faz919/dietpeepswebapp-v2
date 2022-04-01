@@ -7,7 +7,7 @@ import * as FeatherIcon from 'react-feather'
 import VoiceCallModal from "../Modals/VoiceCallModal"
 import VideoCallModal from "../Modals/VideoCallModal"
 import {profileAction} from "../../Store/Actions/profileAction"
-import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction";
+import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction"
 import moment from 'moment'
 import { AuthContext } from '../../providers/AuthProvider'
 
@@ -15,26 +15,28 @@ function ChatHeader(props) {
 
     const { globalVars } = useContext(AuthContext)
 
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false)
 
-    const toggle = () => setDropdownOpen(prevState => !prevState);
+    const toggle = () => setDropdownOpen(prevState => !prevState)
 
-    const selectedChatClose = () => document.querySelector('.chat').classList.remove('open');
+    const selectedChatClose = () => document.querySelector('.chat').classList.remove('open')
 
-    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const [tooltipOpen, setTooltipOpen] = useState(false)
 
-    const tooltipToggle = () => setTooltipOpen(!tooltipOpen);
+    const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
 
     return (
         <div className="chat-header">
             <div className="chat-header-user">
                 <figure className="avatar">
+                    {/* attempt to get user photourl, if not, load the default pfp for their username. */}
                     <img src={props.selectedChat.user.photoURL || `https://avatars.dicebear.com/api/bottts/${props.selectedChat.user.displayName}.png?dataUri=true`} className="rounded-circle" alt="avatar"/>
                 </figure>
                 <div>
                     <h5>{props.selectedChat.user.displayName}</h5>
                     <small className="text-muted">
-                        <i>{moment(props.selectedChat.chat.latestMessageTime?.toDate()).fromNow()}</i>
+                        {/* check if client has sent message, if so, display time since last client message */}
+                        {globalVars.msgList && <i>{globalVars.msgList?.filter(message => message.userID === props.selectedChat.user.id).length === 0 ? 'User has not sent any messages' : 'Last message sent ' + moment(new Date(Math.max(...globalVars.msgList?.filter(message => message.userID === props.selectedChat.user.id)?.map(e => new Date(e.timeSent?.toDate()))))).fromNow()}</i>}
                     </small>
                 </div>
             </div>

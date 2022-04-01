@@ -7,7 +7,7 @@ import * as FeatherIcon from "react-feather"
 
 function Index() {
 
-    const mobileMenuBtn = () => document.body.classList.toggle('navigation-open');
+    const mobileMenuBtn = () => document.body.classList.toggle('navigation-open')
 
     return (
         <div className="sidebar active">

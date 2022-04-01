@@ -6,16 +6,16 @@ import {pageTourAction} from "../../Store/Actions/pageTourAction"
 
 function TourModal() {
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
 
-    const [modal, setModal] = useState(false);
+    const [modal, setModal] = useState(false)
 
-    const toggle = () => setModal(!modal);
+    const toggle = () => setModal(!modal)
 
     const pageTourStart = () => {
-        setModal(false);
+        setModal(false)
         setTimeout(() => dispatch(pageTourAction(true)), 500)
-    };
+    }
 
     return (
         <Modal isOpen={modal} toggle={toggle} size="lg" centered

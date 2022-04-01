@@ -4,9 +4,9 @@ import * as FeatherIcon from 'react-feather'
 
 const FriendsDropdown = () => {
 
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false)
 
-    const toggle = () => setDropdownOpen(prevState => !prevState);
+    const toggle = () => setDropdownOpen(prevState => !prevState)
 
     return (
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
@@ -21,6 +21,6 @@ const FriendsDropdown = () => {
             </DropdownMenu>
         </Dropdown>
     )
-};
+}
 
 export default FriendsDropdown

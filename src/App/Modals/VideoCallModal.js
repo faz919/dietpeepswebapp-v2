@@ -2,19 +2,19 @@ import React, {useEffect, useState} from 'react'
 import {Modal, ModalBody, Tooltip} from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
 import WomenAvatar1 from "../../assets/img/women_avatar1.jpg"
-import { useSelector } from 'react-redux';
-import moment from 'moment';
+import { useSelector } from 'react-redux'
+import moment from 'moment'
 
 function VideoCallModal() {
-    const [modal, setModal] = useState(false);
+    const [modal, setModal] = useState(false)
 
     const {selectedChat} = useSelector(state => state)
 
-    const modalToggle = () => setModal(!modal);
+    const modalToggle = () => setModal(!modal)
 
-    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const [tooltipOpen, setTooltipOpen] = useState(false)
 
-    const tooltipToggle = () => setTooltipOpen(!tooltipOpen);
+    const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
 
     return (
         <div>
@@ -37,8 +37,8 @@ function VideoCallModal() {
                             <p>Streak: {selectedChat.user?.streak}</p>
                             <p>Course Day: {selectedChat.user?.courseData.courseDay}</p>
                             <p>Latest Course Completed: {selectedChat.user?.courseData.latestCourseCompleted}</p>
-                            <p>Time of Latest Course Completion: {moment(selectedChat.user?.courseData.courseCompletedAt?.toDate()).format('llll')}</p>
-                            <p>Current Course Day Completed: {JSON.stringify(selectedChat.user?.courseData.courseDayCompleted)}</p>
+                            <p>Time of Latest Course Completion: {selectedChat.user?.courseData.latestCourseCompleted > 0 ? moment(selectedChat.user?.courseData.courseCompletedAt?.toDate()).format('llll') : 'No courses completed.'}</p>
+                            <p>Current Course Day Completed: {selectedChat.user?.courseData.courseDayCompleted ? 'Yes' : 'No'}</p>
                         </div>
                     </div>
                 </ModalBody>

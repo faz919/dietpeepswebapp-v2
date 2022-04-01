@@ -1,13 +1,13 @@
-import { LoadingButton } from "@mui/lab";
+import { LoadingButton } from "@mui/lab"
 import React, {useEffect, useContext, useRef} from "react"
 import {ReactComponent as Logo} from '../assets/logo.svg'
-import { AuthContext } from "../providers/AuthProvider";
+import { AuthContext } from "../providers/AuthProvider"
 
 function ForgotPassword() {
 
     const { forgotPassword, authVars, setAuthVars } = useContext(AuthContext)
 
-    useEffect(() => document.body.classList.add('form-membership'), []);
+    useEffect(() => document.body.classList.add('form-membership'), [])
 
     const email = useRef()
     const submitForm = (e) => {

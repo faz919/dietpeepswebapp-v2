@@ -11,13 +11,13 @@ function VoiceCallModal() {
     const dispatch = useDispatch()
 
     const openImageGradingTab = () => {
-        dispatch(profileAction(true));
+        dispatch(profileAction(true))
         dispatch(mobileProfileAction(true))
     }
 
-    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const [tooltipOpen, setTooltipOpen] = useState(false)
 
-    const tooltipToggle = () => setTooltipOpen(!tooltipOpen);
+    const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
 
     return (
         <div>

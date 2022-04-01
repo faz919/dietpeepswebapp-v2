@@ -4,6 +4,6 @@ const mobileSidebarReducer = (state = false, action) => {
     } else {
         return state
     }
-};
+}
 
-export default mobileSidebarReducer;
+export default mobileSidebarReducer

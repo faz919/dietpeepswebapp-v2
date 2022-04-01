@@ -4,7 +4,7 @@ import WomenAvatar from '../assets/img/women_avatar5.jpg'
 
 function LockScreen() {
 
-    useEffect(() => document.body.classList.add('form-membership'), []);
+    useEffect(() => document.body.classList.add('form-membership'), [])
 
     return (
         <div className="form-wrapper">

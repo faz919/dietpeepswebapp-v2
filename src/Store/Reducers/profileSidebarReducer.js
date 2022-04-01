@@ -4,6 +4,6 @@ const profileSidebarReducer = (state = false, action) => {
     } else {
         return state
     }
-};
+}
 
-export default profileSidebarReducer;
+export default profileSidebarReducer

@@ -22,44 +22,44 @@ function Navigation() {
 
     const { user, logOut } = useContext(AuthContext)
 
-    const {selectedSidebar} = useSelector(state => state);
+    const {selectedSidebar} = useSelector(state => state)
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
 
-    const [userMenuTooltipOpen, setUserMenuTooltipOpen] = useState(false);
+    const [userMenuTooltipOpen, setUserMenuTooltipOpen] = useState(false)
 
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false)
 
-    const [darkSwitcherTooltipOpen, setDarkSwitcherTooltipOpen] = useState(false);
+    const [darkSwitcherTooltipOpen, setDarkSwitcherTooltipOpen] = useState(false)
 
-    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false)
 
     const userMenuToggle = () => {
-        return !dropdownOpen && setUserMenuTooltipOpen(!userMenuTooltipOpen);
-    };
+        return !dropdownOpen && setUserMenuTooltipOpen(!userMenuTooltipOpen)
+    }
 
     const toggle = () => setDropdownOpen(prevState => {
-        setUserMenuTooltipOpen(false);
-        return !prevState;
-    });
+        setUserMenuTooltipOpen(false)
+        return !prevState
+    })
 
-    const darkSwitcherTooltipToggle = () => setDarkSwitcherTooltipOpen(!darkSwitcherTooltipOpen);
+    const darkSwitcherTooltipToggle = () => setDarkSwitcherTooltipOpen(!darkSwitcherTooltipOpen)
 
     const darkSwitcherToggle = (e) => {
-        e.preventDefault();
+        e.preventDefault()
         document.body.classList.toggle('dark')
-    };
+    }
 
-    const editModalToggle = () => setEditModalOpen(!editModalOpen);
+    const editModalToggle = () => setEditModalOpen(!editModalOpen)
 
-    const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+    const [settingsModalOpen, setSettingsModalOpen] = useState(false)
 
-    const settingsModalToggle = () => setSettingsModalOpen(!settingsModalOpen);
+    const settingsModalToggle = () => setSettingsModalOpen(!settingsModalOpen)
 
     const profileActions = () => {
-        dispatch(profileAction(true));
+        dispatch(profileAction(true))
         dispatch(mobileProfileAction(true))
-    };
+    }
 
     const navigationItems = [
         {
@@ -80,23 +80,23 @@ function Navigation() {
             name: 'Archived',
             icon: <FeatherIcon.Archive/>,
         }
-    ];
+    ]
 
     const NavigationItemView = (props) => {
 
-        const {item, tooltipName} = props;
+        const {item, tooltipName} = props
 
-        const [tooltipOpen, setTooltipOpen] = useState(false);
+        const [tooltipOpen, setTooltipOpen] = useState(false)
 
-        const toggle = () => setTooltipOpen(!tooltipOpen);
+        const toggle = () => setTooltipOpen(!tooltipOpen)
 
         const linkDispatch = (e, name) => {
-            e.preventDefault();
-            dispatch(sidebarAction(name));
-            dispatch(mobileSidebarAction(true));
-            document.querySelector('.chat').classList.remove('open');
+            e.preventDefault()
+            dispatch(sidebarAction(name))
+            dispatch(mobileSidebarAction(true))
+            document.querySelector('.chat').classList.remove('open')
             document.body.classList.toggle('navigation-open')
-        };
+        }
 
         return (
             <li>
@@ -114,7 +114,7 @@ function Navigation() {
                 </Tooltip>
             </li>
         )
-    };
+    }
 
     return (
         <nav className="navigation">

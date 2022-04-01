@@ -3,7 +3,7 @@ import {ReactComponent as Logo} from '../assets/logo.svg'
 
 function PhoneCode() {
 
-    useEffect(() => document.body.classList.add('form-membership'), []);
+    useEffect(() => document.body.classList.add('form-membership'), [])
 
     return (
         <div className="form-wrapper">

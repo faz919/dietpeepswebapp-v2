@@ -8,9 +8,9 @@ import {
     signOut,
     sendPasswordResetEmail,
     OAuthProvider
-} from "firebase/auth";
+} from "firebase/auth"
 import app from '../firebase.js'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 import {
     getFirestore,
     collection,
@@ -20,25 +20,25 @@ import {
     getDoc,
     deleteDoc,
     setDoc
-} from 'firebase/firestore';
+} from 'firebase/firestore'
 import { getMessaging, getToken } from 'firebase/messaging'
 
-import Bounce from "react-activity/dist/Bounce";
-import "react-activity/dist/Bounce.css";
+import Bounce from "react-activity/dist/Bounce"
+import "react-activity/dist/Bounce.css"
 
-export const AuthContext = createContext();
+export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
     const navigate = useNavigate()
 
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const [authVars, setAuthVars] = useState({
         errorText: '',
     })
 
-    const [globalVars, setGlobalVars] = useState({ showZombies: false })
+    const [globalVars, setGlobalVars] = useState({ chatList: [], userInfoList: [], coachInfoList: [], coachList: [], adminList: [] })
 
     const db = getFirestore(app)
     const auth = getAuth(app)
@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }) => {
 
         return unsubscribe
     }, [])
+    
     if (loading) {
         return (
             <div style={{ width: window.innerWidth, height: window.innerHeight, display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: '#E6E7FA', opacity: 0.5 }}>
@@ -91,7 +92,7 @@ export const AuthProvider = ({ children }) => {
             if (token) {
                 console.log('web token is: ', token)
             } else {
-                console.log('No registration token available. Request permission to generate one.');
+                console.log('No registration token available. Request permission to generate one.')
             }
         }).catch((e) => {
             console.log('Error while retrieving token: ', e)
@@ -119,7 +120,7 @@ export const AuthProvider = ({ children }) => {
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
-                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) });
+                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) })
                         console.log(e)
                         setGlobalVars(val => ({...val, loggingIn: false}))
                     }
@@ -132,7 +133,7 @@ export const AuthProvider = ({ children }) => {
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
-                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) });
+                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) })
                         console.log(e)
                         setGlobalVars(val => ({...val, loggingIn: false}))
                     }
@@ -146,20 +147,20 @@ export const AuthProvider = ({ children }) => {
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
-                        setAuthVars({ ...authVars, errorText: eMessage });
+                        setAuthVars({ ...authVars, errorText: eMessage })
                         console.log(e)
                         setGlobalVars(val => ({...val, loggingIn: false}))
                     }
                 },
                 googleLogin: async () => {
                     try {
-                        const provider = new GoogleAuthProvider();
+                        const provider = new GoogleAuthProvider()
                         await signInWithPopup(auth, provider).then(() => {
                             runChecks()
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
-                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) });
+                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) })
                         console.log(e)
                         setGlobalVars(val => ({...val, loggingIn: false}))
                     }
@@ -171,7 +172,7 @@ export const AuthProvider = ({ children }) => {
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
-                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) });
+                        setAuthVars({ ...authVars, errorText: eMessage.substring(eMessage.lastIndexOf(']') + 2) })
                         console.log(e)
                     }
                 },

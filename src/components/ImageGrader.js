@@ -184,6 +184,8 @@ const ImageGrader = ({ image, message, chat }) => {
             if (i.url === image.url) {
                 return {
                     ...i,
+                    url: 'https://firebasestorage.googleapis.com/v0/b/firstproject-b3f4a.appspot.com/o/chat-pictures%2Ferror1.png?alt=media&token=0a372008-b772-4989-abb2-b6fd847ec25d',
+                    deletedURL: image.url,
                     deleted: true
                 }
             }

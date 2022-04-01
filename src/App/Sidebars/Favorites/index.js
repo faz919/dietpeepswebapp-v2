@@ -3,11 +3,11 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import FavoritesDropdown from "./FavoritesDropdown"
 import {favoriteChats} from "./Data"
-import * as FeatherIcon from "react-feather";
+import * as FeatherIcon from "react-feather"
 
 function Index() {
 
-    const mobileMenuBtn = () => document.body.classList.toggle('navigation-open');
+    const mobileMenuBtn = () => document.body.classList.toggle('navigation-open')
 
     return (
         <div className="sidebar active">

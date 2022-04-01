@@ -183,7 +183,16 @@ body.rtl {
                             text-align: left !important;
                         }
 
+                        .action-toggle-image {
+                            text-align: left !important;
+                        }
+
                         .new-message-count {
+                            margin-left: auto !important;
+                            margin-right: 10px !important;
+                        }
+
+                        .ungraded-image-count {
                             margin-left: auto !important;
                             margin-right: 10px !important;
                         }
