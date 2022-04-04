@@ -51,16 +51,18 @@ function ImageGradingTab() {
             }
             selectedChat.chat.ungradedImageCount = ungradedImageCount 
         } 
-        // if (messageFilter?.length === 0 || imageFilter?.length === 0) {
-        //     if (selectedChat.chat?.ungradedImageCount !== 0) {
-        //         // sync data with db
-        //         updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
-        //             ungradedImageCount: 0
-        //         })
-        //     }
-        //     selectedChat.chat?.ungradedImageCount = 0
-        // }
-    }, [globalVars.msgList])
+        if (selectedChat.chat) {
+            if (messageFilter?.length === 0 || imageFilter?.length === 0) {
+                if (selectedChat.chat.ungradedImageCount !== 0) {
+                    // sync data with db
+                    updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
+                        ungradedImageCount: 0
+                    })
+                }
+                selectedChat.chat.ungradedImageCount = 0
+            }
+        }
+    }, [selectedChat.chat])
 
     return (
         <div style={{paddingLeft: 15, paddingRight: 15}} className={`sidebar-group ${mobileProfileSidebar ? "mobile-open" : ""}`}>

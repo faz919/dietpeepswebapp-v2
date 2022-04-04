@@ -46,6 +46,10 @@
 
 	.modal-body {
 		padding: 30px;
+
+		.modal-refresh {
+			color: $color-dark;
+		}
 	}
 
 	.modal-footer {

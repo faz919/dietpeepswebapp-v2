@@ -41,7 +41,7 @@ function ChatFooter() {
 
     return (
         <div className="chat-footer">
-            <form>
+            <form onSubmit={sendMessage}>
                 {/* <div>
                     <Button color="light" className="mr-3" title="Emoji">
                         <FeatherIcon.Smile/>

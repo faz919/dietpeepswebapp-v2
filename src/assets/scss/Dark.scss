@@ -157,6 +157,11 @@ body.dark {
 
 	.modal-content {
 		background-color: $dark-mode;
+
+		.modal-refresh {
+			color: rgba(white, .75);
+		}
+
 	}
 
 	.list-group-item {
