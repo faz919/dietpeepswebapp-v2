@@ -187,10 +187,6 @@ function Layout() {
     }, [])
 
     useEffect(() => {
-        console.log('yo: ', globalVars.chatList, globalVars.userInfoList, globalVars.coachInfoList)
-    }, [globalVars.chatList, globalVars.userInfoList, globalVars.coachInfoList])
-
-    useEffect(() => {
         document.querySelector('*').addEventListener('click', (e) => {
             if (document.body.classList.contains('navigation-open') && e.target.nodeName === 'BODY') {
                 document.body.classList.remove('navigation-open')
