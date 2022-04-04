@@ -84,7 +84,7 @@ function Index() {
                         <AddGroupModal/>
                     </li>
                     <li className="list-inline-item">
-                        <button onClick={() => dispatch(sidebarAction('Friends'))} className="btn btn-outline-light"
+                        <button onClick={() => dispatch(sidebarAction('Clients'))} className="btn btn-outline-light"
                                 id="Tooltip-New-Chat">
                             <FeatherIcon.PlusCircle/>
                         </button>

@@ -16,16 +16,16 @@ function Index() {
                     <button onClick={mobileMenuBtn} className="btn btn-outline-light mobile-navigation-button mr-3 d-xl-none d-inline">
                         <FeatherIcon.Menu/>
                     </button>
-                    <span className="sidebar-title">Archived</span>
+                    <span className="sidebar-title">Deleted/Banned Users</span>
                 </div>
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Search archived"/>
+                <input type="text" className="form-control" placeholder="Search"/>
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>
                     <ul className="list-group list-group-flush">
-                        {
+                        {/* {
                             archivedChats.map((chat, i) => {
                                 return <li key={i} className="list-group-item">
                                     {chat.avatar}
@@ -42,7 +42,15 @@ function Index() {
                                     </div>
                                 </li>
                             })
-                        }
+                        } */}
+                        <li className='list-group-item'>
+                            <div className='users-list-body'>
+                                <div style={{ alignItems: 'center', marginTop: -20 }}>
+                                    <p>Menu not yet ready...</p>
+                                    <p>Check back later for updates!</p>
+                                </div>
+                            </div>
+                        </li>
                     </ul>
                 </PerfectScrollbar>
             </div>

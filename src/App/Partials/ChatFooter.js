@@ -42,19 +42,19 @@ function ChatFooter() {
     return (
         <div className="chat-footer">
             <form>
-                <div>
+                {/* <div>
                     <Button color="light" className="mr-3" title="Emoji">
                         <FeatherIcon.Smile/>
                     </Button>
-                </div>
+                </div> */}
                 <Input type="text" className="form-control" placeholder="Write a message..." value={message} onChange={(e) => setMessage(e.target.value)}/>
                 <div className="form-buttons">
-                    <Button color="light">
+                    {/* <Button color="light">
                         <FeatherIcon.Paperclip/>
                     </Button>
                     <Button color="light" className="d-sm-none d-block">
                         <FeatherIcon.Mic/>
-                    </Button>
+                    </Button> */}
                     <Button color="primary" onClick={sendMessage} disabled={!message}>
                         <FeatherIcon.Send/>
                     </Button>

@@ -25,7 +25,7 @@ function Index() {
             <div className="sidebar-body">
                 <PerfectScrollbar>
                     <ul className="list-group list-group-flush">
-                        {
+                        {/* {
                             favoriteChats.map((item, i) => {
                                 return <li key={i} className="list-group-item">
                                     <div className="users-list-body">
@@ -41,7 +41,15 @@ function Index() {
                                     </div>
                                 </li>
                             })
-                        }
+                        } */}
+                        <li className='list-group-item'>
+                            <div className='users-list-body'>
+                                <div style={{ alignItems: 'center', marginTop: -20 }}>
+                                    <p>Menu not yet ready...</p>
+                                    <p>Check back later for updates!</p>
+                                </div>
+                            </div>
+                        </li>
                     </ul>
                 </PerfectScrollbar>
             </div>

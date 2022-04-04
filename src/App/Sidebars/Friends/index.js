@@ -17,7 +17,7 @@ function Index() {
                     <button onClick={mobileMenuBtn} className="btn btn-outline-light mobile-navigation-button mr-3 d-xl-none d-inline">
                         <FeatherIcon.Menu/>
                     </button>
-                    <span className="sidebar-title">Friends</span>
+                    <span className="sidebar-title">Clients</span>
                 </div>
                 <ul className="list-inline">
                     <li className="list-inline-item">
@@ -26,12 +26,12 @@ function Index() {
                 </ul>
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Search friends"/>
+                <input type="text" className="form-control" placeholder="Search clients"/>
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>
                     <ul className="list-group list-group-flush">
-                        {
+                        {/* {
                             friendLists.map((item, i) => {
                                 return <li key={i} className="list-group-item">
                                     {item.avatar}
@@ -48,7 +48,15 @@ function Index() {
                                     </div>
                                 </li>
                             })
-                        }
+                        } */}
+                        <li className='list-group-item'>
+                            <div className='users-list-body'>
+                                <div style={{ alignItems: 'center', marginTop: -20 }}>
+                                    <p>Menu not yet ready...</p>
+                                    <p>Check back later for updates!</p>
+                                </div>
+                            </div>
+                        </li>
                     </ul>
                 </PerfectScrollbar>
             </div>

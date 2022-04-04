@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         errorText: '',
     })
 
-    const [globalVars, setGlobalVars] = useState({ chatList: [], userInfoList: [], coachInfoList: [], coachList: [], adminList: [] })
+    const [globalVars, setGlobalVars] = useState({ chatList: [], userInfoList: [], coachInfoList: [], coachList: [], adminList: [], clientList: [] })
 
     const db = getFirestore(app)
     const auth = getAuth(app)

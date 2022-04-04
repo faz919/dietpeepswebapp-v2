@@ -65,19 +65,17 @@ function Navigation() {
         {
             name: 'Chats',
             icon: <FeatherIcon.MessageCircle/>,
-            badge: 'warning',
         },
         {
-            name: 'Friends',
+            name: 'Clients',
             icon: <FeatherIcon.User/>,
-            badge: 'danger'
         },
         {
             name: 'Favorites',
             icon: <FeatherIcon.Star/>,
         },
         {
-            name: 'Archived',
+            name: 'Deleted',
             icon: <FeatherIcon.Archive/>,
         }
     ]
@@ -127,10 +125,7 @@ function Navigation() {
                             <Logo/>
                         </a>
                     </li>
-                    {
-                        navigationItems.map((item, i) => <NavigationItemView key={i} item={item}
-                                                                             tooltipName={"Tooltip-" + i}/>)
-                    }
+                    {navigationItems.map((item, i) => <NavigationItemView key={i} item={item} tooltipName={"Tooltip-" + i}/>)}
                     <li className="scissors">
                         <a href="#/" onClick={(e) => darkSwitcherToggle(e)} className="dark-light-switcher"
                            id="dark-switcher">
@@ -156,8 +151,8 @@ function Navigation() {
                                 </figure>
                             </DropdownToggle>
                             <DropdownMenu>
-                                <DropdownItem onClick={editModalToggle}>Edit profile</DropdownItem>
-                                <DropdownItem onClick={settingsModalToggle}>Settings</DropdownItem>
+                                <DropdownItem onClick={editModalToggle}>(Feature not yet ready) Edit profile</DropdownItem>
+                                <DropdownItem onClick={settingsModalToggle}>(Feature not yet ready) Settings</DropdownItem>
                                 <DropdownItem divider/>
                                 <DropdownItem onClick={logOut}>Logout</DropdownItem>
                             </DropdownMenu>

@@ -36,7 +36,7 @@ function EditProfileModal(props) {
         <div>
             <Modal isOpen={props.modal} toggle={props.toggle} centered className="modal-dialog-zoom">
                 <ModalHeader toggle={props.toggle}>
-                    <FeatherIcon.Edit2 className="mr-2"/> Edit Profile
+                    <FeatherIcon.Edit2 className="mr-2"/> &nbsp; Edit Profile
                 </ModalHeader>
                 <ModalBody>
                     <Nav tabs>
@@ -91,6 +91,7 @@ function EditProfileModal(props) {
                                                 <img src={user.photoURL} className="rounded-circle" alt="avatar"/>
                                             </figure>
                                         </div>
+                                        &nbsp;
                                         <Input type="file" id="exampleCustomFileBrowser" name="customFile"/>
                                     </div>
                                 </FormGroup>
