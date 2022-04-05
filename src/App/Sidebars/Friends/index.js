@@ -3,7 +3,6 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import AddFriendsModal from "../../Modals/AddFriendModal"
 import FriendsDropdown from "./FriendsDropdown"
-import {friendLists} from "./Data"
 import * as FeatherIcon from "react-feather"
 import { AuthContext } from '../../../providers/AuthProvider'
 import { useDispatch, useSelector } from 'react-redux'

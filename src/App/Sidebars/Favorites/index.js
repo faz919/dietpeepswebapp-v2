@@ -2,7 +2,6 @@ import React from 'react'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import FavoritesDropdown from "./FavoritesDropdown"
-import {favoriteChats} from "./Data"
 import * as FeatherIcon from "react-feather"
 
 function Index() {

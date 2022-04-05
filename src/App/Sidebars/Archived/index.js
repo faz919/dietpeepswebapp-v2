@@ -1,9 +1,5 @@
 import React, { useEffect } from 'react'
 import 'react-perfect-scrollbar/dist/css/styles.css'
-import PerfectScrollbar from 'react-perfect-scrollbar'
-import ArchivedDropdown from "./ArchivedDropdown"
-import {archivedChats} from "./Data"
-import * as FeatherIcon from "react-feather"
 import { useDispatch } from 'react-redux'
 import { selectedChatAction } from '../../../Store/Actions/selectedChatAction'
 import { profileAction } from '../../../Store/Actions/profileAction'
