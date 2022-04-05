@@ -90,10 +90,7 @@ function Layout() {
         }
         const fetchMessages = async () => {
             const { coachList, coachInfo } = await coachGetter()
-            // const { adminList, adminInfo } = await adminGetter()
             const { clientList, clientInfo } = await clientGetter()
-            // console.log(new Date() + coachList)
-            // console.log(new Date() + adminList)
             const q = query(collection(db, "chat-rooms"), where('userIDs', 'array-contains-any', coachList), orderBy('latestMessageTime', 'desc'))
             onSnapshot(q, async (querySnapshot) => {
                 let chatList = []
@@ -114,11 +111,9 @@ function Layout() {
                                         let userSnap = await getDoc(doc(db, "user-info", chatUser))
                                         if (userSnap.exists() && userSnap.data().type === 'client') {
                                             if (!userSnap.data().deleted && !userSnap.data().shadowBanned) {
-                                                // globalVars.chatList?.length === 0 ? setGlobalVars(val => ({...val, chatList: [{ ...chatRooms.data(), id: chatRooms.id }] })) : setGlobalVars(val => ({...val, chatList: [...val.chatList, { ...chatRooms.data(), id: chatRooms.id }] }))
-                                                // globalVars.chatList?.length === 0 ? setGlobalVars(val => ({...val, userInfoList: [{ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id }] })) : setGlobalVars(val => ({...val, userInfoList: [...val.userInfoList, { ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id }] }))
                                                 chatList.push({ ...chatRooms.data(), id: chatRooms.id })
                                                 userInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
-                                                console.log('chat user retrieved from db: ', userSnap.data().displayName)
+                                                console.log('chat user retrieved from db: ', userSnap.id)
                                             } else if (!userSnap.data().deleted && userSnap.data().shadowBanned) {
                                                 // if(adminList?.includes(user.uid)) {
                                                 //   chatsList.push({ ...chatRooms.data(), id: chatRooms.id })
@@ -127,19 +122,11 @@ function Layout() {
                                         }
                                     }
                                 } else if (coachList?.includes(chatUser)) {
-                                    // let userSnap = await getDoc(doc(db, "user-info", chatUser))
-                                    // coachInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
-                                    // let userSnap = await getDoc(doc(db, "user-info", chatUser))
-                                    // setGlobalVars(val => ({...val, coachInfoList: val.coachInfoList.concat({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })}))
-                                    // console.log('coaches: ', globalVars.coachInfoList)
                                     let coachSnap = coachInfo.find(coach => coach.id === chatUser)
                                     coachInfoList.push({ ...coachSnap, correspondingChatID: chatRooms.id })
                                     console.log('coach info added')
                                 }
                             } else if (coachList?.includes(chatUser)) {
-                                // let userSnap = await getDoc(doc(db, "user-info", chatUser))
-                                // setGlobalVars(val => ({...val, coachInfoList: val.coachInfoList.concat({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })}))
-                                // console.log('coaches: ', globalVars.coachInfoList)
                                 let coachSnap = coachInfo.find(coach => coach.id === chatUser)
                                 coachInfoList.push({ ...coachSnap, correspondingChatID: chatRooms.id })
                                 console.log('coach info added (1)')
@@ -148,39 +135,7 @@ function Layout() {
                     }
                 }
                 console.log('snapshot called', chatList, userInfoList, coachInfoList)
-                setGlobalVars(val => ({...val, chatList, userInfoList, coachInfoList}))
-                // querySnapshot.forEach((chatRooms) => {
-                //     if (chatRooms.exists) {
-                //         for (let chatUser of chatRooms.data().userIDs) {
-                //             if (chatUser !== user.uid) {
-                //                 if (!coachList?.includes(chatUser)) {
-                //                     getDoc(doc(db, "user-info", chatUser)).then((userSnap) => {
-                //                         if (userSnap.exists() && userSnap.data().type === 'client') {
-                //                             if (!userSnap.data().deleted && !userSnap.data().shadowBanned) {
-                //                                 // globalVars.chatList?.length === 0 ? setGlobalVars(val => ({...val, chatList: [{ ...chatRooms.data(), id: chatRooms.id }] })) : setGlobalVars(val => ({...val, chatList: [...val.chatList, { ...chatRooms.data(), id: chatRooms.id }] }))
-                //                                 // globalVars.chatList?.length === 0 ? setGlobalVars(val => ({...val, userInfoList: [{ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id }] })) : setGlobalVars(val => ({...val, userInfoList: [...val.userInfoList, { ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id }] }))
-                //                                 chatList.push({ ...chatRooms.data(), id: chatRooms.id })
-                //                                 userInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
-                //                             } else if (!userSnap.data().deleted && userSnap.data().shadowBanned) {
-                //                                 // if(adminList?.includes(user.uid)) {
-                //                                 //   chatsList.push({ ...chatRooms.data(), id: chatRooms.id })
-                //                                 // }
-                //                             }
-                //                         }
-                //                     })
-                //                 } else if (coachList?.includes(chatUser)) {
-                //                     getDoc(doc(db, "user-info", chatUser)).then((userSnap) => {
-                //                         coachInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
-                //                     })
-                //                 }
-                //             } else if (coachList?.includes(chatUser)) {
-                //                 getDoc(doc(db, "user-info", chatUser)).then((userSnap) => {
-                //                     coachInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
-                //                 })
-                //             }
-                //         }
-                //     }
-                // })
+                setGlobalVars(val => ({...val, chatList, userInfoList, coachInfoList, loadingChats: false}))
             })
         }
         fetchMessages()
@@ -193,6 +148,19 @@ function Layout() {
             }
         })
     }, [])
+
+    // useEffect(() => {
+    //     const favorites = window.localStorage.getItem('@favorite_users')
+    //     if (favorites != null) {
+    //         setGlobalVars(val => ({ ...val, favorites: JSON.parse(favorites) }))
+    //     } else {
+    //         return null
+    //     }
+    // }, [])
+
+    // useEffect(() => {
+    //     window.localStorage.setItem('@favorite_users', JSON.stringify(globalVars.favorites))
+    // }, [globalVars.favorites])
 
     return (
         <div className="layout">

@@ -79,6 +79,7 @@ function Chat() {
                     </figure>
                     <div>
                         <h5>{message.userID === selectedChat.user.id ? selectedChat.user.displayName : selectedChat.coach?.displayName}</h5>
+                        {message.userID !== selectedChat.user.id && message.userID !== selectedChat.coach.id && <small className='text-muted'>({globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName ? globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName : 'Admin'})</small>}
                         <div className="time">
                             {moment(message.timeSent?.toDate()).calendar()}
                             {message.type ? <i className="ti-double-check text-info"></i> : null}
@@ -118,15 +119,10 @@ function Chat() {
                         <PerfectScrollbar containerRef={ref => setScrollEl(ref)}>
                             <div className="chat-body">
                                 <div className="messages">
-                                    {
-                                        messages
-                                            ?
-                                            messages.map((message, i) => {
-                                                return <MessagesView message={message} key={i}/>
-                                            })
-                                            :
-                                            console.log('no messages')
-                                    }
+                                    {messages ?
+                                        [...messages].reverse().map((message, i) => {
+                                            return <MessagesView message={message} key={message.id}/>
+                                        }) : console.log('no messages')}
                                 </div>
                             </div>
                         </PerfectScrollbar>

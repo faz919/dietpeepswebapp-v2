@@ -54,6 +54,18 @@ function ChatHeader(props) {
         setNickName('')
     }, [props.selectedChat])
 
+    let userJoinedText 
+    switch (Math.round((new Date() - new Date(props.selectedChat.user.dateJoined))/(1000 * 60 * 60 * 24))) {
+        case 0:
+            userJoinedText = 'today'
+            break
+        case 1:
+            userJoinedText = 'yesterday'
+            break
+        default:
+            userJoinedText = `${Math.round((new Date() - new Date(props.selectedChat.user.dateJoined))/(1000 * 60 * 60 * 24))} days ago`
+    }
+
     return (
         <div className="chat-header">
             <div className="chat-header-user">
@@ -79,6 +91,9 @@ function ChatHeader(props) {
                     <small className="text-muted">
                         {/* check if client has sent message, if so, display time since last client message */}
                         {globalVars.msgList && <i>{globalVars.msgList?.filter(message => message.userID === props.selectedChat.user.id).length === 0 ? 'User has not sent any messages' : 'Last message sent ' + moment(new Date(Math.max(...globalVars.msgList?.filter(message => message.userID === props.selectedChat.user.id)?.map(e => new Date(e.timeSent?.toDate()))))).fromNow()}</i>}
+                        &nbsp; <i>User joined {userJoinedText}</i>
+                        &nbsp; <i>Course Day: {props.selectedChat.user.courseData.courseDay}</i>
+                        &nbsp; <i>Latest Course: {props.selectedChat.user.courseData.latestCourseCompleted}</i>
                     </small>
                 </div>
             </div>
