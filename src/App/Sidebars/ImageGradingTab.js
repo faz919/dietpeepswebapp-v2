@@ -36,7 +36,7 @@ function ImageGradingTab() {
 
     useEffect(() => {
         // filter to messages with images
-        const messageFilter = globalVars.msgList?.filter(msg => msg.img != null && msg.userID === selectedChat.user.id)
+        const messageFilter = selectedChat.user && globalVars.msgList?.filter(msg => msg.img != null && msg.userID === selectedChat.user?.id)
         // filter to ungraded images
         const imageFilter = messageFilter?.map((message) => { return message.img.filter(image => !image.graded && !image.skipped && !image.deleted).length })
         // count number of images in returned array
@@ -82,8 +82,8 @@ function ImageGradingTab() {
                 </header>
                 <div className="sidebar-body">
                     <PerfectScrollbar>
-                        {globalVars.msgList?.map((msg, index) => {
-                            return msg.img != null && msg.userID === selectedChat.user.id && msg.img.map((image, index) => {
+                        {selectedChat.user && globalVars.msgList?.map((msg, index) => {
+                            return msg.img != null && msg.userID === selectedChat.user?.id && msg.img.map((image, index) => {
                                 if (!image.graded && !image.skipped && !image.deleted) {
                                     return ( <ImageGrader image={image} message={msg} chat={selectedChat.chat} /> )
                                 }

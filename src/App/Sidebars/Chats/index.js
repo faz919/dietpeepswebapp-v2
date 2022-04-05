@@ -52,12 +52,15 @@ function Index() {
                 <div className="users-list-body">
                     <div>
                         {/* lot of complicated formatting so that dates/times, unread message counts, and names/latest messages don't overlap */}
-                        <h5 style={{ width: chat.unreadCount === 0 || chat.ungradedImageCount === 0 ? (new Date()).getDay() !== (chat.latestMessageTime?.toDate()).getDay() ? new Date() - chat.latestMessageTime?.toDate() >= 60 * 60 * 24 * 1000 * 7 ? '75%' : '35%' : '75%' : '70%' }} className={chat.unreadCount > 0 ? 'text-primary' : chat.ungradedImageCount > 0 ? 'text-warning' : ''}>{clientInfo.displayName} {clientInfo.nickName && <small className='text-muted'>({clientInfo.nickName})</small>}</h5>
+                        <h5 style={{ width: chat.unreadCount === 0 || chat.ungradedImageCount === 0 ? (new Date()).getMonth() !== (chat.latestMessageTime?.toDate()).getMonth() || (new Date()).getDate() !== (chat.latestMessageTime?.toDate()).getDate() ? new Date() - chat.latestMessageTime?.toDate() >= 60 * 60 * 24 * 1000 * 7 ? '70%' : '35%' : '75%' : '70%' }} 
+                            className={chat.unreadCount > 0 ? 'text-primary' : chat.ungradedImageCount > 0 ? 'text-warning' : ''}>
+                            {clientInfo.displayName} {clientInfo.nickName && <small className='text-muted'>({clientInfo.nickName})</small>}
+                        </h5>
                         <p style={{ width: chat.unreadCount > 0 || chat.ungradedImageCount > 0 ? (new Date()).getDay() !== (chat.latestMessageTime?.toDate()).getDay() ? new Date() - chat.latestMessageTime?.toDate() >= 60 * 60 * 24 * 1000 * 7 ? '70%' : '30%' : '75%' : '90%' }}>{chat.latestMessage}</p>
                     </div>
                     <div className="users-list-action">
                         {chat.unreadCount > 0 ? <div className="new-message-count">{chat.unreadCount}</div> : chat.ungradedImageCount > 0 ? <div className="ungraded-image-count">{chat.ungradedImageCount}</div> : ''}
-                        <small className={chat.unreadCount > 0 ? 'text-primary' : chat.ungradedImageCount > 0 ? 'text-warning' : 'text-muted'}>{(new Date()).getDay() !== (chat.latestMessageTime?.toDate()).getDay() ? moment(chat.latestMessageTime?.toDate()).calendar() : moment(chat.latestMessageTime?.toDate()).format('LT')}</small>
+                        <small className={chat.unreadCount > 0 ? 'text-primary' : chat.ungradedImageCount > 0 ? 'text-warning' : 'text-muted'}>{(new Date()).getMonth() !== (chat.latestMessageTime?.toDate()).getMonth() || (new Date()).getDate() !== (chat.latestMessageTime?.toDate()).getDate() ? moment(chat.latestMessageTime?.toDate()).calendar() : moment(chat.latestMessageTime?.toDate()).format('LT')}</small>
                         <div className={chat.ungradedImageCount > 0 ? "action-toggle-image" : "action-toggle"}>
                             <ChatsDropdown chatID={chat.id}/>
                         </div>
@@ -68,7 +71,7 @@ function Index() {
     }
 
     const [searchQuery, setQuery] = useState('')
-    const chatFilter = globalVars.chatList?.filter((chat, index) => searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat )
+    const chatFilter = globalVars.chatList?.filter((chat, index) => searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.userInfoList[index]?.nickName && globalVars.userInfoList[index]?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat )
 
     return (
         <div className="sidebar active">

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import ChatHeader from "./ChatHeader"
 import ChatFooter from "./ChatFooter"
 import PerfectScrollbar from "react-perfect-scrollbar"
@@ -17,10 +17,13 @@ import {
 import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import moment from 'moment'
+import localization from 'moment/locale/en-nz'
 
 const db = getFirestore(app)
 
 function Chat() {
+
+    moment.updateLocale('en-nz', localization)
 
     const { user, globalVars, setGlobalVars } = useContext(AuthContext)
 
@@ -42,7 +45,7 @@ function Chat() {
     })
 
     useEffect(() => {
-        if (selectedChat != null) {
+        if (selectedChat.chat != null && selectedChat.chat !== 'stats') {
             dispatch(profileAction(true))
             dispatch(mobileProfileAction(true))
             selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(100)))
@@ -90,14 +93,13 @@ function Chat() {
                     message.img != null
                         ?
                         <div className="message-content">
-                            {message.img.map((image) => 
-                            <>
+                            {message.img.map((image) => <>
                                 {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, Red: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
+                                {image.graded && image.uploadedAt && <p style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
                                 <figure>
                                     <img src={image.url} className="w-25 img-fluid rounded" alt="media"/>
                                 </figure>
-                            </>
-                            )}
+                            </>)}
                             {message.msg}
                         </div>
                         :
@@ -120,7 +122,7 @@ function Chat() {
                             <div className="chat-body">
                                 <div className="messages">
                                     {messages ?
-                                        [...messages].reverse().map((message, i) => {
+                                        messages.map((message, i) => {
                                             return <MessagesView message={message} key={message.id}/>
                                         }) : console.log('no messages')}
                                 </div>
@@ -129,14 +131,24 @@ function Chat() {
                         <ChatFooter inputMsg={inputMsg}/>
                     </React.Fragment>
                     :
+                    selectedChat.chat === 'stats' ? (
                     <div className="chat-body no-message">
+                        <div className="no-message-container">
+                            <div className="mb-5">
+                                <img src={UnselectedChat} width={200} className="img-fluid" alt="unselected"/>
+                            </div>
+                            <p className="lead">Stats page coming soon...</p>
+                        </div>
+                    </div>
+                    ):
+                    (<div className="chat-body no-message">
                         <div className="no-message-container">
                             <div className="mb-5">
                                 <img src={UnselectedChat} width={200} className="img-fluid" alt="unselected"/>
                             </div>
                             <p className="lead">Select a chat to read messages</p>
                         </div>
-                    </div>
+                    </div>)
             }
         </div>
     )

@@ -1,61 +1,25 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import ArchivedDropdown from "./ArchivedDropdown"
 import {archivedChats} from "./Data"
 import * as FeatherIcon from "react-feather"
+import { useDispatch } from 'react-redux'
+import { selectedChatAction } from '../../../Store/Actions/selectedChatAction'
+import { profileAction } from '../../../Store/Actions/profileAction'
+import { mobileProfileAction } from '../../../Store/Actions/mobileProfileAction'
 
 function Index() {
 
-    const mobileMenuBtn = () => document.body.classList.toggle('navigation-open')
+    const dispatch = useDispatch()
 
-    return (
-        <div className="sidebar active">
-            <header>
-                <div className="d-flex align-items-center">
-                    <button onClick={mobileMenuBtn} className="btn btn-outline-light mobile-navigation-button mr-3 d-xl-none d-inline">
-                        <FeatherIcon.Menu/>
-                    </button>
-                    <span className="sidebar-title">Deleted/Banned Users</span>
-                </div>
-            </header>
-            <form>
-                <input type="text" className="form-control" placeholder="Search"/>
-            </form>
-            <div className="sidebar-body">
-                <PerfectScrollbar>
-                    <ul className="list-group list-group-flush">
-                        {/* {
-                            archivedChats.map((chat, i) => {
-                                return <li key={i} className="list-group-item">
-                                    {chat.avatar}
-                                    <div className="users-list-body">
-                                        <div>
-                                            <h5>{chat.name}</h5>
-                                            <p>{chat.title}</p>
-                                        </div>
-                                        <div className="users-list-action">
-                                            <div className="action-toggle">
-                                                <ArchivedDropdown/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            })
-                        } */}
-                        <li className='list-group-item'>
-                            <div className='users-list-body'>
-                                <div style={{ alignItems: 'center', marginTop: -20 }}>
-                                    <p>Menu not yet ready...</p>
-                                    <p>Check back later for updates!</p>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </PerfectScrollbar>
-            </div>
-        </div>
-    )
+    useEffect(() => {
+        dispatch(selectedChatAction({ chat: 'stats', user: null, coach: null }))
+        dispatch(profileAction(false))
+        dispatch(mobileProfileAction(false))
+    }, [])
+
+    return null
 }
 
 export default Index

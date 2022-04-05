@@ -19,7 +19,7 @@ function Index() {
                         return <FriendsIndex/>
                     } else if (selectedSidebar === 'Favorites') {
                         return <FavoritesIndex/>
-                    } else if (selectedSidebar === 'Deleted') {
+                    } else if (selectedSidebar === 'Stats') {
                         return <ArchivedIndex/>
                     }
                 })()

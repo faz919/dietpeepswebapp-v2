@@ -75,8 +75,8 @@ function Navigation() {
             icon: <FeatherIcon.Star/>,
         },
         {
-            name: 'Deleted',
-            icon: <FeatherIcon.Archive/>,
+            name: 'Stats',
+            icon: <FeatherIcon.BarChart2/>,
         }
     ]
 

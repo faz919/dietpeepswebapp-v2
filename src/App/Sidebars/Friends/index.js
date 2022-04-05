@@ -65,7 +65,7 @@ function Index() {
     }
 
     const [searchQuery, setQuery] = useState('')
-    const chatFilter = globalVars.chatList?.filter((chat, index) => chat.userIDs.includes(user.uid) ? searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat : null )
+    const chatFilter = globalVars.chatList?.filter((chat, index) => chat.userIDs.includes(user.uid) ? searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.userInfoList[index]?.nickName && globalVars.userInfoList[index]?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat : null )
 
     return (
         <div className="sidebar active">
