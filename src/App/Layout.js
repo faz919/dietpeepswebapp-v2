@@ -55,7 +55,7 @@ function Layout() {
                     adminInfo.push({ ...admin.data(), id: admin.id })
                 }
             })
-            console.log('admin getter func called')
+            console.log('admin getter func called ', new Date())
             return { adminList, adminInfo }
         }
         const coachGetter = async () => {
@@ -70,7 +70,7 @@ function Layout() {
                     coachInfo.push({ ...coach.data(), id: coach.id })
                 }
             })
-            console.log('coach getter func called')
+            console.log('coach getter func called ', new Date())
             return { coachList, coachInfo }
         }
         const clientGetter = async () => {
@@ -85,7 +85,7 @@ function Layout() {
                     clientInfo.push({ ...client.data(), id: client.id })
                 }
             })
-            console.log('coach getter func called')
+            console.log('coach getter func called ', new Date())
             return { clientList, clientInfo }
         }
         const fetchMessages = async () => {
@@ -106,14 +106,14 @@ function Layout() {
                                         let userSnap = clientInfo?.find(user => user.id === chatUser)
                                         chatList.push({ ...chatRooms.data(), id: chatRooms.id })
                                         userInfoList.push({ ...userSnap, correspondingChatID: chatRooms.id })
-                                        console.log('chat user found in client list', userSnap.displayName)
+                                        // console.log('chat user found in client list', userSnap.displayName)
                                     } else if (clientInfo?.find(user => user.id === chatUser && user.deleted !== true && user.shadowBanned !== true)) {
                                         let userSnap = await getDoc(doc(db, "user-info", chatUser))
                                         if (userSnap.exists() && userSnap.data().type === 'client') {
                                             if (!userSnap.data().deleted && !userSnap.data().shadowBanned) {
                                                 chatList.push({ ...chatRooms.data(), id: chatRooms.id })
                                                 userInfoList.push({ ...userSnap.data(), id: userSnap.id, correspondingChatID: chatRooms.id })
-                                                console.log('chat user retrieved from db: ', userSnap.id)
+                                                // console.log('chat user retrieved from db: ', userSnap.id)
                                             } else if (!userSnap.data().deleted && userSnap.data().shadowBanned) {
                                                 // if(adminList?.includes(user.uid)) {
                                                 //   chatsList.push({ ...chatRooms.data(), id: chatRooms.id })
@@ -124,17 +124,17 @@ function Layout() {
                                 } else if (coachList?.includes(chatUser)) {
                                     let coachSnap = coachInfo.find(coach => coach.id === chatUser)
                                     coachInfoList.push({ ...coachSnap, correspondingChatID: chatRooms.id })
-                                    console.log('coach info added')
+                                    // console.log('coach info added')
                                 }
                             } else if (coachList?.includes(chatUser)) {
                                 let coachSnap = coachInfo.find(coach => coach.id === chatUser)
                                 coachInfoList.push({ ...coachSnap, correspondingChatID: chatRooms.id })
-                                console.log('coach info added (1)')
+                                // console.log('coach info added (1)')
                             }
                         }
                     }
                 }
-                console.log('snapshot called', chatList, userInfoList, coachInfoList)
+                // console.log('snapshot called', chatList, userInfoList, coachInfoList)
                 setGlobalVars(val => ({...val, chatList, userInfoList, coachInfoList, loadingChats: false}))
             })
         }

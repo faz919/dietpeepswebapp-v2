@@ -72,6 +72,7 @@ function VideoCallModal() {
                             <p><b>Date Joined:</b> {moment(selectedChat.user?.dateJoined).format('llll')}</p>
                             <p><b>Streak:</b> {selectedChat.user?.streak}</p>
                             <p><b>Images Submitted:</b> {selectedChat.user?.totalImageCount || '(Metric Unavailable)'}</p>
+                            <p><b>Notifications Enabled:</b> {selectedChat.user?.notificationsEnabled ? 'Yes' : 'No'}</p>
                             <p><b>Course Day:</b> {selectedChat.user?.courseData.courseDay}</p>
                             <p><b>Latest Course Completed:</b> {selectedChat.user?.courseData.latestCourseCompleted}</p>
                             <p><b>Time of Latest Course Completion:</b> {selectedChat.user?.courseData.latestCourseCompleted > 0 ? moment(selectedChat.user?.courseData.courseCompletedAt?.toDate()).format('llll') : 'No courses completed.'}</p>
@@ -96,7 +97,7 @@ function VideoCallModal() {
                             </div>                      
                              :
                             <button onClick={() => setEditing(true)} style={{ borderWidth: 0, backgroundColor: 'transparent' }}>
-                                <p><b>Notes:</b> {selectedChat.user?.notes || 'Click to Add Notes'}</p>
+                                <p><b>Notes:</b> {selectedChat.user?.notes || <i className='text-muted'>Click to Add Notes</i>}</p>
                             </button>}
                         </div>
                     </div>

@@ -87,16 +87,22 @@ export const AuthProvider = ({ children }) => {
     const publicKey = process.env.REACT_APP_VAPID_KEY
 
     const getUserToken = async () => {
-        const messaging = getMessaging(app)
-        getToken(messaging, { vapidKey: publicKey }).then((token) => {
-            if (token) {
-                console.log('web token is: ', token)
-            } else {
-                console.log('No registration token available. Request permission to generate one.')
-            }
-        }).catch((e) => {
-            console.log('Error while retrieving token: ', e)
-        })
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .register('./firebase-messaging-sw.js')
+                .then(function(registration) {
+                    const messaging = getMessaging(app)
+                    getToken(messaging, { vapidKey: publicKey, serviceWorkerRegistration: registration }).then((token) => {
+                        if (token) {
+                            console.log('web token is: ', token)
+                        } else {
+                            console.log('No registration token available. Request permission to generate one.')
+                        }
+                    }).catch((e) => {
+                        console.log('Error while retrieving token: ', e)
+                    })
+                })
+        }
     }
 
     const setUserToken = async (token) => {

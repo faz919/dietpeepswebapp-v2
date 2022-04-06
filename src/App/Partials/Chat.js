@@ -18,6 +18,8 @@ import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import moment from 'moment'
 import localization from 'moment/locale/en-nz'
+import { Spinner } from 'reactstrap'
+import * as FeatherIcon from 'react-feather'
 
 const db = getFirestore(app)
 
@@ -35,22 +37,28 @@ function Chat() {
 
     const [q, setQ] = useState(null)
     const [messages, setMessages] = useState(null)
+    const [scrollPage, setScrollPage] = useState(1)
+    const [loading, setLoading] = useState(true)
+    const [canLoadMore, setCanLoadMore] = useState(true)
+    const [scrollToBottom, showScrollToBottom] = useState(false)
 
     useEffect(() => {
-        if (scrollEl) {
-            setTimeout(() => {
-                scrollEl.scrollTop = scrollEl.scrollHeight
-            }, 100)
-        }
-    })
+        scrollEl && showScrollToBottom(scrollEl.scrollTop !== scrollEl.scrollHeight)
+    }, [scrollEl?.scrollTop])
+
+    useEffect(() => {
+        setScrollPage(1)
+        setCanLoadMore(true)
+    }, [selectedChat?.chat?.id])
 
     useEffect(() => {
         if (selectedChat.chat != null && selectedChat.chat !== 'stats') {
             dispatch(profileAction(true))
             dispatch(mobileProfileAction(true))
-            selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(100)))
+            selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(20 * scrollPage)))
+            setLoading(true)
         }
-    }, [selectedChat])
+    }, [selectedChat?.chat?.id, scrollPage])
 
     useEffect(() => {
         if (q == null) {
@@ -64,13 +72,17 @@ function Chat() {
                 setMessages(msgList)
                 setGlobalVars(val => ({...val, msgList }))
                 msgList = []
+                if (querySnapshot.size < 20 * scrollPage) {
+                    setCanLoadMore(false)
+                }
+                setLoading(false)
             })
             return () => unsub()
         }
     }, [q])
 
     const MessagesView = (props) => {
-        const {message} = props
+        const { message, index } = props
 
         return (<>
             {/* find latest unread message, then put a little indicator above it */}
@@ -120,12 +132,33 @@ function Chat() {
                         <ChatHeader selectedChat={selectedChat}/>
                         <PerfectScrollbar containerRef={ref => setScrollEl(ref)}>
                             <div className="chat-body">
+                                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: -10 }}>
+                                    {canLoadMore ?
+                                    <>
+                                    <small className='text-muted'>{loading ? 'Loading...' : 'Load more'}</small>
+                                    {loading ?
+                                        <div style={{ marginTop: 5 }}>
+                                            <Spinner variant='primary' />
+                                        </div> :
+                                        <button onClick={() => canLoadMore && setScrollPage(scrollPage + 1)} style={{ borderWidth: 0, backgroundColor: 'transparent', marginTop: 5 }}>
+                                            <FeatherIcon.RefreshCcw size={32} />
+                                        </button>}
+                                    </>
+                                    : <small className='text-muted'>No more messages to load!</small>}
+                                </div>
                                 <div className="messages">
                                     {messages ?
                                         messages.map((message, i) => {
-                                            return <MessagesView message={message} key={message.id}/>
+                                            return <MessagesView message={message} index={i} key={message.id}/>
                                         }) : console.log('no messages')}
                                 </div>
+                                {scrollToBottom && scrollEl.scrollTop !== scrollEl.scrollHeight && <button onClick={() => scrollEl.scrollTop = scrollEl.scrollHeight} style={{ position: 'absolute', bottom: 10, left: 5, backgroundColor: 'transparent', width: 40, height: 40, borderRadius: 20, borderWidth: 0 }}>
+                                    <div style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#0a80ff' }}>
+                                        <div style={{ position: 'relative', top: 8 }}>
+                                            <FeatherIcon.ChevronDown color='#fff' />
+                                        </div>
+                                    </div>
+                                </button>}
                             </div>
                         </PerfectScrollbar>
                         <ChatFooter inputMsg={inputMsg}/>

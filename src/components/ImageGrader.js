@@ -134,6 +134,7 @@ const ImageGrader = ({ image, message, chat }) => {
             msg: formValues.comment,
             timeSent: Timestamp.fromDate(new Date()),
             userID: user.uid,
+            msgType: 'imageGrade'
         }).then(() => {
             updateDoc(doc(db, "chat-rooms", chat.id), {
                 latestMessage: formValues.comment === '' ? '[Image]' : formValues.comment,
