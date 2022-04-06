@@ -30,10 +30,13 @@ function ChatFooter() {
         msg,
         timeSent: Timestamp.fromDate(new Date()),
         userID: uid,
+        // msgType: 'chatMessage'
       }).then(() => {
         updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
           latestMessage: msg,
-          latestMessageTime: Timestamp.fromDate(new Date())
+          latestMessageTime: Timestamp.fromDate(new Date()),
+          latestMessageSender: uid,
+          unreadCount: 0
         })
         selectedChat.chat.unreadCount = 0
       })
