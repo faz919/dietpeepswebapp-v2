@@ -36,7 +36,8 @@ function ChatFooter() {
           latestMessage: msg,
           latestMessageTime: Timestamp.fromDate(new Date()),
           latestMessageSender: uid,
-          unreadCount: 0
+          unreadCount: 0,
+          coachLastRead: Timestamp.fromDate(new Date())
         })
         selectedChat.chat.unreadCount = 0
       })
