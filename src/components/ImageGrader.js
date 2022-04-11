@@ -236,6 +236,7 @@ const ImageGrader = ({ image, message, chat }) => {
                                 </button>
                             </DropdownToggle>
                             <DropdownMenu end>
+                                <DropdownItem onClick={() => window.open(image.url, '_blank', 'noopener,noreferrer')}>View Full Resolution</DropdownItem>
                                 <DropdownItem onClick={togglePieChart}>{showPieChart ? 'Hide' : 'Show'} Pie Chart</DropdownItem>
                                 <DropdownItem onClick={toggleImageSkipModal}>Skip Image</DropdownItem>
                                 <DropdownItem divider />
