@@ -1,12 +1,9 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {useDispatch, useSelector} from "react-redux"
-import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
 import PerfectScrollbar from "react-perfect-scrollbar"
 import {profileAction} from "../../Store/Actions/profileAction"
 import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction"
-import WomenAvatar5 from "../../assets/img/women_avatar5.jpg"
-import classnames from 'classnames'
 import ImageGrader from '../../components/ImageGrader'
 import { AuthContext } from '../../providers/AuthProvider'
 import { doc, getFirestore, updateDoc } from 'firebase/firestore'
@@ -16,17 +13,11 @@ const db = getFirestore(app)
 
 function ImageGradingTab() {
 
-    const { user, globalVars } = useContext(AuthContext)
+    const { globalVars } = useContext(AuthContext)
 
     const dispatch = useDispatch()
 
     const {profileSidebar, mobileProfileSidebar, selectedChat} = useSelector(state => state)
-
-    const [activeTab, setActiveTab] = useState('1')
-
-    const toggle = tab => {
-        if (activeTab !== tab) setActiveTab(tab)
-    }
 
     const profileActions = (e) => {
         e.preventDefault()
@@ -41,16 +32,8 @@ function ImageGradingTab() {
         const imageFilter = messageFilter?.map((message) => { return message.img.filter(image => !image.graded && !image.skipped && !image.deleted).length })
         // count number of images in returned array
         const ungradedImageCount = imageFilter?.reduce((partialSum, a) => partialSum + a, 0)
-        if (ungradedImageCount) {
-            // check if databse data matches up with actual data
-            if (selectedChat.chat.ungradedImageCount !== ungradedImageCount) {
-                // sync data with db
-                updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
-                    ungradedImageCount: ungradedImageCount
-                })
-            }
-            selectedChat.chat.ungradedImageCount = ungradedImageCount 
-        } 
+        console.log(messageFilter.length, imageFilter.length, ungradedImageCount)
+
         if (selectedChat.chat) {
             if (messageFilter?.length === 0 || imageFilter?.length === 0) {
                 if (selectedChat.chat.ungradedImageCount !== 0) {
@@ -60,9 +43,11 @@ function ImageGradingTab() {
                     })
                 }
                 selectedChat.chat.ungradedImageCount = 0
+            } else {
+                selectedChat.chat.ungradedImageCount = ungradedImageCount
             }
         }
-    }, [selectedChat.chat])
+    }, [globalVars.msgList, selectedChat.chat])
 
     return (
         <div style={{paddingLeft: 15, paddingRight: 15}} className={`sidebar-group ${mobileProfileSidebar ? "mobile-open" : ""}`}>
