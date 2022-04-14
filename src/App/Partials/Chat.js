@@ -106,7 +106,7 @@ function Chat() {
                         ?
                         <div className="message-content">
                             {message.img.map((image) => <>
-                                {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, Red: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
+                                {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
                                 {image.graded && image.uploadedAt && <p style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
                                 <figure>
                                     <img src={image.url} className="w-25 img-fluid rounded" alt="media"/>

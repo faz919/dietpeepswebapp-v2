@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         const docRef = doc(db, 'user-info', _user.uid)
         const userDoc = await getDoc(docRef)
         if (userDoc.exists()) {
-            if(userDoc.data().type === 'coach' || userDoc.data().type === 'admin'){
+            if(userDoc.data().type === 'coach' || userDoc.data().type === 'admin' || userDoc.data().type === 'shadow-coach'){
                 navigate('/')
                 getUserToken()
             } else {

@@ -32,7 +32,6 @@ function ImageGradingTab() {
         const imageFilter = messageFilter?.map((message) => { return message.img.filter(image => !image.graded && !image.skipped && !image.deleted).length })
         // count number of images in returned array
         const ungradedImageCount = imageFilter?.reduce((partialSum, a) => partialSum + a, 0)
-        console.log(messageFilter.length, imageFilter.length, ungradedImageCount)
 
         if (selectedChat.chat) {
             if (messageFilter?.length === 0 || imageFilter?.length === 0) {

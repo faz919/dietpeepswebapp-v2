@@ -65,20 +65,20 @@ const ImageGrader = ({ image, message, chat }) => {
                     return val?.toFixed(1) + "%"
                 },
                 style: {
-                    colors: ['#fff']
+                    colors: ['#000']
                 }
             },
             legend: {
                 show: false
             },
             fill: {
-                colors: ['#C70039', '#EBD32E', '#43CD3F'],
+                colors: ['#ECF0E6', '#FFC482', '#67BB3A'],
                 labels: {
-                    colors: ['#C70039', '#EBD32E', '#43CD3F'],
+                    colors: ['#ECF0E6', '#FFC482', '#67BB3A'],
                 }
             },
-            labels: ['Red', 'Yellow', 'Green'],
-            colors: ['#C70039', '#EBD32E', '#43CD3F'],
+            labels: ['White', 'Yellow', 'Green'],
+            colors: ['#ECF0E6', '#FFC482', '#67BB3A'],
             stroke: {
                 show: formValues.green + formValues.yellow + formValues.red !== 0,
                 curve: 'smooth',
@@ -259,14 +259,14 @@ const ImageGrader = ({ image, message, chat }) => {
                 padding: 20
             }}>
                 <Slider
-                    aria-label="Red"
+                    aria-label="White"
                     valueLabelDisplay="auto"
                     value={formValues.red}
                     onChange={e => setFormValues(val => ({ ...val, red: e.target.value }))}
                     step={0.05}
                     min={0}
                     max={10}
-                    style={{ color: '#C70039', marginBottom: 10 }}
+                    style={{ color: '#ECF0E6', marginBottom: 10 }}
                 />
                 <Slider
                     aria-label="Yellow"
@@ -276,7 +276,7 @@ const ImageGrader = ({ image, message, chat }) => {
                     step={0.05}
                     min={0}
                     max={10}
-                    style={{ color: '#EBD32E', marginBottom: 10 }}
+                    style={{ color: '#FFC482', marginBottom: 10 }}
                 />
                 <Slider
                     aria-label="Green"
@@ -286,7 +286,7 @@ const ImageGrader = ({ image, message, chat }) => {
                     step={0.05}
                     min={0}
                     max={10}
-                    style={{ color: '#43CD3F', marginBottom: 10 }}
+                    style={{ color: '#67BB3A', marginBottom: 10 }}
                 />
                 <Input
                     type='textarea'
@@ -299,7 +299,7 @@ const ImageGrader = ({ image, message, chat }) => {
                     className="form-control"
                     style={{ marginBottom: 20 }}
                 />
-                <LoadingButton variant="contained" disabled={!formValues.comment} onClick={gradeImage} loading={submitting} >
+                <LoadingButton variant="contained" disabled={!formValues.comment || formValues.red + formValues.yellow + formValues.green === 0} onClick={gradeImage} loading={submitting} >
                     Submit
                 </LoadingButton>
             </div>

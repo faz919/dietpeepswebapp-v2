@@ -90,6 +90,7 @@ function Layout() {
         }
         const fetchMessages = async () => {
             const { coachList, coachInfo } = await coachGetter()
+            const { adminList, adminInfo } = await adminGetter()
             const { clientList, clientInfo } = await clientGetter()
             const q = query(collection(db, "chat-rooms"), where('userIDs', 'array-contains-any', coachList), orderBy('latestMessageTime', 'desc'))
             onSnapshot(q, async (querySnapshot) => {

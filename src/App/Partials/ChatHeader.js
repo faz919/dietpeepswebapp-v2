@@ -92,6 +92,7 @@ function ChatHeader(props) {
                         {/* check if client has sent message, if so, display time since last client message */}
                         {globalVars.msgList && <i>{globalVars.msgList?.filter(message => message.userID === props.selectedChat.user.id).length === 0 ? 'User has not sent any messages' : 'Last message sent ' + moment(new Date(Math.max(...globalVars.msgList?.filter(message => message.userID === props.selectedChat.user.id)?.map(e => new Date(e.timeSent?.toDate()))))).fromNow()}</i>}
                         &nbsp; <i>User joined {userJoinedText}</i>
+                        {props.selectedChat.user.userBioData && <>&nbsp; <i>User Local Time: {moment((new Date()).setHours((new Date()).getUTCHours() - props.selectedChat.user.userBioData?.timezoneOffset)).format('LT')}</i></>}
                         &nbsp; <i>Course Day: {props.selectedChat.user.courseData.courseDay}</i>
                         &nbsp; <i>Latest Course: {props.selectedChat.user.courseData.latestCourseCompleted}</i>
                     </small>
