@@ -40,6 +40,10 @@ function Index() {
 
     const mobileMenuBtn = () => document.body.classList.toggle('navigation-open')
 
+    useEffect(() => {
+        dispatch(selectedChatAction({ chat: null, user: null, coach: null }))
+    }, [])
+
     const ChatListView = ({ chat }) => {
         const clientInfo = globalVars.userInfoList?.find(val => val.correspondingChatID === chat.id)
         const coachInfo = globalVars.coachInfoList?.find(val => val.correspondingChatID === chat.id)

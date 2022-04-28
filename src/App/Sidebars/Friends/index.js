@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import AddFriendsModal from "../../Modals/AddFriendModal"
@@ -35,6 +35,10 @@ function Index() {
             })
         }
     }
+
+    useEffect(() => {
+        dispatch(selectedChatAction({ chat: null, user: null, coach: null }))
+    }, [])
 
     const ClientListView = ({ chat }) => {
         const clientInfo = globalVars.userInfoList?.find(val => val.correspondingChatID === chat.id)

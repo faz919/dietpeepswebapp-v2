@@ -25,28 +25,31 @@ function ImageGradingTab() {
         dispatch(mobileProfileAction(false))
     }
 
-    // useEffect(() => {
-    //     // filter to messages with images
-    //     const messageFilter = selectedChat.user && globalVars.msgList?.filter(msg => msg.img != null && msg.userID === selectedChat.user?.id)
-    //     // filter to ungraded images
-    //     const imageFilter = messageFilter?.map((message) => { return message.img.filter(image => !image.graded && !image.skipped && !image.deleted).length })
-    //     // count number of images in returned array
-    //     const ungradedImageCount = imageFilter?.reduce((partialSum, a) => partialSum + a, 0)
+    useEffect(() => {
+        // filter to messages with images
+        const messageFilter = selectedChat.user && globalVars.msgList?.filter(msg => msg.img != null && msg.userID === selectedChat.user?.id)
+        // filter to ungraded images
+        const imageFilter = messageFilter?.map((message) => { return message.img.filter(image => !image.graded && !image.skipped && !image.deleted).length })
+        // count number of images in returned array
+        const ungradedImageCount = imageFilter?.reduce((partialSum, a) => partialSum + a, 0)
 
-    //     if (selectedChat.chat) {
-    //         if (messageFilter?.length === 0 || imageFilter?.length === 0) {
-    //             if (selectedChat.chat.ungradedImageCount !== 0) {
-    //                 // sync data with db
-    //                 updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
-    //                     ungradedImageCount: 0
-    //                 })
-    //             }
-    //             selectedChat.chat.ungradedImageCount = 0
-    //         } else {
-    //             selectedChat.chat.ungradedImageCount = ungradedImageCount
-    //         }
-    //     }
-    // }, [globalVars.msgList, selectedChat.chat])
+        if (selectedChat.chat) {
+            if (messageFilter?.length === 0 || imageFilter?.length === 0) {
+                if (selectedChat.chat.ungradedImageCount !== 0) {
+                    // sync data with db
+                    updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
+                        ungradedImageCount: 0
+                    })
+                }
+                selectedChat.chat.ungradedImageCount = 0
+            } else {
+                selectedChat.chat.ungradedImageCount = ungradedImageCount
+                updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
+                    ungradedImageCount
+                })
+            }
+        }
+    }, [globalVars.msgList, selectedChat.chat])
 
     return (
         <div style={{paddingLeft: 15, paddingRight: 15}} className={`sidebar-group ${mobileProfileSidebar ? "mobile-open" : ""}`}>
@@ -66,7 +69,7 @@ function ImageGradingTab() {
                 </header>
                 <div className="sidebar-body">
                     <PerfectScrollbar>
-                        {selectedChat.user && globalVars.msgList?.map((msg, index) => {
+                        {selectedChat.chat !== 'stats' && selectedChat.user && globalVars.msgList?.map((msg, index) => {
                             return msg.img != null && msg.userID === selectedChat.user?.id && msg.img.map((image, index) => {
                                 if (!image.graded && !image.skipped && !image.deleted) {
                                     return ( <ImageGrader image={image} message={msg} chat={selectedChat.chat} /> )

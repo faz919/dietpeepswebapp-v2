@@ -1,12 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import FavoritesDropdown from "./FavoritesDropdown"
 import * as FeatherIcon from "react-feather"
+import { useDispatch } from 'react-redux'
+import { selectedChatAction } from '../../../Store/Actions/selectedChatAction'
 
 function Index() {
 
+    const dispatch = useDispatch()
+
     const mobileMenuBtn = () => document.body.classList.toggle('navigation-open')
+
+    useEffect(() => {
+        dispatch(selectedChatAction({ chat: null, user: null, coach: null }))
+    }, [])
 
     return (
         <div className="sidebar active">
