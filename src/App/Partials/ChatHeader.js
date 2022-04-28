@@ -10,7 +10,7 @@ import {profileAction} from "../../Store/Actions/profileAction"
 import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction"
 import moment from 'moment'
 import { AuthContext } from '../../providers/AuthProvider'
-import { doc, getFirestore, updateDoc } from 'firebase/firestore'
+import { doc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
 import app from '../../firebase'
 import { LoadingButton } from '@mui/lab'
 
@@ -49,6 +49,11 @@ function ChatHeader(props) {
         }
     }
 
+    function age (birthDate) {
+        var ageInMilliseconds = new Date() - new Date(birthDate);
+        return Math.floor(ageInMilliseconds/(1000 * 60 * 60 * 24 * 365));
+    }
+
     useEffect(() => {
         setEditingName(false)
         setNickName('')
@@ -65,6 +70,8 @@ function ChatHeader(props) {
         default:
             userJoinedText = `${Math.round((new Date() - new Date(props.selectedChat.user.dateJoined))/(1000 * 60 * 60 * 24))} days ago`
     }
+
+    const user_age = props.selectedChat.user.userBioData.dob instanceof Timestamp ? age(props.selectedChat.user.userBioData.dob?.toDate()) : age(props.selectedChat.user.userBioData.dob)
 
     return (
         <div className="chat-header">
@@ -96,6 +103,11 @@ function ChatHeader(props) {
                         &nbsp; <i>Course Day: {props.selectedChat.user.courseData.courseDay}</i>
                         &nbsp; <i>Latest Course: {props.selectedChat.user.courseData.latestCourseCompleted}</i>
                     </small>
+                    <br />
+                    {props.selectedChat.user.userBioData && <small className='text-muted'>
+                        <i>Age: {user_age}</i>
+                        &nbsp; <i>Gender: {props.selectedChat.user.userBioData.gender}</i>
+                    </small>}
                 </div>
             </div>
             <div className="chat-header-action">

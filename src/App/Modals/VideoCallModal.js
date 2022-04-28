@@ -52,6 +52,11 @@ function VideoCallModal() {
 
     const ubd = selectedChat.user?.userBioData
 
+    function age (birthDate) {
+        var ageInMilliseconds = new Date() - new Date(birthDate);
+        return Math.floor(ageInMilliseconds/(1000 * 60 * 60 * 24 * 365));
+    }
+
     return (
         <div>
             <button className="btn btn-outline-light text-warning" onClick={modalToggle} id="Tooltip-Video-Call">
@@ -76,29 +81,35 @@ function VideoCallModal() {
                                 &nbsp;
                                 {selectedChat.user.nickName && <p className='text-muted'>({selectedChat.user.nickName})</p>}
                             </div>
-                            <p><b>Date Joined:</b> {moment(selectedChat.user?.dateJoined).format('llll')}</p>
-                            <p><b>Streak:</b> {selectedChat.user?.streak}</p>
-                            <p><b>Images Submitted:</b> {selectedChat.user?.totalImageCount || '(Metric Unavailable)'}</p>
-                            <p><b>Notifications Enabled:</b> {selectedChat.user?.notificationsEnabled ? 'Yes' : 'No'}</p>
-                            {ubd && <p><b>Device OS: </b> {ubd.deviceOS}</p>}
-                            <p><b>Course Day:</b> {selectedChat.user?.courseData.courseDay}</p>
-                            <p><b>Latest Course Completed:</b> {selectedChat.user?.courseData.latestCourseCompleted}</p>
-                            <p><b>Time of Latest Course Completion:</b> {selectedChat.user?.courseData.latestCourseCompleted > 0 ? moment(selectedChat.user?.courseData.courseCompletedAt?.toDate()).format('llll') : 'No courses completed.'}</p>
-                            <p><b>Current Course Day Completed:</b> {selectedChat.user?.courseData.courseDayCompleted ? 'Yes' : 'No'}</p>
-                            {ubd && <><p>{userBioCollapse ? <FeatherIcon.ChevronDown onClick={userBioToggle} />: <FeatherIcon.ChevronRight onClick={userBioToggle} />} <b>User Bio Data:</b></p>
+                            <p>
+                                <b>Date Joined:</b> {moment(selectedChat.user?.dateJoined).format('llll')}<br/>
+                                <b>Streak:</b> {selectedChat.user?.streak}<br/>
+                                <b>Images Submitted:</b> {selectedChat.user?.totalImageCount || '(Metric Unavailable)'}<br/>
+                                <b>Notifications Enabled:</b> {selectedChat.user?.notificationsEnabled ? 'Yes' : 'No'}<br/>
+                                <b>Device OS: </b> {ubd?.deviceOS || selectedChat.user?.deviceInfo?.deviceOS || '(Metric Unavailable)'}<br/>
+                                <b>Course Day:</b> {selectedChat.user?.courseData.courseDay}<br/>
+                                <b>Latest Course Completed:</b> {selectedChat.user?.courseData.latestCourseCompleted}<br/>
+                                <b>Time of Latest Course Completion:</b> {selectedChat.user?.courseData.latestCourseCompleted > 0 ? moment(selectedChat.user?.courseData.courseCompletedAt?.toDate()).format('llll') : 'No courses completed.'}<br/>
+                                <b>Current Course Day Completed:</b> {selectedChat.user?.courseData.courseDayCompleted ? 'Yes' : 'No'}
+                            </p>
+                            {ubd && <><p style={{ cursor: 'pointer' }} onClick={userBioToggle}>{userBioCollapse ? <FeatherIcon.ChevronDown  />: <FeatherIcon.ChevronRight />} <b>User Bio Data:</b></p>
                             <Collapse isOpen={userBioCollapse}>
                                 <Card>
                                     <CardBody>
-                                        <p><b>Gender: </b> {ubd.gender}</p>
-                                        <p><b>Date of Birth: </b> {ubd.dob instanceof Timestamp ? moment(ubd.dob?.toDate()).calendar() : moment(ubd.dob).calendar()}</p>
-                                        <p><b>Height: </b> {`${ubd.height.cm}.${ubd.height.mm} cm (${ubd.height.ft}'${ubd.height.in})`}</p>
-                                        <p><b>Weight: </b> {`${ubd.weight.kgs} kgs (${ubd.weight.lbs} lbs)`}</p>
-                                        <p><b>Target Weight: </b> {`${ubd.targetWeight.kgs} kgs (${ubd.targetWeight.lbs} lbs)`}</p>
-                                        <p><b>Weight Goal: </b> {ubd.weightGoal}</p>
-                                        <p><b># of Meals per Day: </b> {ubd.mealCount}</p>
-                                        <p><b>Meal Times: </b> {ubd.mealTimes?.map((meal, index) => index + 1 === ubd.mealTimes.length ? meal instanceof Timestamp ? `${moment(meal?.toDate()).format('LT')}` : `${moment(meal).format('LT')}` : meal instanceof Timestamp ? `${moment(meal?.toDate()).format('LT')}, ` : `${moment(meal).format('LT')}, `)}</p>
-                                        <p><b>User Local Time: </b> {moment((new Date()).setHours((new Date()).getUTCHours() - ubd.timezoneOffset)).format('LT')}</p>
-                                        <p><b>Other Goals: </b> {ubd.goals.map((goal, index) => index + 1 === ubd.goals.length ? `${goal}` : `${goal}, `)}</p>
+                                        <p>
+                                            <b>Gender: </b> {ubd.gender}<br/>
+                                            <b>Age: </b> {ubd.dob instanceof Timestamp ? age(ubd.dob?.toDate()) : age(ubd.dob)}<br/>
+                                            <b>Date of Birth: </b> {ubd.dob instanceof Timestamp ? moment(ubd.dob?.toDate()).calendar() : moment(ubd.dob).calendar()}<br/>
+                                            <b>Height: </b> {`${ubd.height.cm}.${ubd.height.mm} cm (${ubd.height.ft}'${ubd.height.in})`}<br/>
+                                            <b>Weight: </b> {`${ubd.weight.kgs} kgs (${ubd.weight.lbs} lbs)`}<br/>
+                                            <b>Target Weight: </b> {`${ubd.targetWeight.kgs} kgs (${ubd.targetWeight.lbs} lbs)`}<br/>
+                                            <b>Weight Goal: </b> {ubd.weightGoal}<br/>
+                                            <b># of Meals per Day: </b> {ubd.mealCount}<br/>
+                                            <b>Meal Times (Local Time): </b> {ubd.mealTimes?.map((meal, index) => index + 1 === ubd.mealTimes.length ? meal instanceof Timestamp ? `${moment(meal?.toDate()).format('LT')}` : `${moment(meal).format('LT')}` : meal instanceof Timestamp ? `${moment(meal?.toDate()).format('LT')}, ` : `${moment(meal).format('LT')}, `)}<br/>
+                                            <b>Meal Times (User Time): </b> {ubd.mealTimes?.map((meal, index) => index + 1 === ubd.mealTimes.length ? meal instanceof Timestamp ? `${moment(meal?.toDate().setHours(meal?.toDate().getUTCHours() - ubd.timezoneOffset)).format('LT')}` : `${moment((new Date(meal))?.setHours((new Date(meal))?.getUTCHours() - ubd.timezoneOffset)).format('LT')}` : meal instanceof Timestamp ? `${moment(meal?.toDate().setHours(meal?.toDate().getUTCHours() - ubd.timezoneOffset)).format('LT')}, ` : `${moment((new Date(meal))?.setHours((new Date(meal))?.getUTCHours() - ubd.timezoneOffset)).format('LT')}, `)}<br/>
+                                            <b>User Local Time: </b> {moment((new Date()).setHours((new Date()).getUTCHours() - ubd.timezoneOffset)).format('LT')}<br/>
+                                            <b>Other Goals: </b> {ubd.goals.map((goal, index) => index + 1 === ubd.goals.length ? `${goal}` : `${goal}, `)}
+                                        </p>
                                     </CardBody>
                                 </Card>
                             </Collapse></>}
