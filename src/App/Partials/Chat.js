@@ -16,13 +16,18 @@ import {
     collectionGroup,
     startAt,
     Timestamp,
+    updateDoc,
+    doc,
+    arrayUnion,
+    deleteDoc,
 } from 'firebase/firestore'
 import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import moment from 'moment'
 import localization from 'moment/locale/en-nz'
-import { Spinner } from 'reactstrap'
+import { Button, Input, Modal, ModalBody, Spinner } from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
+import { LoadingButton } from '@mui/lab'
 
 const db = getFirestore(app)
 
@@ -91,6 +96,39 @@ function Chat() {
     const MessagesView = (props) => {
         const { message, index } = props
 
+        const [editing, setEditing] = useState(false)
+        const toggleEditing = () => setEditing(!editing)
+        const [editedMessage, setEditedMessage] = useState(message.msg)
+        const [committingToDB, setCommitting] = useState(false)
+
+        const stopEditing = () => {
+            toggleEditing()
+            setEditedMessage(message.msg)
+            setCommitting(false)
+        }
+
+        const editMessage = async (e) => {
+            e.preventDefault()
+            if (editedMessage === message.msg || editedMessage === '') {
+                return null
+            }
+            setCommitting(true)
+            await updateDoc(doc(db, 'chat-rooms', selectedChat.chat.id, 'chat-messages', message.id), {
+                msgHistory: arrayUnion({ oldMsg: message.msg, editedAt: Timestamp.now() }),
+                msg: editedMessage
+            })
+            stopEditing()
+        }
+
+        const [deleting, setDeleting] = useState(false)
+        const toggleDeleting = () => setDeleting(!deleting)
+
+        const deleteMessage = async (e) => {
+            e.preventDefault()
+            await deleteDoc(doc(db, 'chat-rooms', selectedChat.chat.id, 'chat-messages', message.id))
+            toggleDeleting()
+        }
+
         return (<>
             {/* find latest unread message, then put a little indicator above it */}
             {globalVars.msgList && selectedChat.chat?.unreadCount > 0 && selectedChat.chat?.coachLastRead && Math.min(...globalVars.msgList?.filter(message => message.timeSent?.toDate() > selectedChat.chat?.coachLastRead?.toDate()).map(e => new Date(e.timeSent?.toDate()))) === (new Date(message.timeSent?.toDate())).getTime() && <div className="message-item messages-divider sticky-top" data-label={selectedChat.chat.unreadCount === 1 ? selectedChat.chat.unreadCount + ' unread message' : selectedChat.chat.unreadCount + ' unread messages'} />}
@@ -108,7 +146,29 @@ function Chat() {
                         </div>
                     </div>
                 </div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: message.userID === selectedChat.user.id ? 'flex-start' : 'flex-end', alignItems: 'center' }}>
+                {!editing && message.userID !== selectedChat.user.id && <>
+                <Button onClick={toggleEditing} style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                    <FeatherIcon.Edit2 />
+                </Button>
+                <Button onClick={toggleDeleting} style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                    <FeatherIcon.Trash2 />
+                </Button></>}
+                {editing && <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <LoadingButton className='color-primary' style={{ textTransform: 'none', height: 30, marginLeft: 5 }} disabled={editedMessage === message.msg || editedMessage === ''} loading={committingToDB} variant='contained' onClick={editMessage}>Save</LoadingButton>
+                    <Button style={{ height: 30, justifyContent: 'center', alignItems: 'center', marginLeft: 5 }} onClick={stopEditing}>Cancel</Button>
+                </div>}
                 {
+                    editing ? 
+                    <div className='message-content'>
+                        <Input
+                            type="text" 
+                            className="form-control" 
+                            value={editedMessage}
+                            onChange={(e) => setEditedMessage(e.target.value)}
+                            style={{ width: '500px' }}
+                        />
+                    </div> :
                     message.img != null
                         ?
                         <div className="message-content">
@@ -126,7 +186,32 @@ function Chat() {
                             {message.msg}
                         </div>
                 }
+                {/* {message.userID === selectedChat.user.id && 
+                <div>
+                    <FeatherIcon.MoreHorizontal />
+                </div>} */}
+                </div>
             </div>
+            <Modal isOpen={deleting} toggle={toggleDeleting} centered className="modal-dialog-zoom call">
+                <ModalBody>
+                    <div className="call">
+                        <div>
+                            <h5>Are you sure you want to delete this message?</h5>
+                            <div className="action-button">
+                                <button type="button" onClick={toggleDeleting}
+                                        className="btn btn-danger btn-floating btn-lg"
+                                        data-dismiss="modal" disabled={committingToDB}>
+                                    <FeatherIcon.X/>
+                                </button>
+                                <button type="button" onClick={deleteMessage}
+                                        className="btn btn-success btn-pulse btn-floating btn-lg" disabled={committingToDB}>
+                                    <FeatherIcon.Check/>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalBody>
+            </Modal>
         </>)
     }
 

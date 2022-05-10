@@ -42,10 +42,10 @@ function ImageGradingTab() {
                     })
                 }
                 selectedChat.chat.ungradedImageCount = 0
-            } else {
+            } else if (ungradedImageCount != null) {
                 selectedChat.chat.ungradedImageCount = ungradedImageCount
                 updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
-                    ungradedImageCount
+                    ungradedImageCount: ungradedImageCount
                 })
             }
         }

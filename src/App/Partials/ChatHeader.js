@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import {useDispatch} from "react-redux"
 import {
-    Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Tooltip, Button
+    Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Tooltip, Button, Modal, ModalBody, Input, Collapse
 } from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
 import VoiceCallModal from "../Modals/VoiceCallModal"
-import VideoCallModal from "../Modals/VideoCallModal"
+import UserInfoModal from "../Modals/UserInfoModal"
 import {profileAction} from "../../Store/Actions/profileAction"
 import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction"
 import moment from 'moment'
@@ -27,6 +27,11 @@ function ChatHeader(props) {
 
     const [tooltipOpen, setTooltipOpen] = useState(false)
     const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
+    const [banUserModalOpen, setBanUserModalOpen] = useState(false)
+    const banUserModalToggle = () => setBanUserModalOpen(!banUserModalOpen)
+    const [banning, setBanning] = useState(false)
+    const [banReasonTextInput, showBanReasonTextInput] = useState(false)
+    const [banReason, setBanReason] = useState('')
 
     const [editingName, setEditingName] = useState(false)
     const [nnDBSync, setSyncing] = useState(false)
@@ -48,6 +53,32 @@ function ChatHeader(props) {
             console.log('Nicknames already match.')
         }
     }
+
+    const banUser = async (e) => {
+        e.preventDefault()
+        if (!banReasonTextInput) {
+            return showBanReasonTextInput(true)
+        }
+        if (banReason === '') {
+            return null
+        }
+        setBanning(true)
+        updateDoc(doc(db, "user-info", props.selectedChat.user.id), {
+            shadowBanned: true,
+            shadowBanReason: banReason
+        }).then(() => {
+            banUserModalToggle()
+            setBanning(false)
+            window.location.reload()
+        })  
+    }
+
+    useEffect(() => {
+        if (!banUserModalOpen) {
+            setBanReason('')
+            showBanReasonTextInput(false)
+        }
+    }, [banUserModalOpen])
 
     function age (birthDate) {
         var ageInMilliseconds = new Date() - new Date(birthDate);
@@ -121,7 +152,7 @@ function ChatHeader(props) {
                         <VoiceCallModal/>
                     </li>
                     <li className="list-inline-item">
-                        <VideoCallModal/>
+                        <UserInfoModal/>
                     </li>
                     <li className="list-inline-item" data-toggle="tooltip" title="Video call">
                         <Dropdown isOpen={dropdownOpen} toggle={toggle} id="Tooltip-Chat-Header-Menu">
@@ -138,7 +169,7 @@ function ChatHeader(props) {
                                 <DropdownItem>Add to archive</DropdownItem>
                                 <DropdownItem>Delete</DropdownItem>
                                 <DropdownItem divider/>
-                                <DropdownItem>Block</DropdownItem>
+                                <DropdownItem onClick={banUserModalToggle}>Ban User</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                         <Tooltip
@@ -152,6 +183,39 @@ function ChatHeader(props) {
                     </li>
                 </ul>
             </div>
+            <Modal isOpen={banUserModalOpen} toggle={banUserModalToggle} centered className="modal-dialog-zoom call">
+                <ModalBody>
+                    <div className="call">
+                        <div>
+                            <h5>Are you sure you want to ban this user?</h5>
+                            <Collapse isOpen={banReasonTextInput} style={{ padding: '0px 20px' }}>            
+                                <Input
+                                    type='textarea'
+                                    id="standard-multiline-static"
+                                    label="Reason"
+                                    placeholder="Please provide a reason for this ban..."
+                                    rows={6}
+                                    value={banReason}
+                                    onChange={e => setBanReason(e.target.value)}
+                                    className="form-control"
+                                    style={{ marginBottom: 20 }}
+                                />
+                            </Collapse>
+                            <div className="action-button">
+                                <button type="button" onClick={banUserModalToggle}
+                                        className="btn btn-danger btn-floating btn-lg"
+                                        data-dismiss="modal" disabled={banning}>
+                                    <FeatherIcon.X/>
+                                </button>
+                                <button type="button" onClick={banUser}
+                                        className="btn btn-success btn-pulse btn-floating btn-lg" disabled={banning} style={{ opacity: banReasonTextInput && banReason === '' || banning ? 0.5 : 1 }}>
+                                    <FeatherIcon.Check/>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalBody>
+            </Modal>
         </div>
     )
 }
