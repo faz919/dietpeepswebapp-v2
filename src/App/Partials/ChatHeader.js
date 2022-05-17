@@ -161,10 +161,10 @@ function ChatHeader(props) {
             userJoinedText = `${Math.round((new Date() - new Date(props.selectedChat.user.dateJoined))/(1000 * 60 * 60 * 24))} days ago`
     }
 
-    const user_age = props.selectedChat.user.userBioData && props.selectedChat.user.userBioData?.dob instanceof Timestamp ? age(props.selectedChat.user.userBioData?.dob?.toDate()) : age(props.selectedChat.user.userBioData?.dob)
+    const user_age = props.selectedChat.user.userBioData?.dob && props.selectedChat.user.userBioData?.dob instanceof Timestamp ? age(props.selectedChat.user.userBioData?.dob?.toDate()) : age(props.selectedChat.user.userBioData?.dob)
 
     return (
-        <div style={{ backgroundImage: user_age >= 18 ? null : 'linear-gradient(to top right, rgba(255, 0, 0, 0.3), rgba(0,0,0,0))' }} className="chat-header">
+        <div style={{ backgroundImage: user_age != null && user_age < 18 ? 'linear-gradient(to top right, rgba(255, 0, 0, 0.3), rgba(0,0,0,0))' : null }} className="chat-header">
             <div className="chat-header-user">
                 <UserAvatar user={props.selectedChat.user} />
                 <div>
@@ -192,7 +192,7 @@ function ChatHeader(props) {
                     </small>
                     <br />
                     {props.selectedChat.user.userBioData && <small style={{ display: 'flex' }} className='text-muted'>
-                        <i style={{ display: 'flex' }}>Age: {user_age >= 18 ? user_age : <p className='text-danger' style={{ margin: 0 }}>&nbsp;{user_age}</p>}</i>
+                        <i style={{ display: 'flex' }}>Age: {user_age >= 18 ? user_age : <b className='text-danger' style={{ margin: 0 }}>&nbsp;{user_age}</b>}</i>
                         &nbsp;&nbsp; <i>Gender: {props.selectedChat.user.userBioData.gender}</i>
                     </small>}
                 </div>

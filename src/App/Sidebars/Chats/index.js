@@ -54,10 +54,10 @@ function Index() {
         const clientInfo = globalVars.userInfoList?.find(val => val.correspondingChatID === chat.id)
         const coachInfo = globalVars.coachInfoList?.find(val => val.correspondingChatID === chat.id)
 
-        const user_age = clientInfo.userBioData && clientInfo.userBioData?.dob instanceof Timestamp ? age(clientInfo.userBioData?.dob?.toDate()) : age(clientInfo.userBioData?.dob)
+        const user_age = clientInfo.userBioData?.dob && clientInfo.userBioData?.dob instanceof Timestamp ? age(clientInfo.userBioData?.dob?.toDate()) : age(clientInfo.userBioData?.dob)
 
         return (
-            <li style={{ backgroundImage: user_age >= 18 ? null : 'linear-gradient(to top right, rgba(255, 0, 0, 0.3), rgba(0,0,0,0))' }} className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
+            <li style={{ backgroundImage: user_age != null && user_age < 18 ? 'linear-gradient(to top right, rgba(255, 0, 0, 0.3), rgba(0,0,0,0))' : null }} className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
                     onClick={() => chatSelectHandle(chat, clientInfo, coachInfo)}>
                 <UserAvatar user={clientInfo} />
                 <div className="users-list-body">
