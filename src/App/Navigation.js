@@ -48,7 +48,23 @@ function Navigation() {
     const darkSwitcherToggle = (e) => {
         e.preventDefault()
         document.body.classList.toggle('dark')
+        const darkModeEnabled = window.localStorage.getItem('dark_mode')
+        if (darkModeEnabled != null) {
+            window.localStorage.setItem('dark_mode', JSON.stringify(!JSON.parse(darkModeEnabled)))
+        } else {
+            window.localStorage.setItem('dark_mode', 'true')
+        }
     }
+
+    useEffect(() => {
+        const darkModeEnabled = window.localStorage.getItem('dark_mode')
+        if (darkModeEnabled == null) {
+            return
+        }
+        if (JSON.parse(darkModeEnabled)) {
+            document.body.classList.toggle('dark')
+        }
+    }, [])
 
     const editModalToggle = () => setEditModalOpen(!editModalOpen)
 
