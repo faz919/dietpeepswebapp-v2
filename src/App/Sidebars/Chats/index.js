@@ -189,7 +189,7 @@ function Index() {
                 </ul>
             </header>
             <form>
-                {activityFilterMsg.message && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;<p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>{useUngradedFilter && ` - Ungraded`}</p>}
+                {(activityFilterMsg.message || useUngradedFilter) && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;{activityFilterMsg.message && <p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>}{useUngradedFilter && <p style={{ margin: 0 }}> - Ungraded</p>}</p>}
                 <input type="text" className="form-control" placeholder="Filter by user" value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
             </form>
             <div className="sidebar-body">
