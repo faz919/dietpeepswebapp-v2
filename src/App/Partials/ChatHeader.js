@@ -164,7 +164,7 @@ function ChatHeader(props) {
     const user_age = props.selectedChat.user.userBioData && props.selectedChat.user.userBioData?.dob instanceof Timestamp ? age(props.selectedChat.user.userBioData?.dob?.toDate()) : age(props.selectedChat.user.userBioData?.dob)
 
     return (
-        <div className="chat-header">
+        <div style={{ backgroundImage: user_age >= 18 ? null : 'linear-gradient(to top right, rgba(255, 0, 0, 0.3), rgba(0,0,0,0))' }} className="chat-header">
             <div className="chat-header-user">
                 <UserAvatar user={props.selectedChat.user} />
                 <div>
@@ -191,9 +191,9 @@ function ChatHeader(props) {
                         &nbsp; <i>Latest Course: {props.selectedChat.user.courseData.latestCourseCompleted}</i>
                     </small>
                     <br />
-                    {props.selectedChat.user.userBioData && <small className='text-muted'>
-                        <i>Age: {user_age}</i>
-                        &nbsp; <i>Gender: {props.selectedChat.user.userBioData.gender}</i>
+                    {props.selectedChat.user.userBioData && <small style={{ display: 'flex' }} className='text-muted'>
+                        <i style={{ display: 'flex' }}>Age: {user_age >= 18 ? user_age : <p className='text-danger' style={{ margin: 0 }}>&nbsp;{user_age}</p>}</i>
+                        &nbsp;&nbsp; <i>Gender: {props.selectedChat.user.userBioData.gender}</i>
                     </small>}
                 </div>
             </div>

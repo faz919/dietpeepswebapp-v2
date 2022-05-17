@@ -63,7 +63,7 @@ function UserInfoModal() {
     }
 
     const ubd = selectedChat.user?.userBioData
-    const usrS = selectedChat.user?.settings.notificationTypes
+    const usrS = selectedChat.user?.settings?.notificationTypes
     const notifTypes = [
         { label: 'Chat Message', value: 'chatMessage', icon: 'chatbox-ellipses-outline' },
         { label: 'Meal Score', value: 'imageGrade', icon: 'image-outline' },

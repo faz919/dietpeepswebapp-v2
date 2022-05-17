@@ -45,11 +45,19 @@ function Index() {
         dispatch(selectedChatAction({ chat: null, user: null, coach: null }))
     }, [])
 
+    function age (birthDate) {
+        var ageInMilliseconds = new Date() - new Date(birthDate);
+        return Math.floor(ageInMilliseconds/(1000 * 60 * 60 * 24 * 365));
+    }
+
     const ChatListView = ({ chat }) => {
         const clientInfo = globalVars.userInfoList?.find(val => val.correspondingChatID === chat.id)
         const coachInfo = globalVars.coachInfoList?.find(val => val.correspondingChatID === chat.id)
+
+        const user_age = clientInfo.userBioData && clientInfo.userBioData?.dob instanceof Timestamp ? age(clientInfo.userBioData?.dob?.toDate()) : age(clientInfo.userBioData?.dob)
+
         return (
-            <li className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
+            <li style={{ backgroundImage: user_age >= 18 ? null : 'linear-gradient(to top right, rgba(255, 0, 0, 0.3), rgba(0,0,0,0))' }} className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
                     onClick={() => chatSelectHandle(chat, clientInfo, coachInfo)}>
                 <UserAvatar user={clientInfo} />
                 <div className="users-list-body">
@@ -84,7 +92,7 @@ function Index() {
 
     let tempFilter
     const oneDay = 60 * 60 * 24 * 1000
-    const [activityFilter, setActivityFilter] = useState(chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0))
+    const [activityFilter, setActivityFilter] = useState([])
     const [daysRange, setDaysRange] = useState([])
     
     let tempFilterMsg = {}
