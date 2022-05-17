@@ -40,6 +40,10 @@ function Layout() {
 
     useEffect(() => {
         dispatch(sidebarAction('Chats'))
+        const unsub = onSnapshot(doc(db, 'user-info', user.uid), (userInfo) => {
+            setGlobalVars(val => ({ ...val, userInfo: { ...userInfo.data(), id: userInfo.id }}))
+        })
+        return unsub
     }, [])
 
     useEffect(() => {
@@ -59,13 +63,13 @@ function Layout() {
             return { adminList, adminInfo }
         }
         const coachGetter = async () => {
-            const coachGet = query(collection(db, 'user-info'), where('type', '==', 'coach'))
+            const coachGet = query(collection(db, 'user-info'), where('type', 'in', ['coach', 'removed-coach']))
             const coachDocList = await getDocs(coachGet)
             let coachList = []
             let coachInfo = []
             coachDocList.forEach((coach) => {
                 if (coach.exists()) {
-                    setGlobalVars(val => ({ ...val, coachList: val.coachList.concat(coach.id)}))
+                    setGlobalVars(val => ({ ...val, coachList: val.coachList.concat(coach.id), removedCoachList: coach.data().type === 'removed-coach' ? val.removedCoachList.concat(coach.id) : val.removedCoachList }))
                     coachList.push(coach.id)
                     coachInfo.push({ ...coach.data(), id: coach.id })
                 }

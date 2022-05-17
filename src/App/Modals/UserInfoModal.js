@@ -7,10 +7,11 @@ import { doc, getDoc, getFirestore, updateDoc, Timestamp } from 'firebase/firest
 import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import { LoadingButton } from '@mui/lab'
+import { FormControlLabel, Switch, FormGroup, Checkbox } from '@mui/material'
 
 const db = getFirestore(app)
 
-function VideoCallModal() {
+function UserInfoModal() {
 
     const { user, globalVars, setGlobalVars } = useContext(AuthContext)
 
@@ -21,6 +22,8 @@ function VideoCallModal() {
     const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
     const [userBioCollapse, setUserBioCollapse] = useState(false)
     const userBioToggle = () => setUserBioCollapse(!userBioCollapse)
+    const [userSettingsCollapse, setUserSettingsCollapse] = useState(false)
+    const userSettingsToggle = () => setUserSettingsCollapse(!userSettingsCollapse)
 
     const [reloadingInfo, setReloadingInfo] = useState(false)
 
@@ -40,6 +43,15 @@ function VideoCallModal() {
         setReloadingInfo(false)
     } 
 
+    const toggleManualExtension = async (checked) => {
+        const latestInfo = await updateDoc(doc(db, 'user-info', selectedChat.user.id), { manuallyExtendedTrialPeriod: checked })
+        let userIndex = globalVars.userInfoList?.findIndex(val => val.id === selectedChat.user.id)
+        let newInfo = globalVars.userInfoList
+        newInfo[userIndex] = { ...newInfo[userIndex], ...latestInfo.data() }
+        setGlobalVars(val => ({ ...val, userInfoList: newInfo }))
+        selectedChat.user = { ...selectedChat.user, ...latestInfo.data() }
+    }
+
     const updateUserNotes = async () => {
         setSyncing(true)
         await updateDoc(doc(db, 'user-info', selectedChat.user.id), {
@@ -51,6 +63,14 @@ function VideoCallModal() {
     }
 
     const ubd = selectedChat.user?.userBioData
+    const usrS = selectedChat.user?.settings.notificationTypes
+    const notifTypes = [
+        { label: 'Chat Message', value: 'chatMessage', icon: 'chatbox-ellipses-outline' },
+        { label: 'Meal Score', value: 'imageGrade', icon: 'image-outline' },
+        { label: 'Course Link', value: 'courseLink', icon: 'book-outline' },
+        { label: 'Weekly Check-in', value: 'statSummary', icon: 'bar-chart-outline' },
+        { label: 'Meal Reminder', value: 'mealReminder', icon: 'nutrition-outline' }
+    ]
 
     function age (birthDate) {
         var ageInMilliseconds = new Date() - new Date(birthDate);
@@ -113,6 +133,25 @@ function VideoCallModal() {
                                     </CardBody>
                                 </Card>
                             </Collapse></>}
+                            {usrS && <><p style={{ cursor: 'pointer' }} onClick={userSettingsToggle}>{userSettingsCollapse ? <FeatherIcon.ChevronDown  />: <FeatherIcon.ChevronRight />} <b>User Settings:</b></p>
+                            <Collapse isOpen={userSettingsCollapse}>
+                                <Card>
+                                    <CardBody>
+                                        <p style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                                            Enabled Notification Types: (Not editable)
+                                            <FormGroup>
+                                            {notifTypes.map((type, index) => 
+                                                <FormControlLabel control={<Checkbox checked={usrS.includes(type.value)} />} label={type.label}/>
+                                            )}
+                                            </FormGroup>
+                                            Subscription Data:
+                                            <FormControlLabel control={<Switch checked={selectedChat.user.manuallyExtendedTrialPeriod} onChange={(e) => toggleManualExtension(e.target.checked)} />} label='Manually Extend Trial Period'/>
+                                            <p style={{ margin: 0 }}><b>Subscribed: </b> {selectedChat.user.subscribed ? 'Yes' : 'No'}<br/></p>
+                                            <p style={{ margin: 0 }}><b>Trial Period: </b> {selectedChat.user.trialPeriod ? 'Yes' : 'No'}<br/></p>
+                                        </p>
+                                    </CardBody>
+                                </Card>
+                            </Collapse></>}
                             {editingNotes ?
                             <div>
                                 <Input 
@@ -150,4 +189,4 @@ function VideoCallModal() {
     )
 }
 
-export default VideoCallModal
+export default UserInfoModal

@@ -11,6 +11,7 @@ import { doc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
 import moment from 'moment'
 import { selectedChatAction } from '../../../Store/Actions/selectedChatAction'
 import ChatsDropdown from '../Chats/ChatsDropdown'
+import UserAvatar from '../../../components/UserAvatar'
 
 const db = getFirestore(app)
 
@@ -46,9 +47,7 @@ function Index() {
         return (
             <li className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
                     onClick={() => chatSelectHandle(chat, clientInfo, coachInfo)}>
-                <figure className="avatar">
-                    <img src={clientInfo.photoURL || `https://avatars.dicebear.com/api/bottts/${clientInfo.displayName}.png?dataUri=true`} className="rounded-circle" alt="avatar"/>
-                </figure>
+                <UserAvatar user={clientInfo} />
                 <div className="users-list-body">
                     <div>
                         {/* lot of complicated formatting so that dates/times, unread message counts, and names/latest messages don't overlap */}
@@ -86,7 +85,7 @@ function Index() {
                 </ul>
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Search clients" value={searchQuery} onChange={q => setQuery(q.target.value)}/>
+                <input type="text" className="form-control" placeholder="Filter by client" value={searchQuery} onChange={q => setQuery(q.target.value)}/>
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>

@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {useDispatch} from "react-redux"
+import {useDispatch, useSelector} from "react-redux"
 import {
-    Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Tooltip, Button, Modal, ModalBody, Input, Collapse
+    Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Tooltip, Button, Modal, ModalBody, Input, Collapse, ModalFooter, Label, ModalHeader
 } from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
 import VoiceCallModal from "../Modals/VoiceCallModal"
@@ -13,16 +13,20 @@ import { AuthContext } from '../../providers/AuthProvider'
 import { doc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
 import app from '../../firebase'
 import { LoadingButton } from '@mui/lab'
+import { green, grey, orange, red } from '@mui/material/colors'
+import { Radio } from '@mui/material'
+import UserAvatar from '../../components/UserAvatar'
 
 const db = getFirestore(app)
 
 function ChatHeader(props) {
 
-    const { globalVars } = useContext(AuthContext)
+    const { user, globalVars, setGlobalVars } = useContext(AuthContext)
 
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const toggle = () => setDropdownOpen(prevState => !prevState)
 
+    const { selectedChat } = useSelector(state => state)
     const selectedChatClose = () => document.querySelector('.chat').classList.remove('open')
 
     const [tooltipOpen, setTooltipOpen] = useState(false)
@@ -37,6 +41,61 @@ function ChatHeader(props) {
     const [nnDBSync, setSyncing] = useState(false)
     const [nickName, setNickName] = useState('')
     const textboxHeight = document.getElementById('nickname-textbox')?.getBoundingClientRect().height
+
+    // const [colorCodeModalOpen, setColorCodeModalOpen] = useState(false)
+    // const colorCodeModalToggle = () => setColorCodeModalOpen(!colorCodeModalOpen)
+
+    // function ColorCodeModal() {
+
+    //     const colorCodings = [
+    //         { label: 'Active', value: 'green_active', color: green[400] },
+    //         { label: "Hasn't submitted", value: 'yellow_no-submit', color: orange[400] },
+    //         { label: 'High Risk of Churn', value: 'red_churn-risk', color: red[500] },
+    //         { label: 'Inactive', value: 'grey_inactive', color: grey[500] },
+    //     ]
+
+    //     const colorCodeUser = async (value) => {
+    //         if (globalVars.userInfo.type !== 'coach' && globalVars.userInfo.type !== 'admin') {
+    //             alert('You do not have permission to allocate users to coaches. Please contact an admin if you believe this is a mistake.')
+    //             colorCodeModalToggle()
+    //             return
+    //         }
+    //         const latestInfo = await updateDoc(doc(db, 'user-info', selectedChat.user.id), { colorCode: value, colorCodedBy: user.uid })
+    //         let userIndex = globalVars.userInfoList?.findIndex(val => val.id === selectedChat.user.id)
+    //         let newInfo = globalVars.userInfoList
+    //         newInfo[userIndex] = { ...newInfo[userIndex], ...latestInfo.data() }
+    //         setGlobalVars(val => ({ ...val, userInfoList: newInfo }))
+    //         selectedChat.user = { ...selectedChat.user, ...latestInfo.data() }
+    //         props.selectedChat.user = { ...props.selectedChat.user, ...latestInfo.data() }
+    //     }
+
+    //     return (
+    //         <Modal className="modal-dialog-zoom" isOpen={colorCodeModalOpen} toggle={colorCodeModalToggle} centered>
+    //             <ModalHeader toggle={colorCodeModalToggle}>
+    //                 <FeatherIcon.Database className="mr-2"/> &nbsp; Color Code User
+    //             </ModalHeader>
+    //             <ModalBody>
+    //                 <Label style={{ marginTop: '10px' }} for="message">Set Color</Label>
+    //                 {colorCodings.map((code, index) => 
+    //                     <Radio
+    //                         checked={props.selectedChat.user.colorCode === code.value}
+    //                         onChange={(e) => colorCodeUser(e.target.value)}
+    //                         value={code.value}
+    //                         sx={{
+    //                             color: code.color,
+    //                             '&.Mui-checked': {
+    //                                 color: code.color,
+    //                             },
+    //                         }}
+    //                     />
+    //                 )}
+    //             </ModalBody>
+    //             <ModalFooter>
+    //                 <Button variant='outlined' style={{ textTransform: 'none' }} onClick={colorCodeModalToggle}>Finish</Button>
+    //             </ModalFooter>
+    //         </Modal>
+    //     )
+    // }
 
     const changeNickName = () => {
         if (props.selectedChat.user.nickName !== nickName) {
@@ -102,15 +161,12 @@ function ChatHeader(props) {
             userJoinedText = `${Math.round((new Date() - new Date(props.selectedChat.user.dateJoined))/(1000 * 60 * 60 * 24))} days ago`
     }
 
-    const user_age = props.selectedChat.user.userBioData.dob instanceof Timestamp ? age(props.selectedChat.user.userBioData.dob?.toDate()) : age(props.selectedChat.user.userBioData.dob)
+    const user_age = props.selectedChat.user.userBioData && props.selectedChat.user.userBioData?.dob instanceof Timestamp ? age(props.selectedChat.user.userBioData?.dob?.toDate()) : age(props.selectedChat.user.userBioData?.dob)
 
     return (
         <div className="chat-header">
             <div className="chat-header-user">
-                <figure className="avatar">
-                    {/* attempt to get user photourl, if not, load the default pfp for their username. */}
-                    <img src={props.selectedChat.user.photoURL || `https://avatars.dicebear.com/api/bottts/${props.selectedChat.user.displayName}.png?dataUri=true`} className="rounded-circle" alt="avatar"/>
-                </figure>
+                <UserAvatar user={props.selectedChat.user} />
                 <div>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', height: textboxHeight }}>
                         <h5>{props.selectedChat.user.displayName}</h5>
@@ -166,8 +222,8 @@ function ChatHeader(props) {
                                 </button>
                             </DropdownToggle>
                             <DropdownMenu end>
-                                <DropdownItem>Add to archive</DropdownItem>
-                                <DropdownItem>Delete</DropdownItem>
+                                <DropdownItem>(Option 1)</DropdownItem>
+                                <DropdownItem>Flag User</DropdownItem>
                                 <DropdownItem divider/>
                                 <DropdownItem onClick={banUserModalToggle}>Ban User</DropdownItem>
                             </DropdownMenu>

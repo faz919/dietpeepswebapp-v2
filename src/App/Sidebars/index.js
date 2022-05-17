@@ -17,7 +17,7 @@ function Index() {
                         return <ChatsIndex/>
                     } else if (selectedSidebar === 'Clients') {
                         return <FriendsIndex/>
-                    } else if (selectedSidebar === 'Favorites') {
+                    } else if (selectedSidebar === 'Unallocated') {
                         return <FavoritesIndex/>
                     } else if (selectedSidebar === 'Stats') {
                         return <ArchivedIndex/>

@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react'
 import {useDispatch, useSelector} from "react-redux"
 import * as FeatherIcon from 'react-feather'
-import {Spinner, Tooltip} from 'reactstrap'
+import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Spinner, Tooltip} from 'reactstrap'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import AddGroupModal from "../../Modals/AddGroupModal"
@@ -12,6 +12,7 @@ import { AuthContext } from '../../../providers/AuthProvider'
 import moment from 'moment'
 import { doc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
 import app from '../../../firebase'
+import UserAvatar from '../../../components/UserAvatar'
 
 const db = getFirestore(app)
 
@@ -50,9 +51,7 @@ function Index() {
         return (
             <li className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
                     onClick={() => chatSelectHandle(chat, clientInfo, coachInfo)}>
-                <figure className="avatar">
-                    <img src={clientInfo.photoURL || `https://avatars.dicebear.com/api/bottts/${clientInfo.displayName}.png?dataUri=true`} className="rounded-circle" alt="avatar"/>
-                </figure>
+                <UserAvatar user={clientInfo} />
                 <div className="users-list-body">
                     <div>
                         {/* lot of complicated formatting so that dates/times, unread message counts, and names/latest messages don't overlap */}
@@ -77,6 +76,53 @@ function Index() {
     const [searchQuery, setQuery] = useState('')
     const chatFilter = globalVars.chatList?.filter((chat, index) => searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.userInfoList[index]?.nickName && globalVars.userInfoList[index]?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat )
 
+    const [numDays, setNumDays] = useState('clear')
+    const [activityTooltipOpen, setActivityTooltipOpen] = useState(false)
+    const activityTooltipToggle = () => setActivityTooltipOpen(!activityTooltipOpen)
+    const [activityDropdownOpen, setActivityDropdownOpen] = useState(false)
+    const activityDropdownToggle = () => setActivityDropdownOpen(!activityDropdownOpen)
+
+    let tempFilter = chatFilter
+    const [activityFilter, setActivityFilter] = useState(tempFilter)
+    
+    let tempFilterMsg = {}
+    const [activityFilterMsg, setActivityFilterMsg] = useState(tempFilterMsg)
+    
+    useEffect(() => {
+        const oneDay = 60 * 60 * 24 * 1000
+        switch (numDays) {
+            case 'clear':
+                tempFilter = chatFilter
+                tempFilterMsg = {}
+                break
+            case 'active':
+                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay).length > 0)
+                tempFilterMsg = { message: 'Active', color: 'success' }
+                break
+            case 'no-submit':
+                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay && new Date() - user.lastImageSent?.toDate() < oneDay * 3).length > 0)
+                tempFilterMsg = { message: 'Low Churn Risk (No Images in Last 24h)', color: 'warning' }
+                break
+            case 'churn-risk':
+                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay * 3 && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0)
+                tempFilterMsg = { message: 'High Churn Risk (No Images in Last 72h)', color: 'danger' }
+                break
+            case 'inactive':
+                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay * 7).length > 0)
+                tempFilterMsg = { message: 'Inactive' }
+                break
+        }
+        setActivityFilter(tempFilter)
+        setActivityFilterMsg(tempFilterMsg)
+        console.log(tempFilter)
+    }, [numDays])
+
+    let ungradedFilter = activityFilter.filter((chat) => chat.ungradedImageCount > 0)
+    const [ungradedTooltipOpen, setUngradedTooltipOpen] = useState(false)
+    const ungradedTooltipToggle = () => setUngradedTooltipOpen(!ungradedTooltipOpen)
+    const [useUngradedFilter, setUseUngradedFilter] = useState(false)
+    const useUngradedToggle = () => setUseUngradedFilter(!useUngradedFilter)
+
     return (
         <div className="sidebar active">
             <header>
@@ -87,8 +133,45 @@ function Index() {
                     <span className="sidebar-title">Chats</span>
                 </div>
                 <ul className="list-inline">
+                    <li className='list-inline-item'>
+                        <button className="btn btn-outline-light text-warning" onClick={useUngradedToggle} id="Tooltip-Filter-Ungraded">
+                            <FeatherIcon.Image />
+                        </button>
+                        <Tooltip
+                            placement="bottom"
+                            isOpen={ungradedTooltipOpen}
+                            target={"Tooltip-Filter-Ungraded"}
+                            toggle={ungradedTooltipToggle}>
+                            Filter by Ungraded
+                        </Tooltip>
+                    </li>
                     <li className="list-inline-item">
-                        <AddGroupModal/>
+                        <Dropdown isOpen={activityDropdownOpen} toggle={activityDropdownToggle}>
+                            <DropdownToggle
+                                tag="span"
+                                data-toggle="dropdown"
+                                aria-expanded={activityDropdownOpen}
+                            >
+                                <button className="btn btn-outline-light" id="Tooltip-Filter-Activity">
+                                    <FeatherIcon.Clock />
+                                </button>
+                            </DropdownToggle>
+                            <DropdownMenu>
+                                <DropdownItem onClick={() => setNumDays('active')}>Green (Active)</DropdownItem>
+                                <DropdownItem onClick={() => setNumDays('no-submit')}>Yellow (No images in past 24h)</DropdownItem>
+                                <DropdownItem onClick={() => setNumDays('churn-risk')}>Red (High churn risk)</DropdownItem>
+                                <DropdownItem onClick={() => setNumDays('inactive')}>Gray (Inactive)</DropdownItem>
+                                <DropdownItem divider />
+                                <DropdownItem onClick={() => setNumDays('clear')}>Clear</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                        <Tooltip
+                            placement="bottom"
+                            isOpen={activityTooltipOpen}
+                            target={"Tooltip-Filter-Activity"}
+                            toggle={activityTooltipToggle}>
+                            Filter by Activity
+                        </Tooltip>
                     </li>
                     <li className="list-inline-item">
                         <button onClick={() => dispatch(sidebarAction('Clients'))} className="btn btn-outline-light"
@@ -106,12 +189,13 @@ function Index() {
                 </ul>
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Search chats" value={searchQuery} onChange={q => setQuery(q.target.value) }/>
+                {activityFilterMsg.message && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;<p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>{useUngradedFilter && ` - Ungraded`}</p>}
+                <input type="text" className="form-control" placeholder="Filter by user" value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>
                     <ul className="list-group list-group-flush">
-                        {chatFilter?.map((chat, index) => { return (<ChatListView chat={chat} key={index}/>)})}
+                        {useUngradedFilter ? ungradedFilter?.map((chat, index) => { return (<ChatListView chat={chat} key={index}/>)}) : activityFilter?.map((chat, index) => { return (<ChatListView chat={chat} key={index}/>)})}
                     </ul>
                 </PerfectScrollbar>
             </div>

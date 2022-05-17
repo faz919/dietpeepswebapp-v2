@@ -25,9 +25,10 @@ import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import moment from 'moment'
 import localization from 'moment/locale/en-nz'
-import { Button, Input, Modal, ModalBody, Spinner } from 'reactstrap'
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Modal, ModalBody, Spinner } from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
 import { LoadingButton } from '@mui/lab'
+import UserAvatar from '../../components/UserAvatar'
 
 const db = getFirestore(app)
 
@@ -96,6 +97,8 @@ function Chat() {
     const MessagesView = (props) => {
         const { message, index } = props
 
+        const [messageOptionsDropdown, showMessageOptionsDropdown] = useState(false)
+        const toggleMessageOptionsDropdown = () => showMessageOptionsDropdown(!messageOptionsDropdown)
         const [editing, setEditing] = useState(false)
         const toggleEditing = () => setEditing(!editing)
         const [editedMessage, setEditedMessage] = useState(message.msg)
@@ -114,7 +117,7 @@ function Chat() {
             }
             setCommitting(true)
             await updateDoc(doc(db, 'chat-rooms', selectedChat.chat.id, 'chat-messages', message.id), {
-                msgHistory: arrayUnion({ oldMsg: message.msg, editedAt: Timestamp.now() }),
+                editHistory: arrayUnion({ oldMsg: message.msg, editedAt: Timestamp.now() }),
                 msg: editedMessage
             })
             stopEditing()
@@ -134,26 +137,39 @@ function Chat() {
             {globalVars.msgList && selectedChat.chat?.unreadCount > 0 && selectedChat.chat?.coachLastRead && Math.min(...globalVars.msgList?.filter(message => message.timeSent?.toDate() > selectedChat.chat?.coachLastRead?.toDate()).map(e => new Date(e.timeSent?.toDate()))) === (new Date(message.timeSent?.toDate())).getTime() && <div className="message-item messages-divider sticky-top" data-label={selectedChat.chat.unreadCount === 1 ? selectedChat.chat.unreadCount + ' unread message' : selectedChat.chat.unreadCount + ' unread messages'} />}
             <div className={message.userID === selectedChat.user.id ? 'message-item' : 'outgoing-message message-item' }>
                 <div className="message-avatar">
+                    {message.userID === selectedChat.user.id ? 
+                    <UserAvatar user={selectedChat.user} />
+                        :
                     <figure className="avatar">
-                        <img src={message.userID === selectedChat.user.id ? selectedChat.user.photoURL || `https://avatars.dicebear.com/api/bottts/${selectedChat.user.displayName}.png?dataUri=true` : selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar"/>
-                    </figure>
+                        <img src={selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar"/>
+                    </figure>}
                     <div>
                         <h5>{message.userID === selectedChat.user.id ? selectedChat.user.displayName : selectedChat.coach?.displayName}</h5>
                         {message.userID !== selectedChat.user.id && message.userID !== selectedChat.coach.id && <small className='text-muted'>({globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName ? globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName : 'Admin'})</small>}
                         <div className="time">
                             {moment(message.timeSent?.toDate()).calendar()}
-                            {message.type ? <i className="ti-double-check text-info"></i> : null}
                         </div>
+                        {message.editHistory || message.msgHistory ? <i className='time'>{' (edited)'}</i> : null}
                     </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: message.userID === selectedChat.user.id ? 'flex-start' : 'flex-end', alignItems: 'center' }}>
-                {!editing && message.userID !== selectedChat.user.id && <>
-                <Button onClick={toggleEditing} style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
-                    <FeatherIcon.Edit2 />
-                </Button>
-                <Button onClick={toggleDeleting} style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
-                    <FeatherIcon.Trash2 />
-                </Button></>}
+                {!editing && message.userID !== selectedChat.user.id &&
+                    <Dropdown isOpen={messageOptionsDropdown} toggle={toggleMessageOptionsDropdown}>
+                        <DropdownToggle
+                            tag="span"
+                            data-toggle="dropdown"
+                            aria-expanded={messageOptionsDropdown}
+                        >
+                            <Button style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                                <FeatherIcon.MoreHorizontal />
+                            </Button>
+                        </DropdownToggle>
+                        <DropdownMenu direction='right'>
+                            <DropdownItem onClick={toggleEditing}>Edit</DropdownItem>
+                            <DropdownItem divider />
+                            <DropdownItem onClick={toggleDeleting}>Delete</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>}
                 {editing && <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <LoadingButton className='color-primary' style={{ textTransform: 'none', height: 30, marginLeft: 5 }} disabled={editedMessage === message.msg || editedMessage === ''} loading={committingToDB} variant='contained' onClick={editMessage}>Save</LoadingButton>
                     <Button style={{ height: 30, justifyContent: 'center', alignItems: 'center', marginLeft: 5 }} onClick={stopEditing}>Cancel</Button>
@@ -173,8 +189,8 @@ function Chat() {
                         ?
                         <div className="message-content">
                             {message.img.map((image) => <>
-                                {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
-                                {image.graded && image.uploadedAt && <p style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
+                                {image.graded && <p key={image.url}><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
+                                {image.graded && image.uploadedAt && <p key={image.url} style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
                                 <figure>
                                     <img src={image.url} className="w-25 img-fluid rounded" alt="media"/>
                                 </figure>
@@ -285,7 +301,7 @@ function Chat() {
                                             return <MessagesView message={message} index={i} key={message.id}/>
                                         }) : console.log('no messages')}
                                 </div>
-                                {scrollToBottom && scrollEl.scrollTop !== scrollEl.scrollHeight && <button onClick={() => scrollEl.scrollTop = scrollEl.scrollHeight} style={{ position: 'absolute', bottom: 10, left: 5, backgroundColor: 'transparent', width: 40, height: 40, borderRadius: 20, borderWidth: 0 }}>
+                                {scrollToBottom && scrollEl != null && scrollEl.scrollTop !== scrollEl.scrollHeight && <button onClick={() => scrollEl.scrollTop = scrollEl.scrollHeight} style={{ position: 'absolute', bottom: 10, left: 5, backgroundColor: 'transparent', width: 40, height: 40, borderRadius: 20, borderWidth: 0 }}>
                                     <div style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#0a80ff' }}>
                                         <div style={{ position: 'relative', top: 8 }}>
                                             <FeatherIcon.ChevronDown color='#fff' />

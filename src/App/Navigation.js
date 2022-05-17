@@ -71,8 +71,8 @@ function Navigation() {
             icon: <FeatherIcon.User/>,
         },
         {
-            name: 'Favorites',
-            icon: <FeatherIcon.Star/>,
+            name: 'Unallocated',
+            icon: <FeatherIcon.Archive/>,
         },
         {
             name: 'Stats',

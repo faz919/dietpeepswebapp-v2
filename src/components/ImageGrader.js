@@ -200,6 +200,8 @@ const ImageGrader = ({ image, message, chat }) => {
         })  
     }
 
+    // const [imageRotateDeg, setImageRotateDeg] = useState(90)
+
     return (
         <div style={{ marginBottom: 0 }}>
             <div style={{
@@ -222,8 +224,13 @@ const ImageGrader = ({ image, message, chat }) => {
                     position: 'absolute',
                     width: '100%',
                     display: 'flex',
-                    height: '100%',
+                    height: '100%'
                 }}>
+                    {/* <div style={{ alignSelf: 'flex-start', marginLeft: 0, position: 'absolute' }}>
+                        <button style={{ color: "#fff", boxShadow: '2px 2px 4px #000000' }} className="btn">
+                            <FeatherIcon.Clock />
+                        </button>
+                    </div> */}
                     <div style={{ alignSelf: 'flex-end', marginRight: 24 }}>
                         <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
                             <DropdownToggle
