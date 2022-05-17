@@ -76,23 +76,24 @@ function Index() {
     const [searchQuery, setQuery] = useState('')
     const chatFilter = globalVars.chatList?.filter((chat, index) => searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.userInfoList[index]?.nickName && globalVars.userInfoList[index]?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat )
 
-    const [numDays, setNumDays] = useState('clear')
+    const [colorCode, setColorCode] = useState('clear')
     const [activityTooltipOpen, setActivityTooltipOpen] = useState(false)
     const activityTooltipToggle = () => setActivityTooltipOpen(!activityTooltipOpen)
     const [activityDropdownOpen, setActivityDropdownOpen] = useState(false)
     const activityDropdownToggle = () => setActivityDropdownOpen(!activityDropdownOpen)
 
-    let tempFilter = chatFilter
-    const [activityFilter, setActivityFilter] = useState(tempFilter)
+    let tempFilter
+    const oneDay = 60 * 60 * 24 * 1000
+    const [activityFilter, setActivityFilter] = useState(chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0))
+    const [daysRange, setDaysRange] = useState([])
     
     let tempFilterMsg = {}
     const [activityFilterMsg, setActivityFilterMsg] = useState(tempFilterMsg)
     
     useEffect(() => {
-        const oneDay = 60 * 60 * 24 * 1000
-        switch (numDays) {
+        switch (colorCode) {
             case 'clear':
-                tempFilter = chatFilter
+                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0)
                 tempFilterMsg = {}
                 break
             case 'active':
@@ -111,11 +112,14 @@ function Index() {
                 tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay * 7).length > 0)
                 tempFilterMsg = { message: 'Inactive' }
                 break
+            default: 
+                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0)
+                tempFilterMsg = {}
+                break
         }
         setActivityFilter(tempFilter)
         setActivityFilterMsg(tempFilterMsg)
-        console.log(tempFilter)
-    }, [numDays])
+    }, [colorCode, searchQuery, globalVars.chatList])
 
     let ungradedFilter = activityFilter.filter((chat) => chat.ungradedImageCount > 0)
     const [ungradedTooltipOpen, setUngradedTooltipOpen] = useState(false)
@@ -157,12 +161,12 @@ function Index() {
                                 </button>
                             </DropdownToggle>
                             <DropdownMenu>
-                                <DropdownItem onClick={() => setNumDays('active')}>Green (Active)</DropdownItem>
-                                <DropdownItem onClick={() => setNumDays('no-submit')}>Yellow (No images in past 24h)</DropdownItem>
-                                <DropdownItem onClick={() => setNumDays('churn-risk')}>Red (High churn risk)</DropdownItem>
-                                <DropdownItem onClick={() => setNumDays('inactive')}>Gray (Inactive)</DropdownItem>
+                                <DropdownItem onClick={() => setColorCode('clear')}>Clear</DropdownItem>
                                 <DropdownItem divider />
-                                <DropdownItem onClick={() => setNumDays('clear')}>Clear</DropdownItem>
+                                <DropdownItem onClick={() => setColorCode('active')}>Green (Active)</DropdownItem>
+                                <DropdownItem onClick={() => setColorCode('no-submit')}>Yellow (No images in past 24h)</DropdownItem>
+                                <DropdownItem onClick={() => setColorCode('churn-risk')}>Red (High churn risk)</DropdownItem>
+                                <DropdownItem onClick={() => setColorCode('inactive')}>Gray (Inactive)</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                         <Tooltip
@@ -173,7 +177,7 @@ function Index() {
                             Filter by Activity
                         </Tooltip>
                     </li>
-                    <li className="list-inline-item">
+                    {/* <li className="list-inline-item">
                         <button onClick={() => dispatch(sidebarAction('Clients'))} className="btn btn-outline-light"
                                 id="Tooltip-New-Chat">
                             <FeatherIcon.PlusCircle/>
@@ -185,11 +189,12 @@ function Index() {
                             toggle={toggle}>
                             New chat
                         </Tooltip>
-                    </li>
+                    </li> */}
                 </ul>
             </header>
             <form>
                 {(activityFilterMsg.message || useUngradedFilter) && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;{activityFilterMsg.message && <p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>}{useUngradedFilter && <p style={{ margin: 0 }}> - Ungraded</p>}</p>}
+                <p style={{ margin: 0, marginBottom: 5 }}>Inactive users now hidden by default.</p>
                 <input type="text" className="form-control" placeholder="Filter by user" value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
             </form>
             <div className="sidebar-body">

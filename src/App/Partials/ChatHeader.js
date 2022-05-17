@@ -222,8 +222,8 @@ function ChatHeader(props) {
                                 </button>
                             </DropdownToggle>
                             <DropdownMenu end>
-                                <DropdownItem>(Option 1)</DropdownItem>
-                                <DropdownItem>Flag User</DropdownItem>
+                                {/* <DropdownItem>(Option 1)</DropdownItem> */}
+                                <DropdownItem>(WIP) Flag User</DropdownItem>
                                 <DropdownItem divider/>
                                 <DropdownItem onClick={banUserModalToggle}>Ban User</DropdownItem>
                             </DropdownMenu>
