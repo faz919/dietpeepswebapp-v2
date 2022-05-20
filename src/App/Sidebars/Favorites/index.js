@@ -100,8 +100,8 @@ function Index() {
                 try {
                     await updateDoc(doc(db, 'chat-rooms', client.correspondingChatID), {
                         userIDs: [selectedCoach, client.id],
-                        latestMessage: allocateUserMessage,
-                        latestMessageTime: Timestamp.now()
+                        // latestMessage: allocateUserMessage,
+                        // latestMessageTime: Timestamp.now()
                     })
                     await updateDoc(doc(db, 'user-info', client.id), {
                         coachID: selectedCoach
@@ -110,7 +110,8 @@ function Index() {
                         img: null,
                         msg: allocateUserMessage,
                         timeSent: Timestamp.now(),
-                        userID: selectedCoach
+                        userID: selectedCoach,
+                        senderType: 'coach'
                     })
                 } catch (e) {
                     console.log('error while re-allocating user: ', e)
@@ -119,8 +120,8 @@ function Index() {
                 try {
                     await updateDoc(doc(db, 'chat-rooms', client.correspondingChatID), {
                         userIDs: [user.uid, client.id],
-                        latestMessage: allocateUserMessage,
-                        latestMessageTime: Timestamp.now()
+                        // latestMessage: allocateUserMessage,
+                        // latestMessageTime: Timestamp.now()
                     })
                     await updateDoc(doc(db, 'user-info', client.id), {
                         coachID: user.uid
@@ -129,7 +130,8 @@ function Index() {
                         img: null,
                         msg: allocateUserMessage,
                         timeSent: Timestamp.now(),
-                        userID: user.uid
+                        userID: user.uid,
+                        senderType: 'coach'
                     })
                 } catch (e) {
                     console.log('error while re-allocating user: ', e)

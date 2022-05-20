@@ -34,12 +34,13 @@ function ChatFooter() {
             msg,
             timeSent: Timestamp.fromDate(new Date()),
             userID: uid,
+            senderType: 'coach',
             // msgType: 'chatMessage'
         }).then(() => {
             updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
-                latestMessage: msg,
-                latestMessageTime: Timestamp.fromDate(new Date()),
-                latestMessageSender: uid,
+                // latestMessage: msg,
+                // latestMessageTime: Timestamp.fromDate(new Date()),
+                // latestMessageSender: uid,
                 unreadCount: 0,
                 coachLastRead: Timestamp.fromDate(new Date())
             })

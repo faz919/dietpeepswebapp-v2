@@ -42,7 +42,9 @@ function Index() {
     const mobileMenuBtn = () => document.body.classList.toggle('navigation-open')
 
     useEffect(() => {
-        dispatch(selectedChatAction({ chat: null, user: null, coach: null }))
+        if (selectedChat.user == null) {
+            dispatch(selectedChatAction({ chat: null, user: null, coach: null }))
+        }
     }, [])
 
     function age (birthDate) {
@@ -93,7 +95,6 @@ function Index() {
     let tempFilter
     const oneDay = 60 * 60 * 24 * 1000
     const [activityFilter, setActivityFilter] = useState([])
-    const [daysRange, setDaysRange] = useState([])
     
     let tempFilterMsg = {}
     const [activityFilterMsg, setActivityFilterMsg] = useState(tempFilterMsg)
@@ -101,7 +102,7 @@ function Index() {
     useEffect(() => {
         switch (colorCode) {
             case 'clear':
-                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0)
+                tempFilter = chatFilter
                 tempFilterMsg = {}
                 break
             case 'active':
@@ -121,7 +122,7 @@ function Index() {
                 tempFilterMsg = { message: 'Inactive' }
                 break
             default: 
-                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0)
+                tempFilter = chatFilter
                 tempFilterMsg = {}
                 break
         }
@@ -201,8 +202,8 @@ function Index() {
                 </ul>
             </header>
             <form>
-                {(activityFilterMsg.message || useUngradedFilter) && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;{activityFilterMsg.message && <p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>}{useUngradedFilter && <p style={{ margin: 0 }}> - Ungraded</p>}</p>}
-                <p style={{ margin: 0, marginBottom: 5 }}>Inactive users now hidden by default.</p>
+                {(activityFilterMsg.message || useUngradedFilter) && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;{activityFilterMsg.message && <p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>}{useUngradedFilter && <p style={{ margin: 0 }}> - Ungraded</p>}<p style={{ margin: 0 }}>{useUngradedFilter ? ungradedFilter.length : activityFilter.length} users in query.</p></p>}
+                {/* <p style={{ margin: 0, marginBottom: 5 }}>Inactive users now hidden by default.</p> */}
                 <input type="text" className="form-control" placeholder="Filter by user" value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
             </form>
             <div className="sidebar-body">

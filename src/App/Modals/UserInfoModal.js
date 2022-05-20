@@ -44,7 +44,8 @@ function UserInfoModal() {
     } 
 
     const toggleManualExtension = async (checked) => {
-        const latestInfo = await updateDoc(doc(db, 'user-info', selectedChat.user.id), { manuallyExtendedTrialPeriod: checked })
+        await updateDoc(doc(db, 'user-info', selectedChat.user.id), { manuallyExtendedTrialPeriod: checked })
+        const latestInfo = await getDoc(doc(db, 'user-info', selectedChat.user.id))
         let userIndex = globalVars.userInfoList?.findIndex(val => val.id === selectedChat.user.id)
         let newInfo = globalVars.userInfoList
         newInfo[userIndex] = { ...newInfo[userIndex], ...latestInfo.data() }

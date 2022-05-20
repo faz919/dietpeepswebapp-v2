@@ -29,6 +29,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Mo
 import * as FeatherIcon from 'react-feather'
 import { LoadingButton } from '@mui/lab'
 import UserAvatar from '../../components/UserAvatar'
+import Stats from '../Sidebars/Stats/StatsDisplay'
 
 const db = getFirestore(app)
 
@@ -61,13 +62,13 @@ function Chat() {
     }, [selectedChat?.chat?.id])
 
     useEffect(() => {
-        if (selectedChat.chat != null && selectedChat.chat !== 'stats') {
+        if (selectedChat.chat != null && selectedChat.chat !== 'stats' && selectedChat.chat !== 'activity-feed') {
             dispatch(profileAction(true))
             dispatch(mobileProfileAction(true))
-            selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(20 * scrollPage)))
+            selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(10 * scrollPage)))
             setLoading(true)
-        } else if (selectedChat.chat === 'stats') {
-            setQ(query(collectionGroup(db, "chat-messages"), orderBy('timeSent'), limitToLast(20 * scrollPage) ))
+        } else if (selectedChat.chat === 'activity-feed') {
+            setQ(query(collection(db, "activity-feed"), orderBy('timeSent'), limitToLast(25 * scrollPage) ))
             setLoading(true)
         }
     }, [selectedChat?.chat, scrollPage])
@@ -81,11 +82,11 @@ function Chat() {
                 querySnapshot.forEach((doc) => {
                     msgList.push({ ...doc.data(), id: doc.id })
                 })
-                console.log('message list: ', msgList)
+                // console.log('message list: ', msgList)
                 setMessages(msgList)
                 setGlobalVars(val => ({...val, msgList }))
                 msgList = []
-                if (querySnapshot.size < 20 * scrollPage) {
+                if (querySnapshot.size < 10 * scrollPage || (selectedChat.chat === 'activity-feed' && querySnapshot.size < 25 * scrollPage)) {
                     setCanLoadMore(false)
                 }
                 setLoading(false)
@@ -233,44 +234,31 @@ function Chat() {
 
     const FeedView = (props) => {
 
-        const { message, index } = props
+        const { activity, index } = props
 
         return (<>
             <div className='message-item'>
-                {/* <div className="message-avatar">
+                <div className="message-avatar">
                     <figure className="avatar">
-                        <img src={message.userID === selectedChat.user.id ? selectedChat.user.photoURL || `https://avatars.dicebear.com/api/bottts/${selectedChat.user.displayName}.png?dataUri=true` : selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar"/>
+                        <img src={globalVars.coachInfoList?.find((coach) => coach.id === activity.senderID)?.photoURL} className="rounded-circle" alt="avatar"/>
                     </figure>
                     <div>
-                        <h5>{message.userID === selectedChat.user.id ? selectedChat.user.displayName : selectedChat.coach?.displayName}</h5>
-                        {message.userID !== selectedChat.user.id && message.userID !== selectedChat.coach.id && <small className='text-muted'>({globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName ? globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName : 'Admin'})</small>}
+                        <h5>{globalVars.coachInfoList?.find((coach) => coach.id === activity.senderID)?.displayName}</h5>
                         <div className="time">
-                            {moment(message.timeSent?.toDate()).calendar()}
-                            {message.type ? <i className="ti-double-check text-info"></i> : null}
+                            {moment(activity.timeSent?.toDate()).calendar()}
                         </div>
                     </div>
                 </div>
-                {
-                    message.img != null
-                        ?
-                        <div className="message-content">
-                            {message.img.map((image) => <>
-                                {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
-                                {image.graded && image.uploadedAt && <p style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
-                                <figure>
-                                    <img src={image.url} className="w-25 img-fluid rounded" alt="media"/>
-                                </figure>
-                            </>)}
-                            {message.msg}
-                        </div>
-                        :
-                        <div className="message-content">
-                            {message.msg}
-                        </div>
-                } */}
+                <div className="message-content">
+                    {activity.msg}
+                </div>
             </div>
         </>)
     }
+
+    useEffect(() => {
+        console.log(selectedChat)
+    }, [selectedChat])
 
     return (
         <div className="chat">
@@ -313,7 +301,7 @@ function Chat() {
                         <ChatFooter inputMsg={inputMsg}/>
                     </>
                     :
-                    selectedChat.chat === 'stats' ? (
+                    selectedChat.chat === 'activity-feed' ? (
                         <PerfectScrollbar>
                             <div className="chat-body">
                                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: -10 }}>
@@ -333,7 +321,7 @@ function Chat() {
                                 <div className="messages">
                                     {messages ?
                                         messages.map((message, i) => {
-                                            return <FeedView message={message} index={i} key={message.id}/>
+                                            return <FeedView activity={message} index={i} key={message.id}/>
                                         }) : console.log('no messages')}
                                 </div>
                                 {/* {scrollToBottom && scrollEl.scrollTop !== scrollEl.scrollHeight && <button onClick={() => scrollEl.scrollTop = scrollEl.scrollHeight} style={{ position: 'absolute', bottom: 10, left: 5, backgroundColor: 'transparent', width: 40, height: 40, borderRadius: 20, borderWidth: 0 }}>
@@ -345,15 +333,20 @@ function Chat() {
                                 </button>} */}
                             </div>
                         </PerfectScrollbar>
-                    ):
-                    (<div className="chat-body no-message">
+                    )
+                    :
+                    selectedChat.chat === 'stats' ? (
+                        <Stats />
+                    )
+                    :
+                    <div className="chat-body no-message">
                         <div className="no-message-container">
                             <div className="mb-5">
                                 <img src={UnselectedChat} width={200} className="img-fluid" alt="unselected"/>
                             </div>
                             <p className="lead">Select a chat to read messages</p>
                         </div>
-                    </div>)
+                    </div>
             }
         </div>
     )

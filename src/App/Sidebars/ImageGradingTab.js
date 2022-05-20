@@ -69,7 +69,7 @@ function ImageGradingTab() {
                 </header>
                 <div className="sidebar-body">
                     <PerfectScrollbar>
-                        {selectedChat.chat !== 'stats' && selectedChat.user && globalVars.msgList?.map((msg, index) => {
+                        {selectedChat.chat !== 'activity-feed' && selectedChat.chat !== 'stats' && selectedChat.user && globalVars.msgList?.map((msg, index) => {
                             return msg.img != null && msg.userID === selectedChat.user?.id && msg.img.map((image, index) => {
                                 if (!image.graded && !image.skipped && !image.deleted) {
                                     return ( <ImageGrader image={image} message={msg} chat={selectedChat.chat} /> )

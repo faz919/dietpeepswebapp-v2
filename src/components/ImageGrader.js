@@ -136,10 +136,10 @@ const ImageGrader = ({ image, message, chat }) => {
             userID: user.uid,
             msgType: 'imageGrade'
         }).then(() => {
-            updateDoc(doc(db, "chat-rooms", chat.id), {
-                latestMessage: formValues.comment === '' ? '[Image]' : formValues.comment,
-                latestMessageTime: Timestamp.fromDate(new Date())
-            })
+            // updateDoc(doc(db, "chat-rooms", chat.id), {
+            //     latestMessage: formValues.comment === '' ? '[Image]' : formValues.comment,
+            //     latestMessageTime: Timestamp.fromDate(new Date())
+            // })
             setSubmitting(false)
             setFormValues({
                 red: 0,

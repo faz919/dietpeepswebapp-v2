@@ -20,7 +20,7 @@ import { AuthContext } from '../providers/AuthProvider'
 
 function Navigation() {
 
-    const { user, logOut } = useContext(AuthContext)
+    const { user, globalVars, logOut } = useContext(AuthContext)
 
     const {selectedSidebar} = useSelector(state => state)
 
@@ -77,6 +77,46 @@ function Navigation() {
         dispatch(mobileProfileAction(true))
     }
 
+    // hide stats and activity feed by uncommenting the 'navigationItems' const below
+
+    // const navigationItems = globalVars.userInfo?.type === 'admin' ? 
+    // [
+    //     {
+    //         name: 'Chats',
+    //         icon: <FeatherIcon.MessageCircle/>,
+    //     },
+    //     {
+    //         name: 'Clients',
+    //         icon: <FeatherIcon.User/>,
+    //     },
+    //     {
+    //         name: 'Unallocated',
+    //         icon: <FeatherIcon.Archive/>,
+    //     },
+    //     {
+    //         name: 'Activity Feed',
+    //         icon: <FeatherIcon.Activity/>,
+    //     },
+    //     {
+    //         name: 'Stats',
+    //         icon: <FeatherIcon.BarChart2/>,
+    //     }
+    // ] :
+    // [
+    //     {
+    //         name: 'Chats',
+    //         icon: <FeatherIcon.MessageCircle/>,
+    //     },
+    //     {
+    //         name: 'Clients',
+    //         icon: <FeatherIcon.User/>,
+    //     },
+    //     {
+    //         name: 'Unallocated',
+    //         icon: <FeatherIcon.Archive/>,
+    //     }
+    // ]
+
     const navigationItems = [
         {
             name: 'Chats',
@@ -89,6 +129,10 @@ function Navigation() {
         {
             name: 'Unallocated',
             icon: <FeatherIcon.Archive/>,
+        },
+        {
+            name: 'Activity Feed',
+            icon: <FeatherIcon.Activity/>,
         },
         {
             name: 'Stats',

@@ -63,7 +63,7 @@ function Layout() {
             return { adminList, adminInfo }
         }
         const coachGetter = async () => {
-            const coachGet = query(collection(db, 'user-info'), where('type', 'in', ['coach', 'removed-coach']))
+            const coachGet = query(collection(db, 'user-info'), where('type', 'in', ['coach', 'removed-coach', 'shadow-coach']))
             const coachDocList = await getDocs(coachGet)
             let coachList = []
             let coachInfo = []
@@ -82,14 +82,14 @@ function Layout() {
             const clientDocList = await getDocs(clientGet)
             let clientList = []
             let clientInfo = []
-            clientDocList.forEach((client) => {
+            clientDocList.forEach(async (client) => {
                 if (client.exists()) {
                     setGlobalVars(val => ({ ...val, clientList: val.clientList.concat(client.id)}))
                     clientList.push(client.id)
                     clientInfo.push({ ...client.data(), id: client.id })
                 }
             })
-            console.log('coach getter func called ', new Date())
+            console.log('client getter func called ', new Date())
             return { clientList, clientInfo }
         }
         const fetchMessages = async () => {
@@ -140,10 +140,20 @@ function Layout() {
                     }
                 }
                 // console.log('snapshot called', chatList, userInfoList, coachInfoList)
-                setGlobalVars(val => ({...val, chatList, userInfoList, coachInfoList, loadingChats: false}))
+                setGlobalVars(val => ({ ...val, chatList, userInfoList, coachInfoList, loadingChats: false }))
             })
         }
         fetchMessages()
+    }, [])
+
+    useEffect(() => {
+        onSnapshot(query(collection(db, "activity-feed"), orderBy('timeSent', 'desc')), (querySnapshot) => {
+            let activity = []
+            querySnapshot.forEach((doc) => {
+                activity.push({ ...doc.data(), id: doc.id })
+            })
+            setGlobalVars(val => ({ ...val, activityFeed: activity }))
+        })
     }, [])
 
     useEffect(() => {

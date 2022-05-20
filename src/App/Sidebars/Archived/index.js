@@ -13,7 +13,7 @@ function Index() {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        dispatch(selectedChatAction({ chat: 'stats', user: null, coach: null }))
+        dispatch(selectedChatAction({ chat: 'activity-feed', user: null, coach: null }))
         dispatch(profileAction(false))
         dispatch(mobileProfileAction(false))
     }, [])
