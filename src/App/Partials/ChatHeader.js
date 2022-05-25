@@ -61,10 +61,10 @@ function ChatHeader(props) {
     //             return
     //         }
     //         const latestInfo = await updateDoc(doc(db, 'user-info', selectedChat.user.id), { colorCode: value, colorCodedBy: user.uid })
-    //         let userIndex = globalVars.userInfoList?.findIndex(val => val.id === selectedChat.user.id)
-    //         let newInfo = globalVars.userInfoList
+    //         let userIndex = globalVars.clientInfoList?.findIndex(val => val.id === selectedChat.user.id)
+    //         let newInfo = globalVars.clientInfoList
     //         newInfo[userIndex] = { ...newInfo[userIndex], ...latestInfo.data() }
-    //         setGlobalVars(val => ({ ...val, userInfoList: newInfo }))
+    //         setGlobalVars(val => ({ ...val, clientInfoList: newInfo }))
     //         selectedChat.user = { ...selectedChat.user, ...latestInfo.data() }
     //         props.selectedChat.user = { ...props.selectedChat.user, ...latestInfo.data() }
     //     }

@@ -164,6 +164,21 @@ body.dark {
 
 	}
 
+	button p {
+		color: rgba(white, .75);
+	}
+
+	.dropdown-toggle {
+		color: rgba(white, .75);
+	}
+
+	.checkbox {
+		color: rgba(white, .75);
+		&.Mui-checked {
+			color: $color-primary;
+		}
+	}
+
 	.list-group-item {
 		border-color: $dark-mode-light;
 	}

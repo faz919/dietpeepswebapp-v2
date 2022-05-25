@@ -53,10 +53,21 @@ function Index() {
     }
 
     const ChatListView = ({ chat }) => {
-        const clientInfo = globalVars.userInfoList?.find(val => val.correspondingChatID === chat.id)
-        const coachInfo = globalVars.coachInfoList?.find(val => val.correspondingChatID === chat.id)
+        const clientInfo = globalVars.clientInfoList?.find(val => val.chatID === chat.id)
+        if (clientInfo == null) {
+            return null
+        }
+
+        const coachInfo = globalVars.coachInfoList?.find(val => clientInfo.coachID === val.id)
+        if (coachInfo == null) {
+            return null
+        }
 
         const user_age = clientInfo.userBioData?.dob && clientInfo.userBioData?.dob instanceof Timestamp ? age(clientInfo.userBioData?.dob?.toDate()) : age(clientInfo.userBioData?.dob)
+
+        if (!showFlagged && ((user_age != null && user_age < 18) || clientInfo.flagged)) {
+            return null
+        }
 
         return (
             <li style={{ backgroundImage: user_age != null && user_age < 18 ? 'linear-gradient(to top right, rgba(255, 0, 0, 0.3), rgba(0,0,0,0))' : null }} className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
@@ -84,7 +95,7 @@ function Index() {
     }
 
     const [searchQuery, setQuery] = useState('')
-    const chatFilter = globalVars.chatList?.filter((chat, index) => searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.userInfoList[index]?.nickName && globalVars.userInfoList[index]?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat )
+    const chatFilter = globalVars.chatList?.filter((chat, index) => searchQuery == '' ?  chat : globalVars.clientInfoList.find((client) => client.chatID === chat.id)?.displayName && globalVars.clientInfoList.find((client) => client.chatID === chat.id)?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.clientInfoList.find((client) => client.chatID === chat.id)?.nickName && globalVars.clientInfoList.find((client) => client.chatID === chat.id)?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
 
     const [colorCode, setColorCode] = useState('clear')
     const [activityTooltipOpen, setActivityTooltipOpen] = useState(false)
@@ -98,6 +109,10 @@ function Index() {
     
     let tempFilterMsg = {}
     const [activityFilterMsg, setActivityFilterMsg] = useState(tempFilterMsg)
+
+    useEffect(() => {
+        console.log(globalVars.clientInfoList?.filter((client) => client.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1))
+    }, [searchQuery])
     
     useEffect(() => {
         switch (colorCode) {
@@ -106,19 +121,19 @@ function Index() {
                 tempFilterMsg = {}
                 break
             case 'active':
-                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay).length > 0)
+                tempFilter = chatFilter.filter((chat) => globalVars.clientInfoList.filter((user) => user.chatID === chat.id && new Date() - user.lastImageSent?.toDate() < oneDay).length > 0)
                 tempFilterMsg = { message: 'Active', color: 'success' }
                 break
             case 'no-submit':
-                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay && new Date() - user.lastImageSent?.toDate() < oneDay * 3).length > 0)
+                tempFilter = chatFilter.filter((chat) => globalVars.clientInfoList.filter((user) => user.chatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay && new Date() - user.lastImageSent?.toDate() < oneDay * 3).length > 0)
                 tempFilterMsg = { message: 'Low Churn Risk (No Images in Last 24h)', color: 'warning' }
                 break
             case 'churn-risk':
-                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay * 3 && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0)
+                tempFilter = chatFilter.filter((chat) => globalVars.clientInfoList.filter((user) => user.chatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay * 3 && new Date() - user.lastImageSent?.toDate() < oneDay * 7).length > 0)
                 tempFilterMsg = { message: 'High Churn Risk (No Images in Last 72h)', color: 'danger' }
                 break
             case 'inactive':
-                tempFilter = chatFilter.filter((chat) => globalVars.userInfoList.filter((user) => user.correspondingChatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay * 7).length > 0)
+                tempFilter = chatFilter.filter((chat) => globalVars.clientInfoList.filter((user) => user.chatID === chat.id && new Date() - user.lastImageSent?.toDate() >= oneDay * 7).length > 0)
                 tempFilterMsg = { message: 'Inactive' }
                 break
             default: 
@@ -136,6 +151,11 @@ function Index() {
     const [useUngradedFilter, setUseUngradedFilter] = useState(false)
     const useUngradedToggle = () => setUseUngradedFilter(!useUngradedFilter)
 
+    const [showFlaggedTooltip, setShowFlaggedTooltip] = useState(false)
+    const toggleShowFlaggedTooltip = () => setShowFlaggedTooltip(!showFlaggedTooltip)
+    const [showFlagged, setShowFlagged] = useState(false)
+    const toggleShowFlagged = () => setShowFlagged(!showFlagged) 
+
     return (
         <div className="sidebar active">
             <header>
@@ -146,6 +166,18 @@ function Index() {
                     <span className="sidebar-title">Chats</span>
                 </div>
                 <ul className="list-inline">
+                    <li className='list-inline-item'>
+                        <button className="btn btn-outline-light text-danger" onClick={toggleShowFlagged} id="Tooltip-Show-Flagged">
+                            <FeatherIcon.Flag />
+                        </button>
+                        <Tooltip
+                            placement="bottom"
+                            isOpen={showFlaggedTooltip}
+                            target={"Tooltip-Show-Flagged"}
+                            toggle={toggleShowFlaggedTooltip}>
+                            {showFlagged ? 'Hide Flagged Users' : 'Show Flagged Users'}
+                        </Tooltip>
+                    </li>
                     <li className='list-inline-item'>
                         <button className="btn btn-outline-light text-warning" onClick={useUngradedToggle} id="Tooltip-Filter-Ungraded">
                             <FeatherIcon.Image />
@@ -209,7 +241,23 @@ function Index() {
             <div className="sidebar-body">
                 <PerfectScrollbar>
                     <ul className="list-group list-group-flush">
-                        {useUngradedFilter ? ungradedFilter?.map((chat, index) => { return (<ChatListView chat={chat} key={index}/>)}) : activityFilter?.map((chat, index) => { return (<ChatListView chat={chat} key={index}/>)})}
+                        {useUngradedFilter ? ungradedFilter.length === 0 ?                         
+                        <li className='list-group-item'>
+                            <div className='users-list-body'>
+                                <div style={{ alignItems: 'center', marginTop: -20 }}>
+                                    <p>No chats with ungraded images!</p>
+                                    <p>Check back regularly to make sure</p>
+                                    <p>no images are left ungraded.</p>
+                                </div>
+                            </div>
+                        </li> : ungradedFilter?.map((chat, index) => { return (<ChatListView chat={chat} key={index}/>)}) : activityFilter.length === 0 ? 
+                        <li className='list-group-item'>
+                            <div className='users-list-body'>
+                                <div style={{ alignItems: 'center', marginTop: -20 }}>
+                                    <p>No chats found in query.</p>
+                                </div>
+                            </div>
+                        </li> : activityFilter?.map((chat, index) => { return (<ChatListView chat={chat} key={index}/>)})}
                     </ul>
                 </PerfectScrollbar>
             </div>

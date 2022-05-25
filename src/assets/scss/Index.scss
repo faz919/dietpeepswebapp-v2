@@ -183,6 +183,31 @@
 										color: $color-primary;
 									}
 								}
+
+								.checkbox {
+									&.Mui-checked {
+										color: $color-primary;
+									}
+								}
+							}
+
+							.action-toggle-checked {
+								display: block;
+								text-align: right;
+								position: absolute;
+								right: 0;
+
+								.dropdown {
+									& > span {
+										color: $color-primary;
+									}
+								}
+
+								.checkbox {
+									&.Mui-checked {
+										color: $color-primary;
+									}
+								}
 							}
 
 							.action-toggle-image {

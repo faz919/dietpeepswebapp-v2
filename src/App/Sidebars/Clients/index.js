@@ -42,8 +42,16 @@ function Index() {
     }, [])
 
     const ClientListView = ({ chat }) => {
-        const clientInfo = globalVars.userInfoList?.find(val => val.correspondingChatID === chat.id)
-        const coachInfo = globalVars.coachInfoList?.find(val => val.correspondingChatID === chat.id)
+        const clientInfo = globalVars.clientInfoList?.find(val => val.chatID === chat.id)
+        if (clientInfo == null) {
+            return null
+        }
+
+        const coachInfo = globalVars.coachInfoList?.find(val => clientInfo.coachID === val.id)
+        if (coachInfo == null) {
+            return null
+        }
+
         return (
             <li className={"list-group-item " + (chat.id === selectedChat.chat?.id ? 'open-chat' : '')}
                     onClick={() => chatSelectHandle(chat, clientInfo, coachInfo)}>
@@ -67,7 +75,7 @@ function Index() {
     }
 
     const [searchQuery, setQuery] = useState('')
-    const chatFilter = globalVars.chatList?.filter((chat, index) => chat.userIDs.includes(user.uid) ? searchQuery != '' ? globalVars.userInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.userInfoList[index]?.nickName && globalVars.userInfoList[index]?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat : null )
+    const chatFilter = globalVars.chatList?.filter((chat, index) => chat.userIDs.includes(user.uid) ? searchQuery != '' ? globalVars.clientInfoList[index]?.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 || globalVars.clientInfoList[index]?.nickName && globalVars.clientInfoList[index]?.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : chat : null )
 
     return (
         <div className="sidebar active">

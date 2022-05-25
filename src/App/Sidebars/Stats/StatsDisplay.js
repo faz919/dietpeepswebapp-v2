@@ -33,20 +33,20 @@ const Stats = () => {
 
     let coachData = {}
 
-    for (let coachID of globalVars.coachList?.filter((coachID) => globalVars.coachInfoList?.filter((coach) => coach.id === coachID && coach.type !== 'removed-coach').length > 0)) {
-      const coachName = globalVars.coachInfoList?.find((coach) => coach.id === coachID)?.displayName
-      coachData[coachName] = globalVars.activityFeed?.filter((activity) => activity.timeSent?.toDate().getHours() === hour && activity.senderID === coachID).length
+    for (let coach of globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach')) {
+      const coachName = coach.displayName
+      coachData[coachName] = globalVars.activityFeed?.filter((activity) => (activity.activityType === 'chatMessage' || activity.activityType === 'imageGrade') && !activity.messageDeleted && activity.timeSent?.toDate().getHours() === hour && activity.senderID === coach.id).length
     }
 
     return { name: moment(new Date(hourlyDate.setHours(hour))).format('LT'), ...coachData }
   })
 
-  const imageGradeData = globalVars.activityFeed.filter((activity) => activity.activityType === 'imageGrade').map((image) => {
+  const imageGradeData = globalVars.activityFeed.filter((activity) => !activity.messageDeleted && activity.activityType === 'imageGrade').map((image) => {
 
     let coachData = {}
 
-    for (let coachID of globalVars.coachList?.filter((coachID) => image.senderID === coachID && globalVars.coachInfoList?.filter((coach) => coach.id === coachID && coach.type !== 'removed-coach').length > 0)) {
-      const coachName = globalVars.coachInfoList?.find((coach) => coach.id === coachID)?.displayName
+    for (let coach of globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach' && coach.id === image.senderID)) {
+      const coachName = coach.displayName
       coachData[coachName] = (image.timeTakenToGrade / 60000)
     }
 
@@ -70,8 +70,8 @@ const Stats = () => {
 
   const handleImageGradeClick = (chatID) => {
     const chat = globalVars.chatList?.find(val => val.id === chatID)
-    const user = globalVars.userInfoList?.find(val => val.correspondingChatID === chatID)
-    const coach = globalVars.coachInfoList?.find(val => val.correspondingChatID === chatID)
+    const user = globalVars.clientInfoList?.find(val => val.chatID === chatID)
+    const coach = globalVars.coachInfoList?.find(val => val.id === user.coachID)
     dispatch(sidebarAction('Chats'))
     dispatch(selectedChatAction({ chat, user, coach }))
     document.querySelector('.chat').classList.add('open')
@@ -104,8 +104,8 @@ const Stats = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            {globalVars.coachList?.filter((coachID) => selectedChat.coach == null ? globalVars.coachInfoList?.filter((coach) => coach.id === coachID && coach.type !== 'removed-coach').length > 0 : selectedChat.coach.id === coachID).map((coachID, index) => (
-              <Line type='monotone' dataKey={`${globalVars.coachInfoList?.find((coach) => coach.id === coachID)?.displayName}`} stroke={coachColors[index]} activeDot={{ r: 8 }} />
+            {globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach' && selectedChat.coach == null ? coach : coach.id === selectedChat.coach?.id).map((coach, index) => (
+              <Line type='monotone' dataKey={`${coach.displayName}`} stroke={coachColors[index]} activeDot={{ r: 8 }} />
             ))}
           </LineChart>
         </ResponsiveContainer>
@@ -131,11 +131,9 @@ const Stats = () => {
             <Legend />
             <ReferenceLine y={0} stroke='#000' />
             <Brush dataKey='name' height={30} stroke='#8884d8' />
-            {globalVars.coachList?.filter((coachID) => selectedChat.coach == null ? globalVars.coachInfoList?.filter((coach) => coach.id === coachID && coach.type !== 'removed-coach').length > 0 : selectedChat.coach.id === coachID).map((coachID, index) => (
-              <Bar style={{ cursor: 'pointer' }} dataKey={`${globalVars.coachInfoList?.find((coach) => coach.id === coachID)?.displayName}`} fill={coachColors[index]} stackId='a' onClick={(data) => handleImageGradeClick(data.chatID)} />
+            {globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach' && selectedChat.coach == null ? coach : coach.id === selectedChat.coach?.id).map((coach, index) => (
+              <Bar style={{ cursor: 'pointer' }} dataKey={`${coach.displayName}`} fill={coachColors[index]} stackId='a' onClick={(data) => handleImageGradeClick(data.chatID)} />
             ))}
-            {/* <Bar dataKey={`${globalVars.coachInfoList?.find((coach) => coach.id === globalVars.coachList[0])?.displayName}`} fill='#8884d8' /> */}
-            {/* <Bar dataKey={`${globalVars.coachInfoList?.find((coach) => coach.id === globalVars.coachList[3])?.displayName}`} fill='#82ca9d' /> */}
           </BarChart>
         </ResponsiveContainer>
       </Grid>

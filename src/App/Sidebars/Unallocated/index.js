@@ -10,7 +10,7 @@ import moment from 'moment'
 import { doc, Timestamp, updateDoc, getFirestore, addDoc, collection } from 'firebase/firestore'
 import app from '../../../firebase'
 import { LoadingButton } from '@mui/lab'
-import { Avatar, Chip } from '@mui/material'
+import { Avatar, Checkbox, Chip } from '@mui/material'
 import UserAvatar from '../../../components/UserAvatar'
 
 const db = getFirestore(app)
@@ -27,7 +27,7 @@ function Index() {
         dispatch(selectedChatAction({ chat: null, client: null, coach: null }))
     }, [])
 
-    const [selectedUser, setSelectedUser] = useState({})
+    const [selectedUser, setSelectedUser] = useState([])
     const [modalOpen, setModalOpen] = useState(false)
     const toggleModal = () => setModalOpen(!modalOpen)
     const openModal = (client) => {
@@ -71,10 +71,12 @@ function Index() {
 
     const [allocating, setAllocating] = useState(false)
 
-    function AllocateUserModal({ client }) {
+    function AllocateUserModal({ clients }) {
 
+        const batch = clients.length > 1
+        const currentClient = clients[0]
         const [selectedCoach, setSelectedCoach] = useState(null)
-        const [allocateUserMessage, setAllocateUserMessage] = useState(`Hey there, ${client.displayName}! My name is ${globalVars.userInfo.displayName} and I'll be your personal coach from now on. Please let me know if you have any questions or concerns.`)
+        const [allocateUserMessage, setAllocateUserMessage] = useState(`Hey there, ${batch ? '{CLIENT_DISPLAY_NAME}' : currentClient?.displayName}! My name is ${globalVars.userInfo?.displayName} and I'll be your personal coach from now on. Please let me know if you have any questions or concerns.`)
 
         const allocateUser = async (e) => {
             e.preventDefault()
@@ -96,77 +98,76 @@ function Index() {
                 setAllocating(false)
                 return
             }
-            if (selectedCoach != null) {
+            // if (selectedCoach != null) {
+            for (let client of clients) {
                 try {
-                    await updateDoc(doc(db, 'chat-rooms', client.correspondingChatID), {
-                        userIDs: [selectedCoach, client.id],
-                        // latestMessage: allocateUserMessage,
-                        // latestMessageTime: Timestamp.now()
+                    await updateDoc(doc(db, 'chat-rooms', client.chatID), {
+                        userIDs: selectedCoach == null ? [user.uid, client.id] : [selectedCoach?.id, client.id]
                     })
                     await updateDoc(doc(db, 'user-info', client.id), {
-                        coachID: selectedCoach
+                        coachID: selectedCoach == null ? user.uid : selectedCoach?.id
                     })
-                    await addDoc(collection(db, 'chat-rooms', client.correspondingChatID, 'chat-messages'), {
+                    await addDoc(collection(db, 'chat-rooms', client.chatID, 'chat-messages'), {
                         img: null,
-                        msg: allocateUserMessage,
+                        msg: batch ? `Hey there, ${client.displayName}! My name is ${selectedCoach?.displayName} and I'll be your personal coach from now on. Please let me know if you have any questions or concerns.` : allocateUserMessage,
                         timeSent: Timestamp.now(),
-                        userID: selectedCoach,
+                        userID: selectedCoach == null ? user.uid : selectedCoach?.id,
                         senderType: 'coach'
                     })
                 } catch (e) {
                     console.log('error while re-allocating user: ', e)
                 }
-            } else {
-                try {
-                    await updateDoc(doc(db, 'chat-rooms', client.correspondingChatID), {
-                        userIDs: [user.uid, client.id],
-                        // latestMessage: allocateUserMessage,
-                        // latestMessageTime: Timestamp.now()
-                    })
-                    await updateDoc(doc(db, 'user-info', client.id), {
-                        coachID: user.uid
-                    })
-                    await addDoc(collection(db, 'chat-rooms', client.correspondingChatID, 'chat-messages'), {
-                        img: null,
-                        msg: allocateUserMessage,
-                        timeSent: Timestamp.now(),
-                        userID: user.uid,
-                        senderType: 'coach'
-                    })
-                } catch (e) {
-                    console.log('error while re-allocating user: ', e)
-                }
-            }
+            } 
+            // } else {
+            //     try {
+            //         await updateDoc(doc(db, 'chat-rooms', client.chatID), {
+            //             userIDs: [user.uid, client.id]
+            //         })
+            //         await updateDoc(doc(db, 'user-info', client.id), {
+            //             coachID: user.uid
+            //         })
+            //         await addDoc(collection(db, 'chat-rooms', client.chatID, 'chat-messages'), {
+            //             img: null,
+            //             msg: allocateUserMessage,
+            //             timeSent: Timestamp.now(),
+            //             userID: user.uid,
+            //             senderType: 'coach'
+            //         })
+            //     } catch (e) {
+            //         console.log('error while re-allocating user: ', e)
+            //     }
+            // }
             toggleAllocateUserModal()
             setAllocating(false)
+            window.location.reload()
         }
 
-        const handleCoachSelect = (coachInfo, coachID) => {
-            setSelectedCoach(coachID)
-            setAllocateUserMessage(`Hey there, ${client.displayName}! My name is ${coachInfo.displayName} and I'll be your personal coach from now on. Please let me know if you have any questions or concerns.`)
+        const handleCoachSelect = (coachInfo) => {
+            setSelectedCoach(coachInfo)
+            setAllocateUserMessage(`Hey there, ${batch ? '{CLIENT_DISPLAY_NAME}' : currentClient?.displayName}! My name is ${coachInfo?.displayName} and I'll be your personal coach from now on. Please let me know if you have any questions or concerns.`)
         }
 
         return (
             <Modal className="modal-dialog-zoom" isOpen={allocateUserModalOpen} toggle={toggleAllocateUserModal} centered>
                 <ModalHeader toggle={toggleAllocateUserModal}>
-                    <FeatherIcon.UserPlus className="mr-2"/> &nbsp; Allocate User
+                    <FeatherIcon.UserPlus className="mr-2"/> &nbsp; {batch ? `Batch Allocate Users` : `Allocate User ${currentClient?.displayName}`}
                 </ModalHeader>
                 <ModalBody>
-                    {globalVars.userInfo.type === 'coach' && <Alert color="warning">This action will make you the new coach of {client.displayName}.</Alert>}
-                    {globalVars.userInfo.type !== 'coach' && globalVars.userInfo.type !== 'admin' && <Alert color="danger">Warning: You are not registered as a coach. Doing this action will make this client's chat invisible in the chat feed.</Alert>}
-                    {globalVars.userInfo.type === 'admin' && <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {globalVars.userInfo?.type === 'coach' && <Alert color="warning">This action will make you the new coach of {currentClient?.displayName}.</Alert>}
+                    {globalVars.userInfo?.type !== 'coach' && globalVars.userInfo?.type !== 'admin' && <Alert color="danger">Warning: You are not registered as a coach. Doing this action will make this client's chat invisible in the chat feed.</Alert>}
+                    {globalVars.userInfo?.type === 'admin' && <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <Label>Select a Coach</Label>
                         <div>
-                            {globalVars.coachList.filter(listedCoach => globalVars.coachInfoList.find(coach => coach.id === listedCoach && coach.type === 'coach')).map((coachID, index) => {
-                                const coachInfo = globalVars.coachInfoList.find(coach => coach.id === coachID)
+                            {globalVars.coachInfoList?.filter(coach => coach.type === 'coach')?.map((coachInfo, index) => {
                                 return (
                                     <Chip 
+                                        key={index}
                                         clickable 
                                         avatar={<Avatar src={coachInfo.photoURL} />} 
                                         label={coachInfo.displayName} 
                                         style={{ marginLeft: index === 0 ? 0 : '5px' }} 
-                                        onClick={() => handleCoachSelect(coachInfo, coachID)}
-                                        variant={selectedCoach === coachInfo.id ? 'filled' : 'outlined'} 
+                                        onClick={() => handleCoachSelect(coachInfo)}
+                                        variant={selectedCoach?.id === coachInfo.id ? 'filled' : 'outlined'} 
                                         color='primary'
                                     />
                                 )
@@ -174,7 +175,15 @@ function Index() {
                         </div>
                     </div>}
                     <Label style={{ marginTop: '10px' }} for="message">Allocation message</Label>
-                    <Input type="textarea" name="message" id="message" rows={6} value={allocateUserMessage} onChange={(e) => setAllocateUserMessage(e.target.value)} />
+                    <Input 
+                        type="textarea" 
+                        name="message" 
+                        id="message" 
+                        rows={6} 
+                        value={allocateUserMessage} 
+                        onChange={(e) => setAllocateUserMessage(e.target.value)}
+                        disabled={batch}
+                    />
                 </ModalBody>
                 <ModalFooter>
                     <LoadingButton loading={allocating} variant='outlined' style={{ textTransform: 'none' }} onClick={allocateUser}>Allocate</LoadingButton>
@@ -189,6 +198,14 @@ function Index() {
         }
     }, [allocateUserModalOpen])
 
+    const [searchQuery, setQuery] = useState('')
+    const clientFilter = globalVars.clientInfoList.filter(client => searchQuery == '' ? globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) : (globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) && client.displayName && client.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) || (globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) && client.nickName && client.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1))
+    const [clientBatch, setClientBatch] = useState([])
+
+    useEffect(() => {
+        console.log(clientBatch)
+    }, [clientBatch])
+
     return (<>
         <div className="sidebar active">
             <header>
@@ -196,45 +213,74 @@ function Index() {
                     <button onClick={mobileMenuBtn} className="btn btn-outline-light mobile-navigation-button mr-3 d-xl-none d-inline">
                         <FeatherIcon.Menu />
                     </button>
-                    <span className="sidebar-title">Unallocated Users</span>
+                    <span className="sidebar-title">Unallocated Clients</span>
                 </div>
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Search favorites" />
+                <input type="text" className="form-control" placeholder="Filter by client" value={searchQuery} onChange={q => setQuery(q.target.value)}/>
             </form>
             <div className="sidebar-body">
+                {clientFilter.length > 0 &&
+                <li className="list-group-item">
+                    <div style={{ cursor: 'default' }} className="users-list-body">
+                        <LoadingButton disabled={clientBatch.length === 0} variant='outlined' style={{ textTransform: 'none' }} onClick={() => openAllocateUserModal(clientBatch)}>Batch Allocate</LoadingButton>
+                        <div className="users-list-action">
+                            <div className="action-toggle-checked">
+                                <Checkbox
+                                    className='checkbox'
+                                    disabled={clientFilter.length === 0}
+                                    checked={JSON.stringify(clientBatch) === JSON.stringify(clientFilter)}
+                                    title='Select All'
+                                    onChange={(e) => {
+                                        console.log(clientFilter)
+                                        e.target.checked ?
+                                            setClientBatch(clientFilter) :
+                                            setClientBatch([])
+                                    }}
+                                /> 
+                            </div>
+                        </div>
+                    </div>
+                </li>}
                 <PerfectScrollbar>
                     <ul className="list-group list-group-flush">
-                        {
-                            globalVars.userInfoList.filter(client => globalVars.removedCoachList.includes(client.coachID)).length === 0 ? 
-                                <li className='list-group-item'>
-                                    <div className='users-list-body'>
-                                        <div style={{ alignItems: 'center', marginTop: -20 }}>
-                                            <p>No unallocated users!</p>
-                                            <p>Check back regularly to make sure</p>
-                                            <p>all users have an active coach.</p>
+                        {clientFilter.length === 0 ? 
+                            <li className='list-group-item'>
+                                <div className='users-list-body'>
+                                    <div style={{ alignItems: 'center' }}>
+                                        <p>No unallocated users!</p>
+                                        <p>Check back regularly to make sure</p>
+                                        <p>all users have an active coach.</p>
+                                    </div>
+                                </div>
+                            </li>
+                        : clientFilter.map((item, i) => {
+                            return (
+                                <li key={i} className="list-group-item">
+                                    <UserAvatar user={item} />
+                                    <div className="users-list-body">
+                                        <div onClick={() => openAllocateUserModal([item])}>
+                                            <h5>{item.displayName}</h5>
+                                            <p style={{ textTransform: 'capitalize' }}>Coach Removed</p>
+                                        </div>
+                                        <div className="users-list-action">
+                                            <div className={clientBatch.includes(item) ? "action-toggle-checked" : "action-toggle"}>
+                                                    <Checkbox 
+                                                        className='checkbox'
+                                                        checked={clientBatch.includes(item)}
+                                                        onChange={(e) => {
+                                                            e.target.checked ? 
+                                                                setClientBatch(val => val.concat(item)) :
+                                                                setClientBatch(val => val.filter(ids => ids !== item))
+                                                        }}
+                                                    />
+                                                    {/* <FavoritesDropdown client={item} /> */}
+                                            </div>
                                         </div>
                                     </div>
                                 </li>
-                            : globalVars.userInfoList.filter(client => globalVars.removedCoachList.includes(client.coachID)).map((item, i) => {
-                                return (
-                                    <li key={i} className="list-group-item">
-                                        <UserAvatar user={item} />
-                                        <div className="users-list-body">
-                                            <div onClick={() => openAllocateUserModal(item)}>
-                                                <h5>{item.displayName}</h5>
-                                                <p style={{ textTransform: 'capitalize' }}>Coach Removed</p>
-                                            </div>
-                                            <div className="users-list-action">
-                                                <div className="action-toggle">
-                                                    <FavoritesDropdown client={item} />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                )
-                            })
-                        }
+                            )
+                        })}
                     </ul>
                 </PerfectScrollbar>
             </div>
@@ -289,7 +335,7 @@ function Index() {
                 </div>
             </ModalBody>
         </Modal>
-        <AllocateUserModal client={selectedUser} />
+        <AllocateUserModal clients={selectedUser} />
     </>)
 }
 

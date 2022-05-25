@@ -24,8 +24,7 @@ function Index() {
     }, [])
 
     const [searchQuery, setQuery] = useState('')
-    const coachInfoFilter = globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach')
-    const coachFilter = globalVars.coachList?.filter((coachID, index) => searchQuery != '' ? coachInfoFilter.find((coach) => coach.id === coachID && coach.type !== 'removed-coach').displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : coachInfoFilter.filter((coach) => coach.id === coachID && coach.type !== 'removed-coach')?.length > 0 )
+    const coachFilter = globalVars.coachInfoList?.filter((coach, index) => searchQuery != '' ? coach.type !== 'removed-coach' && coach.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1 : coach.type !== 'removed-coach')
 
     const coachSelectHandle = (chat, user, coach) => {
         let chatInfo = { chat, user, coach }
@@ -45,17 +44,16 @@ function Index() {
         borderRadius: 10
     }
 
-    const CoachListView = ({ coachID }) => {
-        const coachInfo = coachInfoFilter.find((coach) => coach.id === coachID && coach.type !== 'removed-coach')
+    const CoachListView = ({ coach }) => {
         return (
-            <li className={"list-group-item " + (coachID === selectedChat.coach?.id ? 'open-chat' : '')}>
-                <CoachAvatar coach={coachInfo} />
+            <li className={"list-group-item " + (coach.id === selectedChat.coach?.id ? 'open-chat' : '')}>
+                <CoachAvatar coach={coach} />
                 <div className="users-list-body">
-                    <div onClick={() => coachSelectHandle('stats', null, coachInfo)}>
-                        <h5>{coachInfo.displayName}</h5>
+                    <div onClick={() => coachSelectHandle('stats', null, coach)}>
+                        <h5>{coach.displayName}</h5>
                     </div>
                     <div className="users-list-action">
-                        <div className="action-toggle" style={{ opacity: selectedChat.coach?.id === coachID ? 1 : 0 }}>
+                        <div className="action-toggle" style={{ opacity: selectedChat.coach?.id === coach.id ? 1 : 0 }}>
                             <div style={unselectCoachStyle} onClick={() => coachSelectHandle('stats', null, null)}>
                                 <FeatherIcon.X
                                     size={16}
@@ -85,7 +83,7 @@ function Index() {
                 </ul> */}
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Filter by coach (broken)" disabled value={searchQuery} onChange={q => setQuery(q.target.value)} />
+                <input type="text" className="form-control" placeholder="Filter by coach" value={searchQuery} onChange={q => setQuery(q.target.value)} />
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>
@@ -98,7 +96,7 @@ function Index() {
                                     </div>
                                 </div>
                             </li>
-                            : coachFilter?.map((coachID, index) => { return (<CoachListView coachID={coachID} key={index} />) })}
+                            : coachFilter?.map((coach, index) => { return (<CoachListView coach={coach} key={index} />) })}
                     </ul>
                 </PerfectScrollbar>
             </div>

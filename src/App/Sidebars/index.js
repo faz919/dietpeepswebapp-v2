@@ -1,9 +1,9 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import ChatsIndex from "./Chats"
-import FriendsIndex from "./Friends"
-import FavoritesIndex from "./Favorites"
-import ArchivedIndex from "./Archived"
+import FriendsIndex from "./Clients"
+import FavoritesIndex from "./Unallocated"
+import ArchivedIndex from "./ActivityFeed"
 import StatsIndex from './Stats/index'
 
 function Index() {

@@ -13,19 +13,20 @@ import {
     onSnapshot,
     orderBy,
     limitToLast,
-    collectionGroup,
-    startAt,
     Timestamp,
     updateDoc,
     doc,
     arrayUnion,
     deleteDoc,
+    where,
+    getDocs,
+    addDoc,
 } from 'firebase/firestore'
 import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import moment from 'moment'
 import localization from 'moment/locale/en-nz'
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Modal, ModalBody, Spinner } from 'reactstrap'
+import { Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Modal, ModalBody, Spinner } from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
 import { LoadingButton } from '@mui/lab'
 import UserAvatar from '../../components/UserAvatar'
@@ -41,7 +42,7 @@ function Chat() {
 
     const dispatch = useDispatch()
 
-    const {selectedChat} = useSelector(state => state)
+    const { selectedChat } = useSelector(state => state)
     const [inputMsg, setInputMsg] = useState('')
     const [scrollEl, setScrollEl] = useState()
 
@@ -65,7 +66,7 @@ function Chat() {
         if (selectedChat.chat != null && selectedChat.chat !== 'stats' && selectedChat.chat !== 'activity-feed') {
             dispatch(profileAction(true))
             dispatch(mobileProfileAction(true))
-            selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(10 * scrollPage)))
+            selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(25 * scrollPage)))
             setLoading(true)
         } else if (selectedChat.chat === 'activity-feed') {
             setQ(query(collection(db, "activity-feed"), orderBy('timeSent'), limitToLast(25 * scrollPage) ))
@@ -86,7 +87,7 @@ function Chat() {
                 setMessages(msgList)
                 setGlobalVars(val => ({...val, msgList }))
                 msgList = []
-                if (querySnapshot.size < 10 * scrollPage || (selectedChat.chat === 'activity-feed' && querySnapshot.size < 25 * scrollPage)) {
+                if (querySnapshot.size < 25 * scrollPage) {
                     setCanLoadMore(false)
                 }
                 setLoading(false)
@@ -118,7 +119,7 @@ function Chat() {
             }
             setCommitting(true)
             await updateDoc(doc(db, 'chat-rooms', selectedChat.chat.id, 'chat-messages', message.id), {
-                editHistory: arrayUnion({ oldMsg: message.msg, editedAt: Timestamp.now() }),
+                editHistory: arrayUnion({ oldMsg: message.msg, editedAt: Timestamp.now(), editedBy: user.uid }),
                 msg: editedMessage
             })
             stopEditing()
@@ -129,8 +130,75 @@ function Chat() {
 
         const deleteMessage = async (e) => {
             e.preventDefault()
-            await deleteDoc(doc(db, 'chat-rooms', selectedChat.chat.id, 'chat-messages', message.id))
+            const activityFeedRef = await getDocs(query(collection(db, 'activity-feed'), where('messageID', '==', message.id)))
+            for (let i = 0; i < activityFeedRef.size; i++) {
+                const activity = activityFeedRef.docs[i]
+                await addDoc(collection(db, 'activity-feed'), {
+                    userID: user.uid,
+                    originalSenderID: message.userID,
+                    msg: `${globalVars.userInfo?.displayName} just deleted a message: ${message.msg}`,
+                    activityType: 'deleteChatMessage',
+                    clientID: selectedChat.user?.id,
+                    chatID: selectedChat.chat?.id,
+                    messageID: message.id,
+                    timeSent: Timestamp.now()
+                })
+                await updateDoc(activity.ref, {
+                    messageDeleted: true
+                })
+            }
+            await deleteDoc(doc(db, 'chat-rooms', selectedChat.chat?.id, 'chat-messages', message.id))
             toggleDeleting()
+        }
+
+        const [regrading, setRegrading] = useState(false)
+        const [regradeInfo, setRegradeInfo] = useState({})
+        const [regradeModal, showRegradeModal] = useState(false)
+        const toggleRegradeModal = () => showRegradeModal(!regradeModal)
+        const handleRegradeClick = (chatID, message, image) => {
+            if (chatID == null || message == null || image == null) {
+                return null
+            }
+            setRegradeInfo({ chatID, message, image })
+            toggleRegradeModal()
+        }
+        const regradeImage = async () => {
+            setRegrading(true)
+            const { chatID, message, image } = regradeInfo
+            try {
+                message.img?.find(tempImg => tempImg.url === image.url && (tempImg.graded = false, true))
+                await updateDoc(doc(db, 'chat-rooms', chatID, 'chat-messages', message.id), {
+                    img: message.img
+                })
+            } catch (e) {
+                console.error(e)
+            }
+            setRegrading(false)
+        }
+        function ImageRegradeConfirmationModal() {
+            return (
+                <Modal isOpen={regradeModal} toggle={toggleRegradeModal} centered className="modal-dialog-zoom call">
+                    <ModalBody>
+                        <div className="call">
+                            <div>
+                                <h5>Are you sure you want to re-grade this image?</h5>
+                                <Alert style={{ margin: '5px' }} color="danger">Please be sure to delete the old image grade chat message before re-grading the image.</Alert>
+                                <div className="action-button">
+                                    <button type="button" onClick={toggleRegradeModal}
+                                        className="btn btn-danger btn-floating btn-lg"
+                                        data-dismiss="modal" disabled={regrading}>
+                                        <FeatherIcon.X />
+                                    </button>
+                                    <button type="button" onClick={regradeImage}
+                                        className="btn btn-success btn-pulse btn-floating btn-lg" disabled={regrading}>
+                                        <FeatherIcon.Check />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </ModalBody>
+                </Modal>
+            )
         }
 
         return (<>
@@ -145,12 +213,12 @@ function Chat() {
                         <img src={selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar"/>
                     </figure>}
                     <div>
-                        <h5>{message.userID === selectedChat.user.id ? selectedChat.user.displayName : selectedChat.coach?.displayName}</h5>
-                        {message.userID !== selectedChat.user.id && message.userID !== selectedChat.coach.id && <small className='text-muted'>({globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName ? globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName : 'Admin'})</small>}
+                        <h5>{message.userID === selectedChat.user.id ? selectedChat.user?.displayName : selectedChat.coach?.displayName}</h5>
+                        {message.userID !== selectedChat.user.id && message.userID !== selectedChat.coach.id && <small className='text-muted'>({globalVars.coachInfoList?.some(coach => coach.id === message.userID) ? globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName : globalVars.adminInfoList?.find(admin => admin.id === message.userID)?.displayName})</small>}
                         <div className="time">
                             {moment(message.timeSent?.toDate()).calendar()}
                         </div>
-                        {message.editHistory || message.msgHistory ? <i className='time'>{' (edited)'}</i> : null}
+                        {message.editHistory || message.msgHistory ? <i className='time'>{'(edited)'}</i> : null}
                     </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: message.userID === selectedChat.user.id ? 'flex-start' : 'flex-end', alignItems: 'center' }}>
@@ -161,7 +229,7 @@ function Chat() {
                             data-toggle="dropdown"
                             aria-expanded={messageOptionsDropdown}
                         >
-                            <Button style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                            <Button title='Options' style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
                                 <FeatherIcon.MoreHorizontal />
                             </Button>
                         </DropdownToggle>
@@ -189,13 +257,19 @@ function Chat() {
                     message.img != null
                         ?
                         <div className="message-content">
-                            {message.img.map((image) => <>
-                                {image.graded && <p key={image.url}><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
-                                {image.graded && image.uploadedAt && <p key={image.url} style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
-                                <figure>
-                                    <img src={image.url} className="w-25 img-fluid rounded" alt="media"/>
-                                </figure>
-                            </>)}
+                            {message.img.map((image, index) => <React.Fragment key={index}>
+                                {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
+                                {image.graded && image.uploadedAt && <p style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
+                                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                                    <figure>
+                                        <img style={{ cursor: 'pointer' }} onClick={() => window.open(image.url, '_blank', 'noopener,noreferrer')} src={image.url} className="w-25 img-fluid rounded" alt="Chat Image" title="View Full Resolution"/>
+                                    </figure>
+                                    {image.graded && selectedChat.user.id === message.userID &&
+                                        <Button onClick={() => handleRegradeClick(selectedChat.chat.id, message, image)} style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                                            <FeatherIcon.RefreshCcw size={30} />
+                                        </Button>}
+                                </div>
+                            </React.Fragment>)}
                             {message.msg}
                         </div>
                         :
@@ -229,12 +303,13 @@ function Chat() {
                     </div>
                 </ModalBody>
             </Modal>
+            <ImageRegradeConfirmationModal />
         </>)
     }
 
     const FeedView = (props) => {
 
-        const { activity, index } = props
+        const { activity } = props
 
         return (<>
             <div className='message-item'>
@@ -255,10 +330,6 @@ function Chat() {
             </div>
         </>)
     }
-
-    useEffect(() => {
-        console.log(selectedChat)
-    }, [selectedChat])
 
     return (
         <div className="chat">
@@ -284,10 +355,11 @@ function Chat() {
                                     : <small className='text-muted'>No more messages to load!</small>}
                                 </div>
                                 <div className="messages">
-                                    {messages ?
+                                    {messages &&
                                         messages.map((message, i) => {
                                             return <MessagesView message={message} index={i} key={message.id}/>
-                                        }) : console.log('no messages')}
+                                        })}
+                                        {/* : console.log('no messages') */}
                                 </div>
                                 {scrollToBottom && scrollEl != null && scrollEl.scrollTop !== scrollEl.scrollHeight && <button onClick={() => scrollEl.scrollTop = scrollEl.scrollHeight} style={{ position: 'absolute', bottom: 10, left: 5, backgroundColor: 'transparent', width: 40, height: 40, borderRadius: 20, borderWidth: 0 }}>
                                     <div style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#0a80ff' }}>

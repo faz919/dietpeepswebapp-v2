@@ -35,10 +35,10 @@ function UserInfoModal() {
     const getLatestInfo = async () => {
         setReloadingInfo(true)
         const latestInfo = await getDoc(doc(db, 'user-info', selectedChat.user.id))
-        let userIndex = globalVars.userInfoList?.findIndex(val => val.id === selectedChat.user.id)
-        let newInfo = globalVars.userInfoList
+        let userIndex = globalVars.clientInfoList?.findIndex(val => val.id === selectedChat.user.id)
+        let newInfo = globalVars.clientInfoList
         newInfo[userIndex] = { ...newInfo[userIndex], ...latestInfo.data() }
-        setGlobalVars(val => ({ ...val, userInfoList: newInfo }))
+        setGlobalVars(val => ({ ...val, clientInfoList: newInfo }))
         selectedChat.user = { ...selectedChat.user, ...latestInfo.data() }
         setReloadingInfo(false)
     } 
@@ -46,10 +46,10 @@ function UserInfoModal() {
     const toggleManualExtension = async (checked) => {
         await updateDoc(doc(db, 'user-info', selectedChat.user.id), { manuallyExtendedTrialPeriod: checked })
         const latestInfo = await getDoc(doc(db, 'user-info', selectedChat.user.id))
-        let userIndex = globalVars.userInfoList?.findIndex(val => val.id === selectedChat.user.id)
-        let newInfo = globalVars.userInfoList
+        let userIndex = globalVars.clientInfoList?.findIndex(val => val.id === selectedChat.user.id)
+        let newInfo = globalVars.clientInfoList
         newInfo[userIndex] = { ...newInfo[userIndex], ...latestInfo.data() }
-        setGlobalVars(val => ({ ...val, userInfoList: newInfo }))
+        setGlobalVars(val => ({ ...val, clientInfoList: newInfo }))
         selectedChat.user = { ...selectedChat.user, ...latestInfo.data() }
     }
 
@@ -92,7 +92,7 @@ function UserInfoModal() {
             </Tooltip>
             <Modal isOpen={modal} toggle={modalToggle} centered className="modal-dialog-zoom call">   
                 <ModalHeader style={{ backgroundColor: 'transparent', height: 0 }}>
-                    {globalVars.adminList?.includes(user.uid) && <a style={{ position: 'absolute', top: 5, right: 5, fontSize: 14, fontWeight: 'normal' }} target='_blank' href={`https://console.firebase.google.com/u/0/project/firstproject-b3f4a/firestore/data/~2Fuser-info~2F${selectedChat.user?.id}`}>(Admin)</a>}
+                    {globalVars.adminInfoList?.some(admin => admin.id === user.uid) && <a style={{ position: 'absolute', top: 5, right: 5, fontSize: 14, fontWeight: 'normal' }} target='_blank' href={`https://console.firebase.google.com/u/0/project/firstproject-b3f4a/firestore/data/~2Fuser-info~2F${selectedChat.user?.id}`}>(Admin)</a>}
                 </ModalHeader>
                 <ModalBody>
                     <div className="call">
@@ -116,7 +116,7 @@ function UserInfoModal() {
                             {ubd && <><p style={{ cursor: 'pointer' }} onClick={userBioToggle}>{userBioCollapse ? <FeatherIcon.ChevronDown  />: <FeatherIcon.ChevronRight />} <b>User Bio Data:</b></p>
                             <Collapse isOpen={userBioCollapse}>
                                 <Card>
-                                    <CardBody>
+                                    <CardBody className='modal-content'>
                                         <p>
                                             <b>Gender: </b> {ubd.gender}<br/>
                                             <b>Age: </b> {ubd.dob instanceof Timestamp ? age(ubd.dob?.toDate()) : age(ubd.dob)}<br/>
@@ -137,7 +137,7 @@ function UserInfoModal() {
                             {usrS && <><p style={{ cursor: 'pointer' }} onClick={userSettingsToggle}>{userSettingsCollapse ? <FeatherIcon.ChevronDown  />: <FeatherIcon.ChevronRight />} <b>User Settings:</b></p>
                             <Collapse isOpen={userSettingsCollapse}>
                                 <Card>
-                                    <CardBody>
+                                    <CardBody className='modal-content'>
                                         <p style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                                             Enabled Notification Types: (Not editable)
                                             <FormGroup>

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Button, Input } from 'reactstrap'
 import * as FeatherIcon from 'react-feather'
 import WomenAvatar5 from "../../assets/img/women_avatar5.jpg"
@@ -11,7 +11,7 @@ const db = getFirestore(app)
 
 function ChatFooter() {
 
-    const { user } = useContext(AuthContext)
+    const { user, globalVars, setGlobalVars } = useContext(AuthContext)
 
     const { selectedChat } = useSelector(state => state)
 
@@ -48,6 +48,19 @@ function ChatFooter() {
         })
     }
 
+    // useEffect(() => {
+    //     setMessage('')
+    // }, [selectedChat.chat])
+
+    // useEffect(() => {
+    //     selectedChat.chat?.placeholderMessage && setMessage(selectedChat.chat?.placeholderMessage)
+    // }, [selectedChat.chat])
+
+    const handleMessageInput = (e) => {
+        setMessage(e.target.value)
+        // setGlobalVars(val => ({ ...val, chatList: val.chatList.find(chat => chat.id === selectedChat.chat?.id && (chat.placeholderMessage = e.target.value, true)) }))
+    }
+
     return (
         <div className="chat-footer">
             <form onSubmit={sendMessage}>
@@ -56,7 +69,7 @@ function ChatFooter() {
                         <FeatherIcon.Smile/>
                     </Button>
                 </div> */}
-                <Input type="text" className="form-control" placeholder="Write a message..." value={message} onChange={(e) => setMessage(e.target.value)} />
+                <Input type="text" className="form-control" placeholder="Write a message..." value={message} onChange={(e) => handleMessageInput(e)} />
                 <div className="form-buttons">
                     {/* <Button color="light">
                         <FeatherIcon.Paperclip />

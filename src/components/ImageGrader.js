@@ -6,14 +6,14 @@ import * as FeatherIcon from 'react-feather'
 import { Dropdown, DropdownToggle, DropdownItem, DropdownMenu, Modal, ModalBody } from 'reactstrap'
 import Chart from 'react-apexcharts'
 import { AuthContext } from '../providers/AuthProvider'
-import { doc, getDoc, query, getFirestore, updateDoc, addDoc, collection, Timestamp } from 'firebase/firestore'
+import { doc, getDoc, getFirestore, updateDoc, addDoc, collection, Timestamp } from 'firebase/firestore'
 import app from '../firebase'
 
 const db = getFirestore(app)
 
 const ImageGrader = ({ image, message, chat }) => {
 
-    const { user } = useContext(AuthContext)
+    const { user, globalVars } = useContext(AuthContext)
 
     const [formValues, setFormValues] = useState({ red: 0, yellow: 0, green: 0 })
     const [submitting, setSubmitting] = useState(false)
@@ -167,6 +167,15 @@ const ImageGrader = ({ image, message, chat }) => {
             }
             return i
         })
+        await addDoc(collection(db, 'activity-feed'), {
+            userID: user.uid,
+            originalSenderID: message.userID,
+            msg: `${globalVars.userInfo?.displayName} just skipped an image: ${image.url}`,
+            activityType: 'skipImage',
+            chatID: chat.id,
+            messageID: message.id,
+            timeSent: Timestamp.now()
+        })
         updateDoc(newGradedImage.ref, {
             img: newData
         }).then(() => {
@@ -192,12 +201,21 @@ const ImageGrader = ({ image, message, chat }) => {
             }
             return i
         })
+        await addDoc(collection(db, 'activity-feed'), {
+            userID: user.uid,
+            originalSenderID: message.userID,
+            msg: `${globalVars.userInfo?.displayName} just deleted an image: ${image.url}`,
+            activityType: 'deleteImage',
+            chatID: chat.id,
+            messageID: message.id,
+            timeSent: Timestamp.now()
+        })
         updateDoc(newGradedImage.ref, {
             img: newData
         }).then(() => {
             toggleImageDeleteModal()
             setDeleting(false)
-        })  
+        })
     }
 
     // const [imageRotateDeg, setImageRotateDeg] = useState(90)
@@ -216,7 +234,7 @@ const ImageGrader = ({ image, message, chat }) => {
                 padding: '10px',
                 position: 'relative'
             }}>
-                <img style={{ visibility: 'hidden', width: '100%' }} src={image.url} />
+                <img style={{ visibility: 'hidden', width: '100%' }} alt='Grade Meal' src={image.url} />
                 <div style={{
                     flexDirection: 'column',
                     justifyContent: 'space-between',
