@@ -5,7 +5,7 @@ import * as FeatherIcon from "react-feather"
 import { useDispatch } from 'react-redux'
 import { selectedChatAction } from '../../../Store/Actions/selectedChatAction'
 import { AuthContext } from '../../../providers/AuthProvider'
-import { Alert, Card, CardBody, Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap'
+import { Alert, Card, CardBody, Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip } from 'reactstrap'
 import moment from 'moment'
 import { doc, Timestamp, updateDoc, getFirestore, addDoc, collection } from 'firebase/firestore'
 import app from '../../../firebase'
@@ -27,35 +27,35 @@ function Index() {
         dispatch(selectedChatAction({ chat: null, client: null, coach: null }))
     }, [])
 
-    const [selectedUser, setSelectedUser] = useState([])
-    const [modalOpen, setModalOpen] = useState(false)
-    const toggleModal = () => setModalOpen(!modalOpen)
-    const openModal = (client) => {
-        setSelectedUser(client)
-        toggleModal()
-    }
+    const [selectedUsers, setSelectedUsers] = useState([])
+    // const [modalOpen, setModalOpen] = useState(false)
+    // const toggleModal = () => setModalOpen(!modalOpen)
+    // const openModal = (client) => {
+    //     setSelectedUser(client)
+    //     toggleModal()
+    // }
 
-    const [userBioCollapse, setUserBioCollapse] = useState(false)
-    const userBioToggle = () => setUserBioCollapse(!userBioCollapse)
+    // const [userBioCollapse, setUserBioCollapse] = useState(false)
+    // const userBioToggle = () => setUserBioCollapse(!userBioCollapse)
 
-    const FavoritesDropdown = ({ client }) => {
-        const [dropdownOpen, setDropdownOpen] = useState(false)
+    // const FavoritesDropdown = ({ client }) => {
+    //     const [dropdownOpen, setDropdownOpen] = useState(false)
 
-        const toggle = () => setDropdownOpen(prevState => !prevState)
+    //     const toggle = () => setDropdownOpen(prevState => !prevState)
 
-        return (
-            <Dropdown isOpen={dropdownOpen} toggle={toggle}>
-                <DropdownToggle tag="span">
-                    <FeatherIcon.MoreHorizontal />
-                </DropdownToggle>
-                <DropdownMenu>
-                    <DropdownItem onClick={() => openModal(client)}>View Profile</DropdownItem>
-                    <DropdownItem divider />
-                    <DropdownItem>Ban User</DropdownItem>
-                </DropdownMenu>
-            </Dropdown>
-        )
-    }
+    //     return (
+    //         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
+    //             <DropdownToggle tag="span">
+    //                 <FeatherIcon.MoreHorizontal />
+    //             </DropdownToggle>
+    //             <DropdownMenu>
+    //                 <DropdownItem onClick={() => openModal(client)}>View Profile</DropdownItem>
+    //                 <DropdownItem divider />
+    //                 <DropdownItem>Ban User</DropdownItem>
+    //             </DropdownMenu>
+    //         </Dropdown>
+    //     )
+    // }
 
     function age(birthDate) {
         var ageInMilliseconds = new Date() - new Date(birthDate);
@@ -64,8 +64,8 @@ function Index() {
 
     const [allocateUserModalOpen, setAllocateUserModalOpen] = useState(false)
     const toggleAllocateUserModal = () => setAllocateUserModalOpen(!allocateUserModalOpen)
-    const openAllocateUserModal = (client) => {
-        setSelectedUser(client)
+    const openAllocateUserModal = (clients) => {
+        setSelectedUsers(clients)
         toggleAllocateUserModal()
     }
 
@@ -155,10 +155,11 @@ function Index() {
                 <ModalBody>
                     {globalVars.userInfo?.type === 'coach' && <Alert color="warning">This action will make you the new coach of {currentClient?.displayName}.</Alert>}
                     {globalVars.userInfo?.type !== 'coach' && globalVars.userInfo?.type !== 'admin' && <Alert color="danger">Warning: You are not registered as a coach. Doing this action will make this client's chat invisible in the chat feed.</Alert>}
+                    {globalVars.userInfo?.type === 'admin' && batch && selectedCoach != null && <Alert color="danger">Warning: Some users may already have the selected coach as their personal coach. Please be sure that all selected users have a coach <i>different</i> from the selected one.</Alert>}
                     {globalVars.userInfo?.type === 'admin' && <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <Label>Select a Coach</Label>
                         <div>
-                            {globalVars.coachInfoList?.filter(coach => coach.type === 'coach')?.map((coachInfo, index) => {
+                            {globalVars.coachInfoList?.filter(coach => coach.type === 'coach' && (batch || coach.id !== currentClient?.coachID))?.map((coachInfo, index) => {
                                 return (
                                     <Chip 
                                         key={index}
@@ -198,13 +199,20 @@ function Index() {
         }
     }, [allocateUserModalOpen])
 
-    const [searchQuery, setQuery] = useState('')
-    const clientFilter = globalVars.clientInfoList.filter(client => searchQuery == '' ? globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) : (globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) && client.displayName && client.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) || (globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) && client.nickName && client.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1))
-    const [clientBatch, setClientBatch] = useState([])
+    const [showOnlyUnallocatedTooltip, setShowOnlyUnallocatedTooltip] = useState(false)
+    const toggleShowOnlyUnallocatedTooltip = () => setShowOnlyUnallocatedTooltip(!showOnlyUnallocatedTooltip)
+    const [showOnlyUnallocated, setShowOnlyUnallocated] = useState(false)
+    const toggleShowOnlyUnallocated = () => setShowOnlyUnallocated(!showOnlyUnallocated) 
 
-    useEffect(() => {
-        console.log(clientBatch)
-    }, [clientBatch])
+    const [searchQuery, setQuery] = useState('')
+    const clientFilter = globalVars.userInfo?.type === 'admin' && !showOnlyUnallocated ? 
+        globalVars.clientInfoList?.filter(client => searchQuery == '' ? 
+            client : 
+            (client.displayName && client.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) || (client.nickName && client.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)) : 
+        globalVars.clientInfoList?.filter(client => searchQuery == '' ? 
+            globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) : 
+            (globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) && client.displayName && client.displayName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1) || (globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && client.coachID === coach.id) && client.nickName && client.nickName?.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1))
+    const [clientBatch, setClientBatch] = useState([])
 
     return (<>
         <div className="sidebar active">
@@ -213,8 +221,22 @@ function Index() {
                     <button onClick={mobileMenuBtn} className="btn btn-outline-light mobile-navigation-button mr-3 d-xl-none d-inline">
                         <FeatherIcon.Menu />
                     </button>
-                    <span className="sidebar-title">Unallocated Clients</span>
+                    <span className="sidebar-title">Reallocate Clients</span>
                 </div>
+                {globalVars.userInfo?.type === 'admin' && <ul className="list-inline">
+                    <li className='list-inline-item'>
+                        <button className="btn btn-outline-light text-danger" onClick={toggleShowOnlyUnallocated} id="Tooltip-Show-OnlyUnallocated">
+                            <FeatherIcon.Archive />
+                        </button>
+                        <Tooltip
+                            placement="bottom"
+                            isOpen={showOnlyUnallocatedTooltip}
+                            target={"Tooltip-Show-OnlyUnallocated"}
+                            toggle={toggleShowOnlyUnallocatedTooltip}>
+                            {showOnlyUnallocated ? 'Show All Users' : 'Only Show Unallocated Users'}
+                        </Tooltip>
+                    </li>
+                </ul>}
             </header>
             <form>
                 <input type="text" className="form-control" placeholder="Filter by client" value={searchQuery} onChange={q => setQuery(q.target.value)}/>
@@ -260,8 +282,10 @@ function Index() {
                                     <UserAvatar user={item} />
                                     <div className="users-list-body">
                                         <div onClick={() => openAllocateUserModal([item])}>
-                                            <h5>{item.displayName}</h5>
-                                            <p style={{ textTransform: 'capitalize' }}>Coach Removed</p>
+                                            <h5>
+                                                {item.displayName} {item.nickName && <small className='text-muted'>({item.nickName})</small>}
+                                            </h5>
+                                            <p style={{ textTransform: 'capitalize' }}>{globalVars.coachInfoList.some((coach) => coach.type === 'removed-coach' && item.coachID === coach.id) ? 'Coach Removed' : `${globalVars.coachInfoList.find((coach) => coach.id === item.coachID)?.displayName}`}</p>
                                         </div>
                                         <div className="users-list-action">
                                             <div className={clientBatch.includes(item) ? "action-toggle-checked" : "action-toggle"}>
@@ -285,7 +309,7 @@ function Index() {
                 </PerfectScrollbar>
             </div>
         </div>
-        <Modal isOpen={modalOpen} toggle={toggleModal} centered className="modal-dialog-zoom call">
+        {/* <Modal isOpen={modalOpen} toggle={toggleModal} centered className="modal-dialog-zoom call">
             <ModalHeader style={{ backgroundColor: 'transparent', height: 0 }}>
                 {globalVars.userInfo?.type === 'admin' && <a style={{ position: 'absolute', top: 5, right: 5, fontSize: 14, fontWeight: 'normal' }} target='_blank' rel="noreferrer" href={`https://console.firebase.google.com/u/0/project/firstproject-b3f4a/firestore/data/~2Fuser-info~2F${selectedUser.id}`}>(Admin)</a>}
             </ModalHeader>
@@ -334,8 +358,8 @@ function Index() {
                     </div>
                 </div>
             </ModalBody>
-        </Modal>
-        <AllocateUserModal clients={selectedUser} />
+        </Modal> */}
+        <AllocateUserModal clients={selectedUsers} />
     </>)
 }
 

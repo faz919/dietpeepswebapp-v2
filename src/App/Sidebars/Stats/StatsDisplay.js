@@ -35,7 +35,7 @@ const Stats = () => {
 
     for (let coach of globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach')) {
       const coachName = coach.displayName
-      coachData[coachName] = globalVars.activityFeed?.filter((activity) => (activity.activityType === 'chatMessage' || activity.activityType === 'imageGrade') && !activity.messageDeleted && activity.timeSent?.toDate().getHours() === hour && activity.senderID === coach.id).length
+      coachData[coachName] = globalVars.activityFeed?.filter((activity) => (activity.activityType === 'chatMessage' || activity.activityType === 'imageGrade') && !activity.messageDeleted && activity.timeSent?.toDate().getHours() === hour && (activity.senderID === coach.id || activity.userID === coach.id)).length
     }
 
     return { name: moment(new Date(hourlyDate.setHours(hour))).format('LT'), ...coachData }
@@ -45,7 +45,7 @@ const Stats = () => {
 
     let coachData = {}
 
-    for (let coach of globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach' && coach.id === image.senderID)) {
+    for (let coach of globalVars.coachInfoList?.filter((coach) => coach.type !== 'removed-coach' && (coach.id === image.senderID || coach.id === image.userID))) {
       const coachName = coach.displayName
       coachData[coachName] = (image.timeTakenToGrade / 60000)
     }

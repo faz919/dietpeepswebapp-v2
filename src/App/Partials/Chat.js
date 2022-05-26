@@ -136,7 +136,7 @@ function Chat() {
                 await addDoc(collection(db, 'activity-feed'), {
                     userID: user.uid,
                     originalSenderID: message.userID,
-                    msg: `${globalVars.userInfo?.displayName} just deleted a message: ${message.msg}`,
+                    msg: `${message.msg}`,
                     activityType: 'deleteChatMessage',
                     clientID: selectedChat.user?.id,
                     chatID: selectedChat.chat?.id,
@@ -307,21 +307,36 @@ function Chat() {
         </>)
     }
 
+    const feedValues = [
+        { label: 'Chat message sent to', value: 'chatMessage' },
+        { label: 'Graded image from', value: 'imageGrade' },
+        { label: 'Skipped image from', value: 'skipImage' },
+        { label: 'Deleted image from', value: 'deleteImage' },
+        { label: 'Deleted message from', value: 'deleteChatMessage' }
+    ]
+
     const FeedView = (props) => {
 
         const { activity } = props
+
+        const coach = globalVars.coachInfoList?.find((coach) => coach.id === activity.senderID || coach.id === activity.userID)
+        const admin = globalVars.adminInfoList?.find((admin) => admin.id === activity.senderID || admin.id === activity.userID)
+        const client = globalVars.clientInfoList?.find((admin) => admin.id === activity.clientID || admin.id === activity.originalSenderID)
 
         return (<>
             <div className='message-item'>
                 <div className="message-avatar">
                     <figure className="avatar">
-                        <img src={globalVars.coachInfoList?.find((coach) => coach.id === activity.senderID)?.photoURL} className="rounded-circle" alt="avatar"/>
+                        <img src={coach ? coach.photoURL : admin.photoURL} className="rounded-circle" alt="avatar"/>
                     </figure>
                     <div>
-                        <h5>{globalVars.coachInfoList?.find((coach) => coach.id === activity.senderID)?.displayName}</h5>
+                        <h5>{coach ? coach.displayName : admin.displayName}</h5>
                         <div className="time">
                             {moment(activity.timeSent?.toDate()).calendar()}
                         </div>
+                        <i className='time'>
+                            {`${feedValues.find((type) => type.value === activity.activityType)?.label} ${activity.activityType !== 'deleteChatMessage' ? client.displayName : coach ? coach.displayName : admin.displayName} ${activity.activityType === 'imageGrade' ? `Time taken to grade: ${(activity.timeTakenToGrade / 60000) >= 60 ? Math.floor((activity.timeTakenToGrade / 60000) / 60) + 'hr' + Math.floor((activity.timeTakenToGrade / 60000) % 60) + 'min' + Math.round(((activity.timeTakenToGrade / 60000) * 60) % 60) + 's' : Math.floor((activity.timeTakenToGrade / 60000)) + 'min' + Math.round(((activity.timeTakenToGrade / 60000) * 60) % 60) + 's'}` : ''}`}
+                        </i>
                     </div>
                 </div>
                 <div className="message-content">

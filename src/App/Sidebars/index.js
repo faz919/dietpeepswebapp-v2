@@ -2,7 +2,7 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import ChatsIndex from "./Chats"
 import FriendsIndex from "./Clients"
-import FavoritesIndex from "./Unallocated"
+import FavoritesIndex from "./ReallocateClients"
 import ArchivedIndex from "./ActivityFeed"
 import StatsIndex from './Stats/index'
 
@@ -18,7 +18,7 @@ function Index() {
                         return <ChatsIndex />
                     } else if (selectedSidebar === 'Clients') {
                         return <FriendsIndex />
-                    } else if (selectedSidebar === 'Unallocated') {
+                    } else if (selectedSidebar === 'Reallocate Clients') {
                         return <FavoritesIndex />
                     } else if (selectedSidebar === 'Activity Feed') {
                         return <ArchivedIndex />

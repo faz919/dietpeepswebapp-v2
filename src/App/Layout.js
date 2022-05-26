@@ -36,6 +36,8 @@ function Layout() {
 
     const { user, globalVars, setGlobalVars } = useContext(AuthContext)
 
+    const { selectedChat } = useSelector(state => state)
+
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -186,10 +188,39 @@ function Layout() {
                 }
                 // console.log('snapshot called', chatList, clientInfoList, coachInfoList)
                 setGlobalVars(val => ({ ...val, chatList, loadingChats: false }))
-                if (clientInfo !== globalVars.clientInfoList) {
+                console.log('client info is: ', clientInfo)
+                console.log('client info list is: ', globalVars.clientInfoList)
+                if (clientInfo.length > globalVars.clientInfoList && clientInfo.length > 0 && globalVars.clientInfoList.length > 0) {
                     setGlobalVars(val => ({ ...val, clientInfoList: clientInfo }))
-                    console.log('client list updated due to mismatch: ', clientInfo)
+                    console.log('client list updated due to mismatch')
                 }
+
+                // querySnapshot.docChanges().forEach(async (change) => {
+                //     console.log(change.type, change.doc.id, change.doc.data())
+                //     if (change.type === 'modified') {
+                //         try {   
+                //             const updatedUser = clientInfo.find((client) => client.chatID === change.doc.id)
+                //             if (updatedUser == null) {
+                //                 console.log('no user found')
+                //             }
+    
+                //             const latestInfo = await getDoc(doc(db, 'user-info', updatedUser.id))
+                //             // find all the clients in globalVars.clientInfoList that have the same id as the updated user and replace their data with the latest info
+                //             const updatedClientInfo = globalVars.clientInfoList.map((client) => {
+                //                 if (client.id === updatedUser.id) {
+                //                     return { ...latestInfo.data(), id: latestInfo.id }
+                //                 } else {
+                //                     return client
+                //                 }
+                //             })
+                //             setGlobalVars(val => ({ ...val, clientInfoList: updatedClientInfo }))
+                //             // setGlobalVars(val => ({ ...val, clientInfoList: val.clientInfoList.find(client => client.id === updatedUser.id && (client = { ...client, ...latestInfo.data() }, true)) }))
+                //             selectedChat.user = { ...selectedChat.user, ...latestInfo.data() }
+                //         } catch (e) {
+                //             console.log(e)
+                //         }
+                //     }
+                // })
             })
         }
         fetchMessages()

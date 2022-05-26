@@ -127,8 +127,8 @@ function Navigation() {
             icon: <FeatherIcon.User/>,
         },
         {
-            name: 'Unallocated',
-            icon: <FeatherIcon.Archive/>,
+            name: 'Reallocate Clients',
+            icon: <FeatherIcon.Shuffle/>,
         },
         {
             name: 'Activity Feed',

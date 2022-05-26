@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react'
 import {useDispatch, useSelector} from "react-redux"
 import * as FeatherIcon from 'react-feather'
-import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Spinner, Tooltip} from 'reactstrap'
+import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, InputGroup, Spinner, Tooltip} from 'reactstrap'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import AddGroupModal from "../../Modals/AddGroupModal"
@@ -10,9 +10,10 @@ import {sidebarAction} from "../../../Store/Actions/sidebarAction"
 import {selectedChatAction} from "../../../Store/Actions/selectedChatAction"
 import { AuthContext } from '../../../providers/AuthProvider'
 import moment from 'moment'
-import { doc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
+import { doc, getFirestore, query, Timestamp, updateDoc } from 'firebase/firestore'
 import app from '../../../firebase'
 import UserAvatar from '../../../components/UserAvatar'
+import XButton from '../../../components/XButton'
 
 const db = getFirestore(app)
 
@@ -234,9 +235,11 @@ function Index() {
                 </ul>
             </header>
             <form>
-                {(activityFilterMsg.message || useUngradedFilter) && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;{activityFilterMsg.message && <p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>}{useUngradedFilter && <p style={{ margin: 0 }}> - Ungraded</p>}<p style={{ margin: 0 }}>{useUngradedFilter ? ungradedFilter.length : activityFilter.length} users in query.</p></p>}
-                {/* <p style={{ margin: 0, marginBottom: 5 }}>Inactive users now hidden by default.</p> */}
-                <input type="text" className="form-control" placeholder="Filter by user" value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
+                {(activityFilterMsg.message || useUngradedFilter) && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;{activityFilterMsg.message && <p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>}{useUngradedFilter && <p style={{ margin: 0 }}> - Ungraded</p>}<p style={{ margin: 0 }}>{useUngradedFilter ? ungradedFilter.length : activityFilter.length} users in query (including flagged users).</p></p>}
+                <InputGroup style={{ alignItems: 'center' }}>
+                    <Input type="text" className="form-control" placeholder="Filter by client" value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
+                    {searchQuery.length > 0 && <XButton onClick={() => setQuery('')} />}
+                </InputGroup>
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>

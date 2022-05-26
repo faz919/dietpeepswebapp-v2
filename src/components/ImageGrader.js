@@ -170,7 +170,8 @@ const ImageGrader = ({ image, message, chat }) => {
         await addDoc(collection(db, 'activity-feed'), {
             userID: user.uid,
             originalSenderID: message.userID,
-            msg: `${globalVars.userInfo?.displayName} just skipped an image: ${image.url}`,
+            clientID: message.userID,
+            msg: `${image.url}`,
             activityType: 'skipImage',
             chatID: chat.id,
             messageID: message.id,
@@ -204,6 +205,7 @@ const ImageGrader = ({ image, message, chat }) => {
         await addDoc(collection(db, 'activity-feed'), {
             userID: user.uid,
             originalSenderID: message.userID,
+            clientID: message.userID,
             msg: `${globalVars.userInfo?.displayName} just deleted an image: ${image.url}`,
             activityType: 'deleteImage',
             chatID: chat.id,

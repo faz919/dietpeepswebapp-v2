@@ -8,6 +8,7 @@ import { AuthContext } from '../../../providers/AuthProvider'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import CoachAvatar from '../../../components/CoachAvatar'
 import * as FeatherIcon from 'react-feather'
+import XButton from '../../../components/XButton'
 
 function Index() {
 
@@ -31,19 +32,6 @@ function Index() {
         dispatch(selectedChatAction(chatInfo))
     }
 
-    const unselectCoachStyle = {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(180,180,180,0.7)',
-        // position: 'absolute',
-        // top: 5,
-        // right: 5,
-        width: 20,
-        height: 20,
-        borderRadius: 10
-    }
-
     const CoachListView = ({ coach }) => {
         return (
             <li className={"list-group-item " + (coach.id === selectedChat.coach?.id ? 'open-chat' : '')}>
@@ -54,12 +42,7 @@ function Index() {
                     </div>
                     <div className="users-list-action">
                         <div className="action-toggle" style={{ opacity: selectedChat.coach?.id === coach.id ? 1 : 0 }}>
-                            <div style={unselectCoachStyle} onClick={() => coachSelectHandle('stats', null, null)}>
-                                <FeatherIcon.X
-                                    size={16}
-                                    color='#000'
-                                />
-                            </div>
+                            <XButton onClick={() => coachSelectHandle('stats', null, null)} />
                         </div>
                     </div>
                 </div>
