@@ -5,13 +5,14 @@ import * as FeatherIcon from "react-feather"
 import { useDispatch } from 'react-redux'
 import { selectedChatAction } from '../../../Store/Actions/selectedChatAction'
 import { AuthContext } from '../../../providers/AuthProvider'
-import { Alert, Card, CardBody, Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip } from 'reactstrap'
+import { Alert, Card, CardBody, Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, InputGroup, Label, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip } from 'reactstrap'
 import moment from 'moment'
 import { doc, Timestamp, updateDoc, getFirestore, addDoc, collection } from 'firebase/firestore'
 import app from '../../../firebase'
 import { LoadingButton } from '@mui/lab'
 import { Avatar, Checkbox, Chip } from '@mui/material'
 import UserAvatar from '../../../components/UserAvatar'
+import XButton from '../../../components/XButton'
 
 const db = getFirestore(app)
 
@@ -239,7 +240,10 @@ function Index() {
                 </ul>}
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Filter by client" value={searchQuery} onChange={q => setQuery(q.target.value)}/>
+                <InputGroup style={{ alignItems: 'center' }}>
+                    <Input type="text" className="form-control" placeholder="Filter by client" style={{ zIndex: 0 }} value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
+                    {searchQuery.length > 0 && <div style={{ position: 'absolute', marginTop: '10px', marginBottom: '10px', right: '10px', zIndex: 1 }}><XButton onClick={() => setQuery('')} /></div>}
+                </InputGroup>
             </form>
             <div className="sidebar-body">
                 {clientFilter.length > 0 &&

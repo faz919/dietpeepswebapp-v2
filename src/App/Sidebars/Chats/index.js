@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react'
 import {useDispatch, useSelector} from "react-redux"
 import * as FeatherIcon from 'react-feather'
-import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, InputGroup, Spinner, Tooltip} from 'reactstrap'
+import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, InputGroup, InputGroupText, Spinner, Tooltip} from 'reactstrap'
 import 'react-perfect-scrollbar/dist/css/styles.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import AddGroupModal from "../../Modals/AddGroupModal"
@@ -237,8 +237,8 @@ function Index() {
             <form>
                 {(activityFilterMsg.message || useUngradedFilter) && <p style={{ display: 'block' }}>Currently filtering by:&nbsp;{activityFilterMsg.message && <p style={{ margin: 0 }} className={`text-${activityFilterMsg.color}`}> - {activityFilterMsg.message}&nbsp;</p>}{useUngradedFilter && <p style={{ margin: 0 }}> - Ungraded</p>}<p style={{ margin: 0 }}>{useUngradedFilter ? ungradedFilter.length : activityFilter.length} users in query (including flagged users).</p></p>}
                 <InputGroup style={{ alignItems: 'center' }}>
-                    <Input type="text" className="form-control" placeholder="Filter by client" value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
-                    {searchQuery.length > 0 && <XButton onClick={() => setQuery('')} />}
+                    <Input type="text" className="form-control" placeholder="Filter by client" style={{ zIndex: 0 }} value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
+                    {searchQuery.length > 0 && <div style={{ position: 'absolute', marginTop: '10px', marginBottom: '10px', right: '10px', zIndex: 1 }}><XButton onClick={() => setQuery('')} /></div>}
                 </InputGroup>
             </form>
             <div className="sidebar-body">

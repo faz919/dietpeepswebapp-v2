@@ -31,6 +31,8 @@ import * as FeatherIcon from 'react-feather'
 import { LoadingButton } from '@mui/lab'
 import UserAvatar from '../../components/UserAvatar'
 import Stats from '../Sidebars/Stats/StatsDisplay'
+import { selectedChatAction } from '../../Store/Actions/selectedChatAction'
+import { sidebarAction } from '../../Store/Actions/sidebarAction'
 
 const db = getFirestore(app)
 
@@ -307,6 +309,19 @@ function Chat() {
         </>)
     }
 
+    const chatSelectHandle = (chat, user, coach) => {
+        let chatInfo = { chat, user, coach }
+        dispatch(selectedChatAction(chatInfo))
+        document.querySelector('.chat').classList.add('open')
+        if (chat.unreadCount > 0) {
+            updateDoc(doc(db, 'chat-rooms', chat.id), {
+                unreadCount: 0,
+                coachLastRead: Timestamp.fromDate(new Date())
+            })
+        }
+        dispatch(sidebarAction('Chats'))
+    }
+
     const feedValues = [
         { label: 'Chat message sent to', value: 'chatMessage' },
         { label: 'Graded image from', value: 'imageGrade' },
@@ -322,20 +337,22 @@ function Chat() {
         const coach = globalVars.coachInfoList?.find((coach) => coach.id === activity.senderID || coach.id === activity.userID)
         const admin = globalVars.adminInfoList?.find((admin) => admin.id === activity.senderID || admin.id === activity.userID)
         const client = globalVars.clientInfoList?.find((admin) => admin.id === activity.clientID || admin.id === activity.originalSenderID)
+        const chat = globalVars.chatList?.find((chat) => chat.id === activity.chatID)
 
         return (<>
             <div className='message-item'>
                 <div className="message-avatar">
                     <figure className="avatar">
-                        <img src={coach ? coach.photoURL : admin.photoURL} className="rounded-circle" alt="avatar"/>
+                        <img src={coach ? coach?.photoURL : admin?.photoURL} className="rounded-circle" alt="avatar"/>
                     </figure>
                     <div>
-                        <h5>{coach ? coach.displayName : admin.displayName}</h5>
+                        <h5>{coach ? coach?.displayName : admin?.displayName}</h5>
                         <div className="time">
                             {moment(activity.timeSent?.toDate()).calendar()}
                         </div>
-                        <i className='time'>
-                            {`${feedValues.find((type) => type.value === activity.activityType)?.label} ${activity.activityType !== 'deleteChatMessage' ? client.displayName : coach ? coach.displayName : admin.displayName} ${activity.activityType === 'imageGrade' ? `Time taken to grade: ${(activity.timeTakenToGrade / 60000) >= 60 ? Math.floor((activity.timeTakenToGrade / 60000) / 60) + 'hr' + Math.floor((activity.timeTakenToGrade / 60000) % 60) + 'min' + Math.round(((activity.timeTakenToGrade / 60000) * 60) % 60) + 's' : Math.floor((activity.timeTakenToGrade / 60000)) + 'min' + Math.round(((activity.timeTakenToGrade / 60000) * 60) % 60) + 's'}` : ''}`}
+                        <i className='time' style={{ display: 'flex', flexDirection: 'row' }}>
+                            {`${feedValues.find((type) => type.value === activity.activityType)?.label} ${activity.activityType !== 'deleteChatMessage' ? client?.displayName : coach ? coach?.displayName : admin?.displayName} ${activity.activityType === 'imageGrade' ? `Time taken to grade: ${(activity.timeTakenToGrade / 60000) >= 60 ? Math.floor((activity.timeTakenToGrade / 60000) / 60) + 'hr' + Math.floor((activity.timeTakenToGrade / 60000) % 60) + 'min' + Math.round(((activity.timeTakenToGrade / 60000) * 60) % 60) + 's' : Math.floor((activity.timeTakenToGrade / 60000)) + 'min' + Math.round(((activity.timeTakenToGrade / 60000) * 60) % 60) + 's'}` : ''}`}
+                            &nbsp; <a onClick={() => chatSelectHandle(chat, client, coach)} style={{ cursor: 'pointer', textDecorationLine: 'underline' }}>View Chat</a>
                         </i>
                     </div>
                 </div>

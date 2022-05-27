@@ -9,6 +9,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import CoachAvatar from '../../../components/CoachAvatar'
 import * as FeatherIcon from 'react-feather'
 import XButton from '../../../components/XButton'
+import { Input, InputGroup } from 'reactstrap'
 
 function Index() {
 
@@ -66,7 +67,10 @@ function Index() {
                 </ul> */}
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Filter by coach" value={searchQuery} onChange={q => setQuery(q.target.value)} />
+                <InputGroup style={{ alignItems: 'center' }}>
+                    <Input type="text" className="form-control" placeholder="Filter by coach" style={{ zIndex: 0 }} value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
+                    {searchQuery.length > 0 && <div style={{ position: 'absolute', marginTop: '10px', marginBottom: '10px', right: '10px', zIndex: 1 }}><XButton onClick={() => setQuery('')} /></div>}
+                </InputGroup>
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>

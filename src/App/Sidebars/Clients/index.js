@@ -12,6 +12,8 @@ import moment from 'moment'
 import { selectedChatAction } from '../../../Store/Actions/selectedChatAction'
 import ChatsDropdown from '../Chats/ChatsDropdown'
 import UserAvatar from '../../../components/UserAvatar'
+import { Input, InputGroup } from 'reactstrap'
+import XButton from '../../../components/XButton'
 
 const db = getFirestore(app)
 
@@ -93,7 +95,10 @@ function Index() {
                 </ul>
             </header>
             <form>
-                <input type="text" className="form-control" placeholder="Filter by client" value={searchQuery} onChange={q => setQuery(q.target.value)}/>
+                <InputGroup style={{ alignItems: 'center' }}>
+                    <Input type="text" className="form-control" placeholder="Filter by client" style={{ zIndex: 0 }} value={searchQuery} onChange={(q) => setQuery(q.target.value)} />
+                    {searchQuery.length > 0 && <div style={{ position: 'absolute', marginTop: '10px', marginBottom: '10px', right: '10px', zIndex: 1 }}><XButton onClick={() => setQuery('')} /></div>}
+                </InputGroup>
             </form>
             <div className="sidebar-body">
                 <PerfectScrollbar>
