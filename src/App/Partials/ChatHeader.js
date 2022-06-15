@@ -13,8 +13,6 @@ import { AuthContext } from '../../providers/AuthProvider'
 import { doc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
 import app from '../../firebase'
 import { LoadingButton } from '@mui/lab'
-import { green, grey, orange, red } from '@mui/material/colors'
-import { Radio } from '@mui/material'
 import UserAvatar from '../../components/UserAvatar'
 
 const db = getFirestore(app)
@@ -222,7 +220,6 @@ function ChatHeader(props) {
                                 </button>
                             </DropdownToggle>
                             <DropdownMenu end>
-                                {/* <DropdownItem>(Option 1)</DropdownItem> */}
                                 <DropdownItem>(WIP) Flag User</DropdownItem>
                                 <DropdownItem divider/>
                                 <DropdownItem onClick={banUserModalToggle}>Ban User</DropdownItem>

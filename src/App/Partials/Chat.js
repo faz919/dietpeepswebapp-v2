@@ -1,11 +1,11 @@
-import React, {useContext, useEffect, useRef, useState} from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import ChatHeader from "./ChatHeader"
 import ChatFooter from "./ChatFooter"
 import PerfectScrollbar from "react-perfect-scrollbar"
 import UnselectedChat from '../../assets/img/unselected-chat.svg'
-import {useDispatch, useSelector} from "react-redux"
-import {profileAction} from "../../Store/Actions/profileAction"
-import {mobileProfileAction} from "../../Store/Actions/mobileProfileAction"
+import { useDispatch, useSelector } from "react-redux"
+import { profileAction } from "../../Store/Actions/profileAction"
+import { mobileProfileAction } from "../../Store/Actions/mobileProfileAction"
 import {
     getFirestore,
     collection,
@@ -33,6 +33,7 @@ import UserAvatar from '../../components/UserAvatar'
 import Stats from '../Sidebars/Stats/StatsDisplay'
 import { selectedChatAction } from '../../Store/Actions/selectedChatAction'
 import { sidebarAction } from '../../Store/Actions/sidebarAction'
+import XButton from '../../components/XButton'
 
 const db = getFirestore(app)
 
@@ -71,7 +72,7 @@ function Chat() {
             selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(25 * scrollPage)))
             setLoading(true)
         } else if (selectedChat.chat === 'activity-feed') {
-            setQ(query(collection(db, "activity-feed"), orderBy('timeSent'), limitToLast(25 * scrollPage) ))
+            setQ(query(collection(db, "activity-feed"), orderBy('timeSent'), limitToLast(25 * scrollPage)))
             setLoading(true)
         }
     }, [selectedChat?.chat, scrollPage])
@@ -87,7 +88,7 @@ function Chat() {
                 })
                 // console.log('message list: ', msgList)
                 setMessages(msgList)
-                setGlobalVars(val => ({...val, msgList }))
+                setGlobalVars(val => ({ ...val, msgList }))
                 msgList = []
                 if (querySnapshot.size < 25 * scrollPage) {
                     setCanLoadMore(false)
@@ -203,17 +204,19 @@ function Chat() {
             )
         }
 
+        const startReplying = () => setGlobalVars(val => ({ ...val, replyingTo: message }))
+
         return (<>
             {/* find latest unread message, then put a little indicator above it */}
             {globalVars.msgList && selectedChat.chat?.unreadCount > 0 && selectedChat.chat?.coachLastRead && Math.min(...globalVars.msgList?.filter(message => message.timeSent?.toDate() > selectedChat.chat?.coachLastRead?.toDate()).map(e => new Date(e.timeSent?.toDate()))) === (new Date(message.timeSent?.toDate())).getTime() && <div className="message-item messages-divider sticky-top" data-label={selectedChat.chat.unreadCount === 1 ? selectedChat.chat.unreadCount + ' unread message' : selectedChat.chat.unreadCount + ' unread messages'} />}
-            <div className={message.userID === selectedChat.user.id ? 'message-item' : 'outgoing-message message-item' }>
+            <div className={message.userID === selectedChat.user.id ? 'message-item' : 'outgoing-message message-item'}>
                 <div className="message-avatar">
-                    {message.userID === selectedChat.user.id ? 
-                    <UserAvatar user={selectedChat.user} />
+                    {message.userID === selectedChat.user.id ?
+                        <UserAvatar user={selectedChat.user} />
                         :
-                    <figure className="avatar">
-                        <img src={selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar"/>
-                    </figure>}
+                        <figure className="avatar">
+                            <img src={selectedChat.coach?.photoURL} className="rounded-circle" alt="avatar" />
+                        </figure>}
                     <div>
                         <h5>{message.userID === selectedChat.user.id ? selectedChat.user?.displayName : selectedChat.coach?.displayName}</h5>
                         {message.userID !== selectedChat.user.id && message.userID !== selectedChat.coach.id && <small className='text-muted'>({globalVars.coachInfoList?.some(coach => coach.id === message.userID) ? globalVars.coachInfoList?.find(coach => coach.id === message.userID)?.displayName : globalVars.adminInfoList?.find(admin => admin.id === message.userID)?.displayName})</small>}
@@ -224,65 +227,84 @@ function Chat() {
                     </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: message.userID === selectedChat.user.id ? 'flex-start' : 'flex-end', alignItems: 'center' }}>
-                {!editing && message.userID !== selectedChat.user.id &&
-                    <Dropdown isOpen={messageOptionsDropdown} toggle={toggleMessageOptionsDropdown}>
-                        <DropdownToggle
-                            tag="span"
-                            data-toggle="dropdown"
-                            aria-expanded={messageOptionsDropdown}
-                        >
-                            <Button title='Options' style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
-                                <FeatherIcon.MoreHorizontal />
-                            </Button>
-                        </DropdownToggle>
-                        <DropdownMenu direction='right'>
-                            <DropdownItem onClick={toggleEditing}>Edit</DropdownItem>
-                            <DropdownItem divider />
-                            <DropdownItem onClick={toggleDeleting}>Delete</DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>}
-                {editing && <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <LoadingButton className='color-primary' style={{ textTransform: 'none', height: 30, marginLeft: 5 }} disabled={editedMessage === message.msg || editedMessage === ''} loading={committingToDB} variant='contained' onClick={editMessage}>Save</LoadingButton>
-                    <Button style={{ height: 30, justifyContent: 'center', alignItems: 'center', marginLeft: 5 }} onClick={stopEditing}>Cancel</Button>
-                </div>}
-                {
-                    editing ? 
-                    <div className='message-content'>
-                        <Input
-                            type="text" 
-                            className="form-control" 
-                            value={editedMessage}
-                            onChange={(e) => setEditedMessage(e.target.value)}
-                            style={{ width: '500px' }}
-                        />
-                    </div> :
-                    message.img != null
-                        ?
-                        <div className="message-content">
-                            {message.img.map((image, index) => <React.Fragment key={index}>
-                                {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
-                                {image.graded && image.uploadedAt && <p style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt)/60) + 'min' + Math.round((image.gradedAt - image.uploadedAt)%60) + 's'}</i></p>}
-                                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                                    <figure>
-                                        <img style={{ cursor: 'pointer' }} onClick={() => window.open(image.url, '_blank', 'noopener,noreferrer')} src={image.url} className="w-25 img-fluid rounded" alt="Chat Image" title="View Full Resolution"/>
-                                    </figure>
-                                    {image.graded && selectedChat.user.id === message.userID &&
-                                        <Button onClick={() => handleRegradeClick(selectedChat.chat.id, message, image)} style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
-                                            <FeatherIcon.RefreshCcw size={30} />
-                                        </Button>}
+                    {!editing && message.userID !== selectedChat.user.id &&
+                        <Dropdown isOpen={messageOptionsDropdown} toggle={toggleMessageOptionsDropdown}>
+                            <DropdownToggle
+                                tag="span"
+                                data-toggle="dropdown"
+                                aria-expanded={messageOptionsDropdown}
+                            >
+                                <Button title='Options' style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                                    <FeatherIcon.MoreHorizontal />
+                                </Button>
+                            </DropdownToggle>
+                            <DropdownMenu direction='right'>
+                                <DropdownItem onClick={toggleEditing}>Edit</DropdownItem>
+                                <DropdownItem onClick={startReplying}>Reply</DropdownItem>
+                                <DropdownItem divider />
+                                <DropdownItem onClick={toggleDeleting}>Delete</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>}
+                    {editing && <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                        <LoadingButton className='color-primary' style={{ textTransform: 'none', height: 30, marginLeft: 5 }} disabled={editedMessage === message.msg || editedMessage === ''} loading={committingToDB} variant='contained' onClick={editMessage}>Save</LoadingButton>
+                        <Button style={{ height: 30, justifyContent: 'center', alignItems: 'center', marginLeft: 5 }} onClick={stopEditing}>Cancel</Button>
+                    </div>}
+                    {
+                        editing ?
+                            <div className='message-content'>
+                                <Input
+                                    type="text"
+                                    className="form-control"
+                                    value={editedMessage}
+                                    onChange={(e) => setEditedMessage(e.target.value)}
+                                    style={{ width: '500px' }}
+                                />
+                            </div> :
+                            message.img != null
+                                ?
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    {message.repliesTo != null &&
+                                        <div style={{ flexDirection: 'row', alignItems: 'center', display: 'flex' }}>
+                                            <div style={{ WebkitTransform: 'scaleX(-1)', transform: 'scaleX(-1)' }}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" /></svg>
+                                            </div>
+                                            <p style={{ marginTop: 0, marginBottom: 0, fontSize: 14, maxWidth: 'auto', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}><b>Replies to:</b> {messages.find((msg) => msg.id === message.repliesTo)?.msg || '(Message not found)'}</p>
+                                        </div>}
+                                    <div className="message-content">
+                                        {message.img.map((image, index) => <React.Fragment key={index}>
+                                            {image.graded && <p><strong>Image grade data: </strong><i>Score: {image.grade}, White: {image.red}, Yellow: {image.yellow}, Green: {image.green}</i></p>}
+                                            {image.graded && image.uploadedAt && <p style={{ marginTop: -15 }}><strong>Time taken to grade: </strong><i>{Math.floor((image.gradedAt - image.uploadedAt) / 60) + 'min' + Math.round((image.gradedAt - image.uploadedAt) % 60) + 's'}</i></p>}
+                                            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                                                <figure>
+                                                    <img style={{ cursor: 'pointer' }} onClick={() => window.open(image.url, '_blank', 'noopener,noreferrer')} src={image.url} className="w-25 img-fluid rounded" alt="Chat Image" title="View Full Resolution" />
+                                                </figure>
+                                                {image.graded && selectedChat.user.id === message.userID &&
+                                                    <Button onClick={() => handleRegradeClick(selectedChat.chat.id, message, image)} style={{ backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                                                        <FeatherIcon.RefreshCcw size={30} />
+                                                    </Button>}
+                                            </div>
+                                        </React.Fragment>)}
+                                        {message.msg}
+                                    </div>
                                 </div>
-                            </React.Fragment>)}
-                            {message.msg}
-                        </div>
-                        :
-                        <div className="message-content">
-                            {message.msg}
-                        </div>
-                }
-                {/* {message.userID === selectedChat.user.id && 
-                <div>
-                    <FeatherIcon.MoreHorizontal />
-                </div>} */}
+                                :
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    {message.repliesTo != null && 
+                                        <div style={{ flexDirection: 'row', alignItems: 'center', display: 'flex' }}>
+                                            <div style={{ WebkitTransform: 'scaleX(-1)', transform: 'scaleX(-1)' }}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" /></svg>
+                                            </div>
+                                            <p style={{ marginTop: 0, marginBottom: 0, fontSize: 14, maxWidth: 'auto', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}><b>Replies to:</b> {messages.find((msg) => msg.id === message.repliesTo)?.msg || '(Message not found)'}</p>
+                                        </div>}
+                                    <div className="message-content">
+                                        {message.msg}
+                                    </div>
+                                </div>
+                    }
+                    {message.userID === selectedChat.user?.id &&
+                        <Button onClick={startReplying} title='Reply' style={{ marginLeft: 5, backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" /></svg>
+                        </Button>}
                 </div>
             </div>
             <Modal isOpen={deleting} toggle={toggleDeleting} centered className="modal-dialog-zoom call">
@@ -292,13 +314,13 @@ function Chat() {
                             <h5>Are you sure you want to delete this message?</h5>
                             <div className="action-button">
                                 <button type="button" onClick={toggleDeleting}
-                                        className="btn btn-danger btn-floating btn-lg"
-                                        data-dismiss="modal" disabled={committingToDB}>
-                                    <FeatherIcon.X/>
+                                    className="btn btn-danger btn-floating btn-lg"
+                                    data-dismiss="modal" disabled={committingToDB}>
+                                    <FeatherIcon.X />
                                 </button>
                                 <button type="button" onClick={deleteMessage}
-                                        className="btn btn-success btn-pulse btn-floating btn-lg" disabled={committingToDB}>
-                                    <FeatherIcon.Check/>
+                                    className="btn btn-success btn-pulse btn-floating btn-lg" disabled={committingToDB}>
+                                    <FeatherIcon.Check />
                                 </button>
                             </div>
                         </div>
@@ -343,7 +365,7 @@ function Chat() {
             <div className='message-item'>
                 <div className="message-avatar">
                     <figure className="avatar">
-                        <img src={coach ? coach?.photoURL : admin?.photoURL} className="rounded-circle" alt="avatar"/>
+                        <img src={coach ? coach?.photoURL : admin?.photoURL} className="rounded-circle" alt="avatar" />
                     </figure>
                     <div>
                         <h5>{coach ? coach?.displayName : admin?.displayName}</h5>
@@ -363,35 +385,37 @@ function Chat() {
         </>)
     }
 
+    const stopReplying = () => setGlobalVars(val => ({ ...val, replyingTo: null }))
+
     return (
         <div className="chat">
             {
                 selectedChat.chat?.id
                     ?
                     <>
-                        <ChatHeader selectedChat={selectedChat}/>
+                        <ChatHeader selectedChat={selectedChat} />
                         <PerfectScrollbar containerRef={ref => setScrollEl(ref)}>
                             <div className="chat-body">
                                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: -10 }}>
                                     {canLoadMore ?
-                                    <>
-                                    <small className='text-muted'>{loading ? 'Loading...' : 'Load more'}</small>
-                                    {loading ?
-                                        <div style={{ marginTop: 5 }}>
-                                            <Spinner variant='primary' />
-                                        </div> :
-                                        <button onClick={() => canLoadMore && setScrollPage(scrollPage + 1)} style={{ borderWidth: 0, backgroundColor: 'transparent', marginTop: 5 }}>
-                                            <FeatherIcon.RefreshCcw size={32} />
-                                        </button>}
-                                    </>
-                                    : <small className='text-muted'>No more messages to load!</small>}
+                                        <>
+                                            <small className='text-muted'>{loading ? 'Loading...' : 'Load more'}</small>
+                                            {loading ?
+                                                <div style={{ marginTop: 5 }}>
+                                                    <Spinner variant='primary' />
+                                                </div> :
+                                                <button onClick={() => canLoadMore && setScrollPage(scrollPage + 1)} style={{ borderWidth: 0, backgroundColor: 'transparent', marginTop: 5 }}>
+                                                    <FeatherIcon.RefreshCcw size={32} />
+                                                </button>}
+                                        </>
+                                        : <small className='text-muted'>No more messages to load!</small>}
                                 </div>
                                 <div className="messages">
                                     {messages &&
                                         messages.map((message, i) => {
-                                            return <MessagesView message={message} index={i} key={message.id}/>
+                                            return <MessagesView message={message} index={i} key={message.id} />
                                         })}
-                                        {/* : console.log('no messages') */}
+                                    {/* : console.log('no messages') */}
                                 </div>
                                 {scrollToBottom && scrollEl != null && scrollEl.scrollTop !== scrollEl.scrollHeight && <button onClick={() => scrollEl.scrollTop = scrollEl.scrollHeight} style={{ position: 'absolute', bottom: 10, left: 5, backgroundColor: 'transparent', width: 40, height: 40, borderRadius: 20, borderWidth: 0 }}>
                                     <div style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#0a80ff' }}>
@@ -402,7 +426,17 @@ function Chat() {
                                 </button>}
                             </div>
                         </PerfectScrollbar>
-                        <ChatFooter inputMsg={inputMsg}/>
+                        {globalVars.replyingTo &&
+                            <div className='reply-container' style={{ height: '50px', borderTopLeftRadius: '10px', borderTopRightRadius: '10px', width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                <div style={{ cursor: 'pointer', width: '95%', alignItems: 'center', flexDirection: 'row', display: 'flex', paddingLeft: '15px' }}>
+                                    <p style={{ marginTop: 0, marginBottom: 0 }}><b>Replying to:</b> {globalVars.replyingTo?.msg}</p>
+                                </div>
+                                <Button onClick={stopReplying} style={{ width: '5%', justifySelf: 'flex-end', backgroundColor: 'transparent', borderWidth: 0, color: 'black', padding: '5px' }}>
+                                    <XButton />
+                                </Button>
+                            </div>
+                        }
+                        <ChatFooter inputMsg={inputMsg} />
                     </>
                     :
                     selectedChat.chat === 'activity-feed' ? (
@@ -410,22 +444,22 @@ function Chat() {
                             <div className="chat-body">
                                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: -10 }}>
                                     {canLoadMore ?
-                                    <>
-                                    <small className='text-muted'>{loading ? 'Loading...' : 'Load more'}</small>
-                                    {loading ?
-                                        <div style={{ marginTop: 5 }}>
-                                            <Spinner variant='primary' />
-                                        </div> :
-                                        <button onClick={() => canLoadMore && setScrollPage(scrollPage + 1)} style={{ borderWidth: 0, backgroundColor: 'transparent', marginTop: 5 }}>
-                                            <FeatherIcon.RefreshCcw size={32} />
-                                        </button>}
-                                    </>
-                                    : <small className='text-muted'>No more messages to load!</small>}
+                                        <>
+                                            <small className='text-muted'>{loading ? 'Loading...' : 'Load more'}</small>
+                                            {loading ?
+                                                <div style={{ marginTop: 5 }}>
+                                                    <Spinner variant='primary' />
+                                                </div> :
+                                                <button onClick={() => canLoadMore && setScrollPage(scrollPage + 1)} style={{ borderWidth: 0, backgroundColor: 'transparent', marginTop: 5 }}>
+                                                    <FeatherIcon.RefreshCcw size={32} />
+                                                </button>}
+                                        </>
+                                        : <small className='text-muted'>No more messages to load!</small>}
                                 </div>
                                 <div className="messages">
                                     {messages ?
                                         messages.map((message, i) => {
-                                            return <FeedView activity={message} index={i} key={message.id}/>
+                                            return <FeedView activity={message} index={i} key={message.id} />
                                         }) : console.log('no messages')}
                                 </div>
                                 {/* {scrollToBottom && scrollEl.scrollTop !== scrollEl.scrollHeight && <button onClick={() => scrollEl.scrollTop = scrollEl.scrollHeight} style={{ position: 'absolute', bottom: 10, left: 5, backgroundColor: 'transparent', width: 40, height: 40, borderRadius: 20, borderWidth: 0 }}>
@@ -438,19 +472,19 @@ function Chat() {
                             </div>
                         </PerfectScrollbar>
                     )
-                    :
-                    selectedChat.chat === 'stats' ? (
-                        <Stats />
-                    )
-                    :
-                    <div className="chat-body no-message">
-                        <div className="no-message-container">
-                            <div className="mb-5">
-                                <img src={UnselectedChat} width={200} className="img-fluid" alt="unselected"/>
+                        :
+                        selectedChat.chat === 'stats' ? (
+                            <Stats />
+                        )
+                            :
+                            <div className="chat-body no-message">
+                                <div className="no-message-container">
+                                    <div className="mb-5">
+                                        <img src={UnselectedChat} width={200} className="img-fluid" alt="unselected" />
+                                    </div>
+                                    <p className="lead">Select a chat to read messages</p>
+                                </div>
                             </div>
-                            <p className="lead">Select a chat to read messages</p>
-                        </div>
-                    </div>
             }
         </div>
     )

@@ -35,8 +35,10 @@ function ChatFooter() {
             timeSent: Timestamp.fromDate(new Date()),
             userID: uid,
             senderType: 'coach',
+            repliesTo: globalVars.replyingTo?.id
             // msgType: 'chatMessage'
         }).then(() => {
+            setGlobalVars(val => ({ ...val, replyingTo: null }))
             updateDoc(doc(db, "chat-rooms", selectedChat.chat.id), {
                 // latestMessage: msg,
                 // latestMessageTime: Timestamp.fromDate(new Date()),

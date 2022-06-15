@@ -8,6 +8,7 @@ import app from '../../firebase'
 import { AuthContext } from '../../providers/AuthProvider'
 import { LoadingButton } from '@mui/lab'
 import { FormControlLabel, Switch, FormGroup, Checkbox } from '@mui/material'
+import { AreaChart, CartesianGrid, XAxis, YAxis, Tooltip as ChartTooltip, Area } from 'recharts'
 
 const db = getFirestore(app)
 
@@ -20,6 +21,8 @@ function UserInfoModal() {
     const modalToggle = () => setModal(!modal)
     const [tooltipOpen, setTooltipOpen] = useState(false)
     const tooltipToggle = () => setTooltipOpen(!tooltipOpen)
+    const [userStatsCollapse, setUserStatsCollapse] = useState(false)
+    const userStatsToggle = () => setUserStatsCollapse(!userStatsCollapse)
     const [userBioCollapse, setUserBioCollapse] = useState(false)
     const userBioToggle = () => setUserBioCollapse(!userBioCollapse)
     const [userSettingsCollapse, setUserSettingsCollapse] = useState(false)
@@ -63,7 +66,19 @@ function UserInfoModal() {
         setSyncing(false)
     }
 
+    // user weigh-ins
+    const userWI = selectedChat.user?.weightHistory
+    const weighInHistory = userWI?.map((weighIn, index) => {
+        return { time: moment(weighIn.time?.toDate()).format('MMM Do YY'), weight: weighIn.weight.kgs }
+    })
+    // user stats
+    const userStats = selectedChat.user?.stats
+    const dailyScoresHistory = userStats?.dailyScoresData?.map((dailyScore, index) => {
+        return { day: moment(dailyScore.day?.toDate()).format('MMM Do YY'), score: dailyScore.score }
+    })
+    // user bio data
     const ubd = selectedChat.user?.userBioData
+    // user settings
     const usrS = selectedChat.user?.settings?.notificationTypes
     const notifTypes = [
         { label: 'Chat Message', value: 'chatMessage', icon: 'chatbox-ellipses-outline' },
@@ -76,6 +91,30 @@ function UserInfoModal() {
     function age (birthDate) {
         var ageInMilliseconds = new Date() - new Date(birthDate);
         return Math.floor(ageInMilliseconds/(1000 * 60 * 60 * 24 * 365));
+    }
+
+    const WeightGraphCustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className='custom-tooltip'>
+                    <p className='label'>{`Weight: ${payload[0].value} kgs`}</p>
+                </div>
+            )
+        }
+
+        return null
+    }
+
+    const ScoresGraphCustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className='custom-tooltip'>
+                    <p className='label'>{`Weight: ${payload[0].value} kgs`}</p>
+                </div>
+            )
+        }
+
+        return null
     }
 
     return (
@@ -92,16 +131,19 @@ function UserInfoModal() {
             </Tooltip>
             <Modal isOpen={modal} toggle={modalToggle} centered className="modal-dialog-zoom call">   
                 <ModalHeader style={{ backgroundColor: 'transparent', height: 0 }}>
-                    {globalVars.adminInfoList?.some(admin => admin.id === user.uid) && <a style={{ position: 'absolute', top: 5, right: 5, fontSize: 14, fontWeight: 'normal' }} target='_blank' href={`https://console.firebase.google.com/u/0/project/firstproject-b3f4a/firestore/data/~2Fuser-info~2F${selectedChat.user?.id}`}>(Admin)</a>}
+                    {globalVars.userInfo?.type === 'admin' && <div style={{ position: 'absolute', top: 5, right: 5, flexDirection: 'column', display: 'flex' }}>
+                        <a style={{ textAlign: 'right', fontSize: 14, fontWeight: 'normal' }} target='_blank' href={`https://console.firebase.google.com/u/0/project/firstproject-b3f4a/firestore/data/~2Fuser-info~2F${selectedChat.user?.id}`}>(View User Profile)</a>
+                        <a style={{ textAlign: 'right', marginTop: 7, fontSize: 14, fontWeight: 'normal' }} target='_blank' href={`https://console.firebase.google.com/u/0/project/firstproject-b3f4a/firestore/data/~2Fchat-rooms~2F${selectedChat.chat?.id}`}>(View User Chat)</a>
+                    </div>}
                 </ModalHeader>
                 <ModalBody>
                     <div className="call">
                         <div style={{ paddingLeft: 15, paddingRight: 15 }}>
-                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                <h4>{selectedChat.user?.displayName}</h4>
-                                &nbsp;
+                            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                                <h4 style={{ marginBottom: 0 }}>{selectedChat.user?.displayName}</h4>
                                 {selectedChat.user.nickName && <p className='text-muted'>({selectedChat.user.nickName})</p>}
                             </div>
+                            {globalVars.userInfo?.type === 'admin' && <p onClick={() => navigator.clipboard.writeText(selectedChat.user?.email)} style={{ cursor: 'pointer' }}><b>Email (click to copy): </b> {selectedChat.user?.email}</p>}
                             <p>
                                 <b>Date Joined:</b> {moment(selectedChat.user?.dateJoined).format('llll')}<br/>
                                 <b>Streak:</b> {selectedChat.user?.streak}<br/>
@@ -113,6 +155,49 @@ function UserInfoModal() {
                                 <b>Time of Latest Course Completion:</b> {selectedChat.user?.courseData.latestCourseCompleted > 0 ? moment(selectedChat.user?.courseData.courseCompletedAt?.toDate()).format('llll') : 'No courses completed.'}<br/>
                                 <b>Current Course Day Completed:</b> {selectedChat.user?.courseData.courseDayCompleted ? 'Yes' : 'No'}
                             </p>
+                            <>
+                                <p style={{ cursor: 'pointer' }} onClick={userStatsToggle}>{userStatsCollapse ? <FeatherIcon.ChevronDown /> : <FeatherIcon.ChevronRight />} <b>User Stats:</b></p>
+                                <Collapse isOpen={userStatsCollapse}>
+                                    <Card>
+                                        <CardBody style={{ flexDirection: 'column' }} className='modal-content'>
+                                            <p>
+                                                <b>7 Day Meal Score Avg:</b> {userStats?.sevenDayMealScoreAverage || '(No data)'}<br/>
+                                                <b>7 Day Weight Avg:</b> {userStats?.sevenDayWeightAverage || '(No data)'}<br/>
+                                            </p>
+                                            <div style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+                                                <AreaChart width={250} height={250} data={weighInHistory}
+                                                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                                    <defs>
+                                                        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                                                            <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <XAxis dataKey="time" />
+                                                    <YAxis domain={[chartMin => 10 * Math.floor(chartMin / 10), chartMax => 10 * Math.ceil(chartMax / 10)]}/>
+                                                    <CartesianGrid strokeDasharray="3 3" />
+                                                    <ChartTooltip content={<WeightGraphCustomTooltip />} />
+                                                    <Area type="monotone" dataKey="weight" stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
+                                                </AreaChart>
+                                                <AreaChart width={250} height={250} data={dailyScoresHistory}
+                                                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                                    <defs>
+                                                        <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+                                                            <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <XAxis dataKey="day" />
+                                                    <YAxis domain={[0, 100]}/>
+                                                    <CartesianGrid strokeDasharray="3 3" />
+                                                    <ChartTooltip content={<ScoresGraphCustomTooltip />} />
+                                                    <Area type="monotone" dataKey="score" stroke="#8884d8" fillOpacity={1} fill="url(#colorUv)" />
+                                                </AreaChart>
+                                            </div>
+                                        </CardBody>
+                                    </Card>
+                                </Collapse>
+                            </>
                             {ubd && <><p style={{ cursor: 'pointer' }} onClick={userBioToggle}>{userBioCollapse ? <FeatherIcon.ChevronDown  />: <FeatherIcon.ChevronRight />} <b>User Bio Data:</b></p>
                             <Collapse isOpen={userBioCollapse}>
                                 <Card>
