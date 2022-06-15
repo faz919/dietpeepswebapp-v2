@@ -30,7 +30,7 @@
 				align-items: center;
 				justify-content: center;
 				padding: 15px 0;
-				color: black + 130;
+				color: lighten(black, (130/255) * 100);
 				position: relative;
 				transition: all .3s;
 

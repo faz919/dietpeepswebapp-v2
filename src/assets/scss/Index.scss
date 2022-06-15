@@ -89,12 +89,12 @@
 					cursor: pointer;
 
 					&.open-chat {
-						background-color: $style-color + 10;
+						background-color: lighten($style-color, (10/255) * 100);
 
 						.users-list-body {
 							p {
 								font-weight: 600;
-								color: black + 100
+								color: lighten(black, (100/255) * 100)
 							}
 						}
 					}
@@ -130,7 +130,7 @@
 							text-overflow: ellipsis;
 							overflow: hidden;
 							margin-bottom: 0;
-							color: black + 150
+							color: lighten(black, (150/255) * 100)
 						}
 
 						.users-list-action {
@@ -318,7 +318,7 @@
 
 						p {
 							font-size: $default-font-size + 2;
-							color: black + 130
+							color: lighten(black, (130/255) * 100)
 						}
 					}
 				}
@@ -371,7 +371,7 @@
 						}
 
 						.message-content {
-							background: $style-color + 5;
+							background: lighten($style-color, (5/255) * 100);
 							border-radius: 7px;
 							padding: 10px 20px;
 
@@ -382,7 +382,7 @@
 								.file-icon {
 									font-size: $default-font-size + 10;
 									margin-right: 1rem;
-									color: black + 130;
+									color: lighten(black, (130/255) * 100);
 								}
 
 								ul {

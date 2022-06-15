@@ -29,7 +29,7 @@
 				padding-top: 0;
 
 				&:hover {
-					color: black + 150;
+					color: lighten(black, (150/255) * 100);
 				}
 
 				&.active {

@@ -8,7 +8,7 @@
 }
 
 .bg-primary-gradient {
-   background: linear-gradient(230deg, $color-primary, $color-primary + 40) !important;
+   background: linear-gradient(230deg, $color-primary, lighten($color-primary, (40/255) * 100)) !important;
    color: white !important;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .bg-info-gradient {
-   background: linear-gradient(230deg, $color-info, $color-info + 40) !important;
+   background: linear-gradient(230deg, $color-info, lighten($color-info, (40/255) * 100)) !important;
    color: white !important;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .bg-secondary-gradient {
-   background: linear-gradient(230deg, $color-secondary, $color-secondary + 40) !important;
+   background: linear-gradient(230deg, $color-secondary, lighten($color-secondary, (40/255) * 100)) !important;
    color: white !important;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .bg-success-gradient {
-   background: linear-gradient(230deg, $color-success, $color-success + 40) !important;
+   background: linear-gradient(230deg, $color-success, lighten($color-success, (40/255) * 100)) !important;
    color: white !important;
 }
 
@@ -64,12 +64,12 @@
 }
 
 .bg-danger-gradient {
-   background: linear-gradient(230deg, $color-danger, $color-danger + 40) !important;
+   background: linear-gradient(230deg, $color-danger, lighten($color-danger, (40/255) * 100)) !important;
    color: white !important;
 }
 
 .bg-danger-light {
-   background: $color-danger + 150 !important;
+   background: lighten($color-danger, (150/255) * 100) !important;
 }
 
 .bg-warning {
@@ -82,7 +82,7 @@
 }
 
 .bg-warning-gradient {
-   background: linear-gradient(230deg, $color-warning, $color-warning + 40) !important;
+   background: linear-gradient(230deg, $color-warning, lighten($color-warning, (40/255) * 100)) !important;
    color: white !important;
 }
 
@@ -100,7 +100,7 @@
 }
 
 .bg-dark-gradient {
-   background: linear-gradient(230deg, $color-dark, $color-dark + 30) !important;
+   background: linear-gradient(230deg, $color-dark, lighten($color-dark, (30/255) * 100)) !important;
    color: white !important;
 }
 

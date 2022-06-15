@@ -24,7 +24,6 @@
     "firebase": "^9.6.10",
     "font-awesome": "^4.7.0",
     "moment": "^2.29.1",
-    "node-sass": "^7.0.1",
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-activity": "^2.1.3",
@@ -52,5 +51,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "sass": "^1.52.3"
   }
 }

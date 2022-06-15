@@ -1,5 +1,5 @@
 $dark-mode: #1a2236;
-$dark-mode-light: $dark-mode + 15;
+$dark-mode-light: lighten($dark-mode, (15/255) * 100);
 
 body.dark {
 	background-color: $dark-mode;
@@ -20,12 +20,12 @@ body.dark {
 	.btn {
 		&.btn-light {
 			background-color: $dark-mode;
-			border-color: $dark-mode-light + 20;
+			border-color: lighten($dark-mode-light, (20/255) * 100);
 			color: rgba(white, .75);
 
 			&:hover, &:focus {
 				background-color: $dark-mode-light !important;
-				border-color: $dark-mode-light + 20 !important;
+				border-color: lighten($dark-mode-light, (20/255) * 100) !important;
 				color: rgba(white, .75) !important;
 			}
 		}
@@ -36,7 +36,7 @@ body.dark {
 
 			&:hover, &:focus {
 				background-color: $dark-mode-light !important;
-				border-color: $dark-mode-light + 20 !important;
+				border-color: lighten($dark-mode-light, (20/255) * 100) !important;
 				color: rgba(white, .75) !important;
 			}
 		}
@@ -47,7 +47,7 @@ body.dark {
 	}
 
 	.form-control {
-		border-color: $dark-mode-light + 10 !important;
+		border-color: lighten($dark-mode-light, (10/255) * 100) !important;
 		background-color: $dark-mode !important;
 
 		&:focus {
@@ -89,7 +89,7 @@ body.dark {
 
 					.list-group-item {
 						&.open-chat {
-							background-color: $dark-mode-light - 10;
+							background-color: darken($dark-mode-light, (10/255) * 100);
 						}
 					}
 
@@ -192,14 +192,14 @@ body.dark {
 		border-color: transparent;
 
 		.dropdown-divider {
-			border-color: $dark-mode-light + 15
+			border-color: lighten($dark-mode-light, (15/255) * 100);
 		}
 
 		.dropdown-item {
 			color: rgba(white, .70);
 
 			&:focus, &:hover, &:active {
-				background-color: $dark-mode-light + 10;
+				background-color: lighten($dark-mode-light, (10/255) * 100);
 			}
 		}
 	}
@@ -211,12 +211,12 @@ body.dark {
 	input[type=text], textarea, select {
 		background-color: $dark-mode-light;
 		color: rgba(white, .70);
-		border-color: $dark-mode + 40;
+		border-color: lighten($dark-mode, (40/255) * 100);
 
 		&:focus {
 			color: rgba(white, .70);
 			background-color: $dark-mode-light;
-			border-color: $dark-mode + 100;
+			border-color: lighten($dark-mode, (100/255) * 100);
 		}
 
 		&::placeholder {
@@ -226,13 +226,13 @@ body.dark {
 
 	.custom-control-label::before {
 		background-color: $dark-mode-light;
-		border-color: $dark-mode + 40
+		border-color: lighten($dark-mode, (40/255) * 100)
 	}
 
 	.input-group-text {
 		background-color: $dark-mode;
 		color: rgba(white, .70);
-		border-color: $dark-mode + 40;
+		border-color: lighten($dark-mode, (40/255) * 100);
 	}
 
 	.nav-tabs .nav-link.active {
@@ -253,7 +253,7 @@ body.dark {
 
 	.custom-file-label {
 		background-color: $dark-mode-light;
-		border-color: $dark-mode + 40;
+		border-color: lighten($dark-mode, (40/255) * 100);
 		color: rgba(white, .70);
 
 		&:after {

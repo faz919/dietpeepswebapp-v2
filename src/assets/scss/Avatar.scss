@@ -7,7 +7,7 @@
 
 	.avatar-title {
 		color: rgba(white, .8);
-		background: white - 40;
+		background: darken(white, (40/255) * 100);
 		width: 100%;
 		height: 100%;
 		display: flex;

@@ -5,8 +5,8 @@
 	&:not(:disabled):not(.disabled):hover,
 	&:not(:disabled):not(.disabled):focus,
 	&:not(:disabled):not(.disabled):active {
-		background: $color - 30;
-		border-color: $color - 30;
+		background: darken($color, (30/255) * 100);
+		border-color: darken($color, (30/255) * 100);
 	}
 
 	&:not(:disabled):not(.disabled):focus {
@@ -16,14 +16,14 @@
 }
 
 @mixin btn-gradient($color) {
-	background: linear-gradient(20deg, $color + 40, $color - 15);
+	background: linear-gradient(20deg, lighten($color, (40/255) * 100), darken($color, (15/255) * 100));
 	border-color: transparent;
 	color: white;
 
 	&:not(:disabled):not(.disabled):hover,
 	&:not(:disabled):not(.disabled):focus,
 	&:not(:disabled):not(.disabled):active {
-		background: linear-gradient(20deg, $color, $color - 15);
+		background: linear-gradient(20deg, $color, darken($color, (15/255) * 100));
 		border-color: transparent;
 	}
 
@@ -36,7 +36,7 @@
 @mixin btn-outline($color) {
 	background: none;
 	border-color: $color;
-	color: $color - 10;
+	color: darken($color, (10/255) * 100);
 	border-width: 1px;
 
 	&:not(:disabled):not(.disabled):hover {
@@ -47,8 +47,8 @@
 
 	&:not(:disabled):not(.disabled):focus,
 	&:not(:disabled):not(.disabled):active {
-		background: $color - 30;
-		border-color: $color - 30;
+		background: darken($color, (30/255) * 100);
+		border-color: darken($color, (30/255) * 100);
 		color: white;
 	}
 	&:not(:disabled):not(.disabled):focus {
@@ -60,7 +60,7 @@
 @mixin btn-light($color) {
 	background: rgba($color, 0.3);
 	border-color: transparent;
-	color: $color - 50;
+	color: darken($color, (50/255) * 100);
 
 	&:not(:disabled):not(.disabled):hover,
 	&:not(:disabled):not(.disabled):focus,
@@ -94,7 +94,7 @@ a {
 		color: black;
 
 		&:hover, &:focus {
-			color: black + 130
+			color: lighten(black, (130/255) * 100)
 		}
 	}
 

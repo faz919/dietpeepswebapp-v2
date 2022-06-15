@@ -1,12 +1,12 @@
 $header-height: 60px;
 
-$style-color: white - 25;
+$style-color: darken(white, (25/255) * 100);
 
 $color-primary: #0a80ff;
-$color-secondary: white - 150;
+$color-secondary: darken(white, (150/255) * 100);
 $color-success: #0abb87;
 $color-info: #00bcd4;
-$color-light: white - 25;
+$color-light: darken(white, (25/255) * 100);
 $color-danger: #fd397a;
 $color-warning: #ffb822;
 $color-dark: #3a3f51;
