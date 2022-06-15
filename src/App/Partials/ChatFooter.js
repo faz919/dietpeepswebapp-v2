@@ -35,7 +35,7 @@ function ChatFooter() {
             timeSent: Timestamp.fromDate(new Date()),
             userID: uid,
             senderType: 'coach',
-            repliesTo: globalVars.replyingTo?.id
+            repliesTo: globalVars.replyingTo?.id ? globalVars.replyingTo?.id : null
             // msgType: 'chatMessage'
         }).then(() => {
             setGlobalVars(val => ({ ...val, replyingTo: null }))
@@ -47,6 +47,8 @@ function ChatFooter() {
                 coachLastRead: Timestamp.fromDate(new Date())
             })
             selectedChat.chat.unreadCount = 0
+        }).catch((e) => {
+            console.log(e)
         })
     }
 
