@@ -123,8 +123,8 @@ function Navigation() {
             icon: <FeatherIcon.MessageCircle/>,
         },
         {
-            name: 'Clients',
-            icon: <FeatherIcon.User/>,
+            name: globalVars.userInfo?.type === 'admin' ? 'Partners' : 'Clients',
+            icon: globalVars.userInfo?.type === 'admin' ? <FeatherIcon.Users/> : <FeatherIcon.User/>,
         },
         {
             name: 'Reallocate Clients',

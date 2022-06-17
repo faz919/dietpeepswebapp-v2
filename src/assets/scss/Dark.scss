@@ -113,6 +113,42 @@ body.dark {
 				}
 
 				.chat-body {
+
+					&.no-message {
+						&.partner-info {
+							.card {
+								background-color: $dark-mode-light;
+								.avatar {
+									background-color: $dark-mode-light;
+								}
+								.content .details {
+									h2 {
+										color: rgba(white, .75);
+										span {
+											color: rgba(white, .65);
+										}
+									}
+									.action-button button:nth-child(2) {
+										background: $dark-mode-light;
+									}
+									
+								}
+							}
+							.card-placeholder {
+								background-color: $dark-mode-light;
+								.avatar {
+									background-color: $dark-mode-light;
+								}
+								.add-new-partner {
+									background-color: $dark-mode-light;
+									.icon {
+										color: darken(white, 35);
+									}
+								}
+							}
+						}
+					}
+
 					.messages {
 						.message-item {
 							&:not(.outgoing-message) {

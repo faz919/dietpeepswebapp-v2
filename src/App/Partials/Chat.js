@@ -34,6 +34,7 @@ import Stats from '../Sidebars/Stats/StatsDisplay'
 import { selectedChatAction } from '../../Store/Actions/selectedChatAction'
 import { sidebarAction } from '../../Store/Actions/sidebarAction'
 import XButton from '../../components/XButton'
+import Partners from '../Sidebars/Partners/PartnersDisplay'
 
 const db = getFirestore(app)
 
@@ -66,7 +67,7 @@ function Chat() {
     }, [selectedChat?.chat?.id])
 
     useEffect(() => {
-        if (selectedChat.chat != null && selectedChat.chat !== 'stats' && selectedChat.chat !== 'activity-feed') {
+        if (selectedChat.chat != null && typeof selectedChat.chat === 'object') {
             dispatch(profileAction(true))
             dispatch(mobileProfileAction(true))
             selectedChat.chat?.id && setQ(query(collection(db, "chat-rooms", selectedChat.chat?.id, "chat-messages"), orderBy('timeSent'), limitToLast(25 * scrollPage)))
@@ -475,6 +476,10 @@ function Chat() {
                         :
                         selectedChat.chat === 'stats' ? (
                             <Stats />
+                        )
+                            :
+                        selectedChat.chat === 'partners' ? (
+                            <Partners />
                         )
                             :
                             <div className="chat-body no-message">

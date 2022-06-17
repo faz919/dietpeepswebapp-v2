@@ -237,6 +237,18 @@ function Layout() {
     }, [])
 
     useEffect(() => {
+        onSnapshot(query(collection(db, "partner-info")), (querySnapshot) => {
+            let partners = []
+            querySnapshot.forEach((doc) => {
+                if (!doc.data().deleted) {
+                    partners.push({ ...doc.data(), id: doc.id })
+                }
+            })
+            setGlobalVars(val => ({ ...val, partnerInfo: partners }))
+        })
+    }, [])
+
+    useEffect(() => {
         document.querySelector('*').addEventListener('click', (e) => {
             if (document.body.classList.contains('navigation-open') && e.target.nodeName === 'BODY') {
                 document.body.classList.remove('navigation-open')

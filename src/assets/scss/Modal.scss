@@ -57,6 +57,16 @@
 		padding: 30px;
 		padding-top: 0;
 	}
+
+	&.edit-partner {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 30px;
+		min-height: 50%;
+		min-width: 50%;
+		background: linear-gradient(45deg,#fbda61,#ff5acd);
+	}
 }
 
 body:not(.no-blur-effect) {
