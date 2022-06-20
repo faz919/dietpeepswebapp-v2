@@ -204,6 +204,20 @@ body.dark {
 
 	}
 
+	.edit-partner {
+		.modal-content {
+			background-color: transparent;
+
+			.card {
+				background-color: $dark-mode-light;
+
+				.avatar {
+					background-color: $dark-mode-light;
+				}
+			}
+		}
+	}
+
 	button p {
 		color: rgba(white, .75);
 	}
